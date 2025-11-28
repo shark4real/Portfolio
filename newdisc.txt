@@ -1,0 +1,180 @@
+
+HTML STRUCTURE
+
+
+<section id="about" class="relative min-h-screen bg-[#0f0f00] text-white px-10 py-24 overflow-hidden">
+  <div class="absolute inset-0 bg-black opacity-50 z-0"></div>
+  <h2 class="relative z-10 text-4xl font-bold text-center mb-12 mt-[31px]" style="font-family: 'Urbanist', sans-serif; font-weight: 300; margin-bottom: 33px;">About Me</h2>
+
+      <!-- CENTER: Description Cards -->
+      <div id="card-stack" class="relative w-[450px] h-[575px] overflow-hidden rounded-xl border-2 border-[#ffffff]" style="border-width: 1px; border-style: solid; border-color: #282828; border-radius: 23px; background: linear-gradient(134.192deg, rgb(19, 19, 19) 0%, rgb(32, 32, 32) 100%); position: relative; padding: 10px;">
+        <!-- Bio Card -->
+        <div class="about-card absolute inset-[10px] bg-[#1f1f1f] p-6 rounded-xl shadow-xl transition-all duration-[900ms] ease-in-out" data-index="0">
+          <h3 class="text-xl mb-4 text-left" style="color:#ffffff; font-family: 'Urbanist', sans-serif; font-weight: 300; font-size: 2.20em;">Bio</h3>
+          <div class="w-1/2 h-px mx-auto mb-4"></div>
+          <p class="text-left" style="color:#979797; font-size:15px; font-family: 'Inter', sans-serif;">Your bio content here...</p>
+        </div>
+
+        <!-- Education Card -->
+        <div class="about-card absolute inset-[10px] bg-[#1f1f1f] p-6 rounded-xl shadow-xl transition-all duration-[900ms] ease-in-out" data-index="1">
+          <h3 class="text-xl mb-4 text-left" style="color:#ffffff; font-family: 'Urbanist', sans-serif; font-weight: 300; font-size: 2.2em;">Education</h3>
+          <div class="w-1/2 h-px mx-auto mb-4"></div>
+          <p class="text-left" style="color:#979797; font-size:15px; font-family: 'Inter', sans-serif;">Your education content here...</p>
+        </div>
+
+        <!-- Experience Card -->
+        <div class="about-card absolute inset-[10px] bg-[#1f1f1f] p-6 rounded-xl shadow-xl transition-all duration-[900ms] ease-in-out" data-index="2">
+          <h3 class="text-xl mb-4 text-left" style="color:#ffffff; font-family: 'Urbanist', sans-serif; font-weight: 300; font-size: 2.20em;">Experience</h3>
+          <div class="w-1/2 h-px mx-auto mb-4"></div>
+          <p class="text-left" style="color:#979797; font-size:15px; font-family: 'Inter', sans-serif;">Your experience content here...</p>
+        </div>
+
+        <!-- Hobbies Card -->
+        <div class="about-card absolute inset-[10px] bg-[#1f1f1f] p-6 rounded-xl shadow-xl transition-all duration-[900ms] ease-in-out" data-index="3">
+          <h3 class="text-xl mb-4 text-left" style="color:#ffffff; font-family: 'Urbanist', sans-serif; font-weight: 300; font-size: 2.20em;">Hobbies</h3>
+          <div class="w-1/2 h-px mx-auto mb-4"></div>
+          <p class="text-left" style="color:#979797; font-size:15px; font-family: 'Inter', sans-serif;">Your hobbies content here...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Disc -->
+    <div class="w-[600px] h-[750px] flex items-center justify-end">
+      <img src="static/home/images/mdisc.png" id="disc" class="w-[600px] h-[600px] rounded-full transition-transform duration-500 ease-in-out object-contain aspect-square" alt="Navigation Disc" style="margin-bottom: 272px; margin-right: -380px;" />
+    </div>
+  </div>
+</section>
+
+
+CSS Styles
+
+/* Card Animation Transitions */
+.about-card {
+  transition: all 900ms ease-in-out;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.about-card.active {
+  z-index: 10;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Disc Rotation Animation */
+#disc {
+  transition: transform 500ms ease-in-out;
+}
+
+/* Focus Styling */
+#card-stack {
+  border: 1px solid #282828;
+  border-radius: 23px;
+  background: linear-gradient(134.192deg, rgb(19, 19, 19) 0%, rgb(32, 32, 32) 100%);
+}
+
+
+java script
+
+
+<!-- ===== Rotating Disc & Card Switching Logic ===== -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const sections = ['bio', 'education', 'experience', 'interest']
+    let currentIndex = 0
+    let visited = new Set()
+
+    function switchAbout(sectionId) {
+      document.querySelectorAll('.about-section').forEach((sec) => sec.classList.add('hidden'))
+      const show = document.getElementById(`about-${sectionId}`)
+      if (show) show.classList.remove('hidden')
+      visited.add(sectionId)
+    }
+
+    function rotateDisc(index) {
+      const angle = index * 90
+      const disc = document.getElementById('disc')
+      if (disc) disc.style.transform = `rotate(${angle}deg)`
+    }
+
+    function isAboutInFocus() {
+      const about = document.getElementById('about')
+      const rect = about.getBoundingClientRect()
+      return rect.top < window.innerHeight * 0.5 && rect.bottom > window.innerHeight * 0.5
+    }
+
+    window.addEventListener(
+      'wheel',
+      (e) => {
+        const inAbout = isAboutInFocus()
+        const goingDown = e.deltaY > 0
+        const goingUp = e.deltaY < 0
+
+        if (!inAbout) return // Allow default scrolling elsewhere
+
+        const atFirst = currentIndex === 0
+        const atLast = currentIndex === sections.length - 1
+
+        if ((goingDown && atLast) || (goingUp && atFirst)) {
+          // Allow scroll out of section
+          return
+        }
+
+        e.preventDefault() // Lock scroll inside about
+
+        if (goingDown && !atLast) {
+          currentIndex++
+        } else if (goingUp && !atFirst) {
+          currentIndex--
+        }
+
+        switchAbout(sections[currentIndex])
+        rotateDisc(currentIndex)
+      },
+      { passive: false }
+    )
+
+    // Initialize
+    switchAbout(sections[currentIndex])
+    rotateDisc(currentIndex)
+  })
+</script>
+
+<!-- ===== Card Stack Management ===== -->
+<script>
+  const cards = document.querySelectorAll('.about-card')
+  let current = 0
+
+  function updateCards(index) {
+    cards.forEach((card, i) => {
+      if (i === index) {
+        // Show active card
+        card.style.zIndex = 10
+        card.style.opacity = 1
+        card.style.pointerEvents = 'auto'
+        card.style.transform = 'translateX(0)'
+      } else {
+        // Hide inactive cards
+        card.style.zIndex = 0
+        card.style.opacity = 0
+        card.style.pointerEvents = 'none'
+        card.style.transform = 'translateX(0)'
+      }
+    })
+  }
+
+  // Scroll event to navigate cards
+  window.addEventListener('wheel', (e) => {
+    const dir = e.deltaY > 0 ? 1 : -1
+    const max = cards.length - 1
+
+    if (dir === 1 && current < max) current++
+    else if (dir === -1 && current > 0) current--
+
+    updateCards(current)
+  })
+
+  // Initialize view
+  updateCards(current)
+</script>

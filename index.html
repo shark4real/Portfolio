@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sharik Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Landing Section -->
+  <section id="landing">
+    <div class="landing-container">
+      <div class="landing-left">
+        <div class="landing-intro">
+          <h1>Hi, I'm <span>Sharik</span></h1>
+          <p style="font-size: 50px; letter-spacing: -2px; font-weight: 300;margin-bottom: 25px;">Aspiring <span style="font-weight: 500;">Data Scientist</span><br>with a Passion for <br><span style="font-family: serif;"><i>A</i>rt  and Design</span></p>
+        </div>
+        <div class="landing-tagline">
+          <p>i code, i create, i design</p>
+        </div>
+        <div class="landing-buttons">
+          <a class="btn btn-primary" href="./sharik_hassan.pdf" target="_blank">Resume</a>
+          <a class="btn btn-secondary" href="#connect">Connect</a>
+        </div>
+      </div>
+      <div class="landing-right">
+        <!-- Intentionally blank for now; ready for your new idea -->
+      </div>
+    </div>
+  </section>
+
+  <header>
+    <a href="#landing" class="logo">Sharik</a>
+    <nav>
+      <a href="#projects">Projects</a>
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#connect">Connect</a>
+    </nav>
+  </header>
+
+  <!-- Projects Section -->
+  <section id="projects" class="project-section">
+    <h2 class="projects-title">Projects</h2>
+    <div class="project-controls">
+      <div class="project-toggle-group">
+        <button id="codingProjectsBtn" class="project-toggle-btn active">Coding Projects</button>
+        <button id="sketchesBtn" class="project-toggle-btn">Sketches</button>
+      </div>
+    </div>
+    <div id="projectsCanvas" class="projects-canvas">
+      <!-- Project Cards Container -->
+      <div id="projectCardsContainer"></div>
+      
+      <div id="guitarLoadingIndicator" class="guitar-loading">
+        <div class="guitar-icon">Guitar</div>
+        <div class="guitar-status">Loading Guitar Model...</div>
+        <div id="loadingProgress" class="guitar-progress">0%</div>
+      </div>
+    </div>
+    </section>
+
+   
+    <section id="about" class="about-section">
+    
+        <div class="about-header-fixed">
+            <h2>About</h2>
+        </div>
+    
+        <button class="about-arrow-btn left" id="aboutPrevBtn">‹</button>
+        <button class="about-arrow-btn right" id="aboutNextBtn">›</button>
+    
+        <div class="about-track">
+    
+            <div class="polaroid-card">
+                <div class="polaroid-inner">
+                    <div class="inner-content">
+                        <h4>Bio</h4>
+                        <p>Hi, I'm Sharik Hassan — a 4th-year student and aspiring
+                                Data Scientist with a strong passion for creativity and
+                                storytelling. I love exploring data, building intelligent
+                                systems, and sharing what I learn through teaching and
+                                club activities. Beyond tech, I express myself through 
+                                digital design, animation, and illustration.
+                                I enjoy working on projects that blend logic with 
+                                imagination and create meaningful, human-centered 
+                                experiences.</p>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="polaroid-card">
+                <div class="polaroid-inner" style="background-color: #f4f4f4; color: #333;">
+                    <div class="inner-content">
+                        <h4>Education</h4>
+                        <div class="edu-item">
+                            <h3 class="edu-school">Indian Institute of Technology, Madras</h3>
+                            <div class="edu-details">
+                                <span class="edu-degree">BSc in Data Science</span>
+                                <span class="edu-date">Sept, 2022 - Present</span>
+                            </div>
+                            <p class="edu-desc">
+                                Simultaneously enrolled in IIT Madras’ rigorous program, enhancing my foundation in mathematics, programming,
+                                data analysis, and statistics.
+                            </p>
+                        </div>
+                        
+                        <div class="edu-item">
+                            <h3 class="edu-school">Dr. Ambedkar Institute Of Technology</h3>
+                            <div class="edu-details">
+                                <span class="edu-degree">B.E in AI & Machine Learning</span>
+                                <span class="edu-date">Dec, 2022 - Present</span>
+                            </div>
+                            <p class="edu-desc">
+                                Currently pursuing a Bachelor's degree with a strong focus on AI systems, machine learning, and real-world
+                                problem-solving through technology.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="polaroid-card">
+                <div class="polaroid-inner" style="background-color: #333; color: #fff;">
+                    <div class="inner-content">
+                        <h4>Work</h4>
+                        <div class="edu-item">
+                            <h3 class="edu-school" style="color: white;">GDG DR. AIT</h3>
+                            <div class="edu-details">
+                                <span class="edu-degree"style="color: white;">Machine Learning Lead</span>
+                            </div>
+                            <p class="edu-desc"style="color: white;">
+                                Took sessions on Machine Learning and Maths for ML,
+                                 teaching Linear Regression to over <strong>400+ learners</strong>. 
+                                 Contributed to events, content, and tech planning.
+                            </p>
+                        </div>
+                        
+                        <div class="edu-item">
+                            <h3 class="edu-school"style="color: white;">Colossus 2.0</h3>
+                            <div class="edu-details">
+                                <span class="edu-degree"style="color: white;">Design & Social-Media Lead</span>
+                            </div>
+                            <p class="edu-desc" style="color: white;">
+                                One of the core organizers of the college’s flagship hackathon.
+                                 I led the <strong>design team</strong>, creating the event’s official logo,
+                                  theme, and visual identity, and co-led the <strong>social media team</strong>
+                                   to build hype and engagement online. Produced high-performing reels and content
+                                    that helped the event reach <strong>110k+ views</strong> and a total online reach
+                                     of <strong>400k+</strong>. Also collaborated with the dev team to build the
+                                      official event website.
+                            </p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    
+            <div class="polaroid-card">
+                <div class="polaroid-inner" style="background-color: #e0e0e0; color: #000;">
+                    <div class="inner-content">
+                        <h4>Hobbies</h4>
+                        <div class="tags-simple">
+                            <ul class="list-disc text-left"
+                                style="font-size: 15px; font-family: monospace; padding-left: 20px; line-height: 1.8;">
+                                <li>
+                                     I enjoy <strong>collaborating on new projects</strong>.
+                                </li>
+                                <li>
+                                    Passionate about <strong>sketching and drawing</strong>.
+                                </li>
+                                <li>
+                                    Avid <strong>chess</strong> player with an ELO of ~1200.
+                                </li>
+                                <li>
+                                    Playing <strong>badminton</strong> keeps me active and competitive.
+                    
+                                </li>
+                                <li>
+                                    Binge-watcher of <strong>movies and series</strong>.
+                                </li>
+                                <li>
+                                    Always tuned into <strong>music</strong>.
+                                </li>
+                                <li>
+                                    <strong>Gaming</strong> is a favorite way to unwind.
+                                </li>
+                                <li>
+                                    <strong>Swimming</strong> helps me relax, refresh, and stay fit.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </section>
+
+  <section id="skills" class="skills-section">
+    <h2 class="skills-title">Skills</h2>
+    
+    <div class="skills-container">
+      <!-- Skills Cards Container -->
+      <div class="skills-cards">
+        <!-- Web Skills Card -->
+        <div class="skill-card" data-category="web" data-index="0">
+          <div class="skill-card-content">
+            <div class="skills-grid">
+              <div class="skill-box">Python</div>
+              <div class="skill-box">C/C++</div>
+              <div class="skill-box">Sql (postgres)</div>
+              <div class="skill-box">Django</div>
+              <div class="skill-box">Flask</div>
+              <div class="skill-box">HTML/CSS</div>
+              <div class="skill-box">Streamlit</div>
+              <div class="skill-box">GCP</div>
+            </div>
+            <div class="skill-card-image" style="background-image: url('./card1.jpg');"></div>
+          </div>
+          <div class="skill-card-footer">
+            <div class="skill-footer-image" style="background-image: url('./card1.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="skill-footer-text">Programming & Web</div>
+          </div>
+        </div>
+
+        <!-- Data Science Skills Card -->
+        <div class="skill-card" data-category="data & ml libs" data-index="1">
+          <div class="skill-card-content">
+            <div class="skills-grid">
+              <div class="skill-box">Pandas</div>
+              <div class="skill-box">Numpy</div>
+              <div class="skill-box">Matplotlib</div>
+              <div class="skill-box">Seaborn</div>
+              <div class="skill-box">Plotly</div>
+              <div class="skill-box">Scikit-Learn</div>
+              <div class="skill-box">NLTK</div>
+              <div class="skill-box">Uvicorn</div>
+              <div class="skill-box">Llama 3.1</div>
+              <div class="skill-box">Tableau</div>
+            </div>
+            <div class="skill-card-image" style="background-image: url('./card2.jpg');"></div>
+          </div>
+          <div class="skill-card-footer">
+            <div class="skill-footer-image" style="background-image: url('./card2.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="skill-footer-text">Data Science & Tools</div>
+          </div>
+        </div>
+
+        <!-- Creative Suite Card -->
+        <div class="skill-card" data-category="creative" data-index="2">
+          <div class="skill-card-content">
+            <div class="skills-grid">
+              <div class="skill-box"style="padding: 10px 20px;">Adobe Illustrator</div>
+              <div class="skill-box"style="padding: 10px 20px;">InDesign</div>
+              <div class="skill-box"style="padding: 10px 20px;">Premiere Pro</div>
+              <div class="skill-box"style="padding: 10px 20px;">After Effects</div>
+              <div class="skill-box"style="padding: 10px 20px;">Lightroom</div>
+              <div class="skill-box"style="padding: 10px 20px;">Procreate</div>
+              <div class="skill-box"style="padding: 10px 20px;">Sketchbook</div>
+              <div class="skill-box"style="padding: 10px 20px;">Figma</div>
+            </div>
+            <div class="skill-card-image" style="background-image: url('./card3.jpg');"></div>
+          </div>
+          <div class="skill-card-footer">
+            <div class="skill-footer-image" style="background-image: url('./card3.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="skill-footer-text">Creative Suite</div>
+          </div>
+        </div>
+
+        <!-- Industry Knowledge Card -->
+        <div class="skill-card" data-category="industry" data-index="3">
+          <div class="skill-card-content">
+            <div class="skills-grid">
+              <div class="skill-box">Data Analysis</div>
+              <div class="skill-box">Data Science</div>
+              <div class="skill-box">Gen AI</div>
+              <div class="skill-box">AI</div>
+              <div class="skill-box">Machine Learning</div>
+              <div class="skill-box">Graphic Design</div>
+              <div class="skill-box">Character Design</div>
+            </div>
+            <div class="skill-card-image" style="background-image: url('./card4.jpg');"></div>
+          </div>
+          <div class="skill-card-footer">
+            <div class="skill-footer-image" style="background-image: url('./card4.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="skill-footer-text">Industry Knowledge</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rotating Disc -->
+      <div class="skills-disc-container">
+        <img id="skillsDisc" class="skills-disc" src="./mdisc.png" alt="Skills Disc" />
+      </div>
+    </div>
+  </section>
+
+  <section id="connect">
+    <div class="connect-inner">
+      <h2 class="connect-title">Let's Connect</h2>
+      <p class="connect-subtitle">Whether it's <strong>AI</strong>, <strong>Data Science</strong>, <strong>Design</strong>, or just a creative idea — I'd love to talk.</p>
+      <div class="connect-links">
+        <a href="mailto:sharik.hassan@gmail.com" class="connect-email">Email Me</a>
+        <div class="social-links">
+          <a href="#" class="social-link">LinkedIn</a>
+          <a href="#" class="social-link">GitHub</a>
+          <a href="#" class="social-link">Instagram</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
+

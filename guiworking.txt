@@ -1,0 +1,597 @@
+🎸 COMPLETE 3D GUITAR PROJECTS SECTION CODE
+1. CDN SCRIPTS (Add to <head>):
+<!-- Three.js, GSAP, and ScrollTrigger for 3D Projects Section -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+2. HTML SECTION (Add to <body>):
+    <!-- ========== 3D GUITAR PROJECTS SECTION ========== -->
+<section id="projects" class="relative bg-[#0a0a0a] text-white overflow-hidden" style="min-height: 300vh;">
+  <!-- Category Toggle Buttons (Fixed at Top) -->
+  <div class="project-controls" style="position: sticky; top: 80px; z-index: 100; padding: 2rem 0; text-align: center; background: linear-gradient(180deg, #0a0a0a 0%, rgba(10,10,10,0.95) 80%, transparent 100%);">
+    <h2 class="text-5xl font-bold mb-6" style="font-family:'Urbanist',sans-serif;font-weight:300;letter-spacing:2px;">
+      My Projects 🎸
+    </h2>
+    <div class="flex justify-center gap-4 flex-wrap">
+      <button id="codingProjectsBtn" class="project-toggle-btn active">
+        💻 Coding Projects
+      </button>
+      <button id="sketchesBtn" class="project-toggle-btn">
+        🎨 Sketches
+      </button>
+    </div>
+  </div>
+
+  <!-- Three.js Canvas Container -->
+  <div id="projectsCanvas" style="position: sticky; top: 0; width: 100%; height: 100vh; z-index: 1;">
+    <!-- Loading Indicator -->
+    <div id="guitarLoadingIndicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 200; display: block;">
+      <div style="font-size: 4rem; margin-bottom: 1rem; animation: pulse 1.5s ease-in-out infinite;">🎸</div>
+      <div style="font-family: 'Urbanist', sans-serif; font-size: 1.2rem; color: #1DB954; font-weight: 600;">Loading Guitar Model...</div>
+      <div id="loadingProgress" style="margin-top: 0.5rem; font-size: 0.9rem; color: #999;">0%</div>
+    </div>
+  </div>
+</section>
+
+<style>
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+/* ========== 3D Projects Section Styles ========== */
+.project-toggle-btn {
+  padding: 0.75rem 1.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: 'Urbanist', sans-serif;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(30, 30, 30, 0.8);
+  border: 2px solid rgba(100, 100, 100, 0.3);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.project-toggle-btn:hover {
+  color: #1DB954;
+  border-color: #1DB954;
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(29, 185, 84, 0.4);
+}
+.project-toggle-btn.active {
+  color: #fff;
+  background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%);
+  border-color: #1DB954;
+  box-shadow: 0 0 30px rgba(29, 185, 84, 0.6);
+}
+</style>
+
+3. COMPLETE JAVASCRIPT CODE:
+
+<!-- ========== 3D Guitar Projects Section JavaScript ========== -->
+<script>
+// ============================================================
+// 3D GUITAR PROJECTS SECTION WITH THREE.JS + GSAP + SCROLLTRIGGER
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Check if projects canvas exists
+  const canvasContainer = document.getElementById('projectsCanvas');
+  if (!canvasContainer) return;
+
+  // ===== PROJECT DATA =====
+  // Coding Projects - Replace with your actual project data
+  const codingProjects = [
+    {
+      title: 'AI Chatbot',
+      github: 'https://github.com/yourusername/ai-chatbot',
+      demo: 'https://ai-chatbot-demo.com',
+      thumbnail: 'static/projects/project1.jpg' // Replace with actual path
+    },
+    {
+      title: 'Data Dashboard',
+      github: 'https://github.com/yourusername/data-dashboard',
+      demo: 'https://data-dashboard.com',
+      thumbnail: 'static/projects/project2.jpg'
+    },
+    {
+      title: 'E-commerce Site',
+      github: 'https://github.com/yourusername/ecommerce',
+      demo: 'https://ecommerce-demo.com',
+      thumbnail: 'static/projects/project3.jpg'
+    },
+    {
+      title: 'ML Model',
+      github: 'https://github.com/yourusername/ml-model',
+      demo: 'https://ml-model.com',
+      thumbnail: 'static/projects/project4.jpg'
+    },
+    {
+      title: 'Portfolio Site',
+      github: 'https://github.com/yourusername/portfolio',
+      demo: 'https://portfolio.com',
+      thumbnail: 'static/projects/project5.jpg'
+    },
+    {
+      title: 'Mobile App',
+      github: 'https://github.com/yourusername/mobile-app',
+      demo: 'https://mobile-app.com',
+      thumbnail: 'static/projects/project6.jpg'
+    }
+  ];
+
+  // Sketch Projects - Replace with your actual sketch data
+  const sketchProjects = [
+    { title: 'Character Sketch 1', thumbnail: 'static/sketches/sketch1.jpg' },
+    { title: 'Character Sketch 2', thumbnail: 'static/sketches/sketch2.jpg' },
+    { title: 'Landscape', thumbnail: 'static/sketches/sketch3.jpg' },
+    { title: 'Portrait', thumbnail: 'static/sketches/sketch4.jpg' },
+    { title: 'Abstract Art', thumbnail: 'static/sketches/sketch5.jpg' },
+    { title: 'Digital Painting', thumbnail: 'static/sketches/sketch6.jpg' }
+  ];
+
+  let currentMode = 'coding'; // 'coding' or 'sketches'
+
+  // ===== THREE.JS SETUP =====
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0a0a);
+
+  // Camera setup - START AT GUITAR HEAD (top)
+  const camera = new THREE.PerspectiveCamera(
+    45, // Field of view
+    window.innerWidth / window.innerHeight, // Aspect ratio
+    0.1, // Near clipping plane
+    1000 // Far clipping plane
+  );
+  camera.position.set(0, 20, 30); // Start higher to see guitar head
+  camera.lookAt(0, 5, 0); // Look at top of guitar
+
+  // Renderer setup
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Performance optimization
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  canvasContainer.appendChild(renderer.domElement);
+
+  // ===== LIGHTING =====
+  // Ambient light for overall scene illumination
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+  scene.add(ambientLight);
+
+  // Point light 1 - Main light (warm tone)
+  const pointLight1 = new THREE.PointLight(0x1DB954, 1.2, 100);
+  pointLight1.position.set(10, 15, 10);
+  pointLight1.castShadow = true;
+  scene.add(pointLight1);
+
+  // Point light 2 - Fill light (cool tone)
+  const pointLight2 = new THREE.PointLight(0x7c3aed, 0.8, 100);
+  pointLight2.position.set(-10, 10, -10);
+  scene.add(pointLight2);
+
+  // Directional light for shadows
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  directionalLight.position.set(5, 20, 5);
+  directionalLight.castShadow = true;
+  scene.add(directionalLight);
+
+  // ===== LOAD GUITAR 3D MODEL =====
+  let guitar = null;
+  const loader = new THREE.GLTFLoader();
+  
+  // IMPORTANT: Using YOUR guitar model from static/models/guitar.glb
+  const guitarPath = 'static/models/guitar.glb';
+  
+  console.log('🎸 Attempting to load guitar from:', guitarPath);
+  console.log('📁 Make sure to run with a local server for GLB loading!');
+  
+  // Try loading the guitar model, fallback to placeholder
+  const loadingIndicator = document.getElementById('guitarLoadingIndicator');
+  const loadingProgress = document.getElementById('loadingProgress');
+  
+  loader.load(
+    guitarPath,
+    (gltf) => {
+      console.log('✅ SUCCESS! Guitar GLB loaded:', gltf);
+      guitar = gltf.scene;
+      
+      // Get model info for debugging
+      const box = new THREE.Box3().setFromObject(guitar);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      
+      console.log('📊 Guitar model info:', {
+        originalSize: size,
+        originalCenter: center,
+        meshCount: 0
+      });
+      
+      // Center the guitar model at origin
+      guitar.position.sub(center);
+      console.log('🎯 Guitar centered at origin');
+      
+      // Scale appropriately - ADJUST THIS IF GUITAR IS TOO SMALL/BIG
+      const scaleFactor = 3; // Reduced from 5 to 3.5 for better proportions
+      guitar.scale.set(scaleFactor, scaleFactor, scaleFactor);
+      console.log(`📏 Guitar scaled by ${scaleFactor}x`);
+      
+      // Enable shadows and enhance materials on all meshes
+      let meshCount = 0;
+      guitar.traverse((child) => {
+        if (child.isMesh) {
+          meshCount++;
+          child.castShadow = true;
+          child.receiveShadow = true;
+          
+          // Enhance materials for better appearance
+          if (child.material) {
+            child.material.metalness = 0.3;
+            child.material.roughness = 0.6;
+            
+            // Ensure material is visible
+            if (child.material.transparent) {
+              child.material.opacity = 1;
+            }
+          }
+        }
+      });
+      
+      console.log(`✨ Processed ${meshCount} meshes with shadows and materials`);
+      
+      scene.add(guitar);
+      console.log('🎸 YOUR GUITAR MODEL IS NOW IN THE SCENE!');
+      
+      // Hide loading indicator
+      if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+      }
+    },
+    (progress) => {
+      const percent = Math.round((progress.loaded / progress.total) * 100);
+      if (loadingProgress) {
+        loadingProgress.textContent = `${percent}%`;
+      }
+      console.log(`⏳ Loading guitar: ${percent}% (${progress.loaded} / ${progress.total} bytes)`);
+    },
+    (error) => {
+      console.error('❌ ERROR loading guitar model:', error);
+      console.error('❌ Path attempted:', guitarPath);
+      console.error('❌ Error details:', error.message);
+      console.warn('⚠️ IMPORTANT: GLB files need a local server! Try: python -m http.server 8000');
+      console.warn('⚠️ If you see CORS errors, you MUST use a server, not file://');
+      
+      // DON'T use placeholder - let user know what went wrong
+      alert('⚠️ Guitar model failed to load!\n\nMake sure you are running a local server:\npython -m http.server 8000\n\nCheck browser console (F12) for details.');
+      
+      // Hide loading indicator
+      if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+      }
+    }
+  );
+
+  // ===== CREATE PROJECT PLANES (ORBITING CARDS) =====
+  const projectPlanes = [];
+  const planeRadius = 13; // Distance from guitar - increased for wider orbit
+  const planeCount = 6;
+
+  for (let i = 0; i < planeCount; i++) {
+    // Create plane geometry (rectangular card)
+    const planeGeometry = new THREE.PlaneGeometry(4, 3);
+    
+    // Create texture loader
+    const textureLoader = new THREE.TextureLoader();
+    
+    // Load thumbnail texture (with fallback color)
+    const texture = textureLoader.load(
+      codingProjects[i].thumbnail,
+      undefined,
+      undefined,
+      () => {
+        // Error callback - use fallback color
+        planeMesh.material.color.set(0x1a1a1a);
+      }
+    );
+    
+    const planeMaterial = new THREE.MeshStandardMaterial({ 
+      map: texture,
+      side: THREE.DoubleSide,
+      emissive: 0x222222,
+      emissiveIntensity: 0.2
+    });
+    
+    const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+    
+    // Position planes in a circle around the guitar HEAD (start at top)
+    const angle = (i / planeCount) * Math.PI * 2;
+    planeMesh.position.x = Math.cos(angle) * planeRadius;
+    planeMesh.position.z = Math.sin(angle) * planeRadius;
+    planeMesh.position.y = 10 + (i * 2.5); // Start at guitar head with more vertical spacing
+    
+    // Rotate plane to face center
+    planeMesh.lookAt(0, planeMesh.position.y, 0);
+    
+    planeMesh.castShadow = true;
+    planeMesh.receiveShadow = true;
+    
+    // Store project data in userData
+    planeMesh.userData = {
+      projectIndex: i,
+      initialAngle: angle,
+      initialY: planeMesh.position.y
+    };
+    
+    scene.add(planeMesh);
+    projectPlanes.push(planeMesh);
+  }
+
+  // ===== RAYCASTER FOR CLICK DETECTION =====
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  // Mouse move handler for hover effects
+  const onMouseMove = (event) => {
+    // Calculate mouse position in normalized device coordinates
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    // Update raycaster
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(projectPlanes);
+
+    // Reset all planes
+    projectPlanes.forEach(plane => {
+      gsap.to(plane.scale, { x: 1, y: 1, z: 1, duration: 0.3 });
+      plane.material.emissiveIntensity = 0.2;
+    });
+
+    // Highlight hovered plane
+    if (intersects.length > 0) {
+      const hoveredPlane = intersects[0].object;
+      gsap.to(hoveredPlane.scale, { x: 1.15, y: 1.15, z: 1.15, duration: 0.3 });
+      hoveredPlane.material.emissiveIntensity = 0.5;
+      renderer.domElement.style.cursor = 'pointer';
+    } else {
+      renderer.domElement.style.cursor = 'default';
+    }
+  };
+
+  // Click handler for opening project links
+  const onMouseClick = (event) => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(projectPlanes);
+
+    if (intersects.length > 0) {
+      const clickedPlane = intersects[0].object;
+      const projectIndex = clickedPlane.userData.projectIndex;
+      
+      if (currentMode === 'coding') {
+        const project = codingProjects[projectIndex];
+        // Open project links in new tabs
+        const choice = confirm(`Open ${project.title}?\nOK = GitHub | Cancel = Live Demo`);
+        if (choice) {
+          window.open(project.github, '_blank');
+        } else {
+          window.open(project.demo, '_blank');
+        }
+      } else {
+        const sketch = sketchProjects[projectIndex];
+        alert(`Viewing: ${sketch.title}`);
+        // You can implement a lightbox/modal here
+      }
+    }
+  };
+
+  renderer.domElement.addEventListener('mousemove', onMouseMove);
+  renderer.domElement.addEventListener('click', onMouseClick);
+
+  // ===== CATEGORY TOGGLE FUNCTIONALITY =====
+  const codingBtn = document.getElementById('codingProjectsBtn');
+  const sketchesBtn = document.getElementById('sketchesBtn');
+
+  const switchToMode = (mode) => {
+    currentMode = mode;
+    
+    // Update button states
+    if (mode === 'coding') {
+      codingBtn.classList.add('active');
+      sketchesBtn.classList.remove('active');
+    } else {
+      sketchesBtn.classList.add('active');
+      codingBtn.classList.remove('active');
+    }
+
+    // Update textures on all planes
+    const textureLoader = new THREE.TextureLoader();
+    projectPlanes.forEach((plane, i) => {
+      const newTexture = mode === 'coding' 
+        ? codingProjects[i].thumbnail 
+        : sketchProjects[i].thumbnail;
+      
+      textureLoader.load(
+        newTexture,
+        (texture) => {
+          plane.material.map = texture;
+          plane.material.needsUpdate = true;
+        },
+        undefined,
+        () => {
+          // Fallback color on error
+          plane.material.color.set(0x1a1a1a);
+          plane.material.map = null;
+          plane.material.needsUpdate = true;
+        }
+      );
+
+      // Animate plane swap
+      gsap.to(plane.rotation, {
+        y: plane.rotation.y + Math.PI,
+        duration: 0.6,
+        ease: 'power2.inOut'
+      });
+    });
+  };
+
+  codingBtn.addEventListener('click', () => switchToMode('coding'));
+  sketchesBtn.addEventListener('click', () => switchToMode('sketches'));
+
+  // ===== GSAP + SCROLLTRIGGER ANIMATION =====
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Create a scroll progress variable to control everything
+  let scrollProgress = { value: 0 };
+
+  // Create scroll-based animation timeline with PINNING
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#projects',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1, // Smooth 1:1 scrubbing with scroll
+      pin: '#projectsCanvas', // PIN the canvas while scrolling
+      pinSpacing: false,
+      markers: false, // Set to true for debugging
+      onUpdate: (self) => {
+        scrollProgress.value = self.progress; // Track scroll progress 0 to 1
+      }
+    }
+  });
+
+  // Animate camera movement (from guitar HEAD to BODY)
+  tl.to(camera.position, {
+    y: -20, // Move down along guitar (head at +20 to body at -20)
+    z: 30, // Move back for wider view of body
+    duration: 1,
+    ease: 'none' // Linear movement with scroll
+  });
+  
+  // Also animate camera lookAt to follow down the guitar
+  const cameraLookAt = { y: 5 };
+  tl.to(cameraLookAt, {
+    y: -10,
+    duration: 1,
+    ease: 'none',
+    onUpdate: () => {
+      camera.lookAt(0, cameraLookAt.y, 0);
+    }
+  }, 0);
+
+  // Animate guitar rotation - CONTROLLED BY SCROLL ONLY
+  // This will be handled in the animation loop using scrollProgress
+
+  // Store initial plane positions for scroll-based orbit
+  const planeInitialData = projectPlanes.map((plane, i) => ({
+    angle: (i / planeCount) * Math.PI * 2,
+    y: 10 + (i * 1.5) // Updated to match new starting positions
+  }));
+
+  // Animate project planes moving down with scroll
+  projectPlanes.forEach((plane, i) => {
+    // Fade in
+    tl.fromTo(plane.material, 
+      { opacity: 0 },
+      { 
+        opacity: 1, 
+        duration: 0.2 
+      },
+      0.1 + (i * 0.03)
+    );
+    
+    // Move down along the guitar as we scroll
+    tl.to(plane.position, {
+      y: -10 - (i * 1.5), // End at bottom of guitar
+      duration: 1,
+      ease: 'none'
+    }, 0);
+  });
+
+  // ===== ANIMATION LOOP =====
+  const animate = () => {
+    requestAnimationFrame(animate);
+
+    // Guitar rotation - CONTROLLED BY SCROLL PROGRESS
+    if (guitar) {
+      guitar.rotation.y = scrollProgress.value * Math.PI * 2; // Full 360° rotation based on scroll
+    }
+
+    // Orbit project planes - CONTROLLED BY SCROLL PROGRESS
+    projectPlanes.forEach((plane, i) => {
+      // Use scroll progress to control orbit angle (not time)
+      const baseAngle = planeInitialData[i].angle;
+      const scrollRotation = scrollProgress.value * Math.PI * 2; // Full rotation during scroll
+      const angle = baseAngle + scrollRotation;
+      
+      plane.position.x = Math.cos(angle) * planeRadius;
+      plane.position.z = Math.sin(angle) * planeRadius;
+      // Y position is controlled by GSAP timeline (moving down with scroll)
+      
+      // Always face the center
+      plane.lookAt(0, plane.position.y, 0);
+    });
+
+    // Subtle light pulsing (keep this for visual interest)
+    const time = Date.now() * 0.0005;
+    pointLight1.intensity = 1.2 + Math.sin(time) * 0.1;
+    pointLight2.intensity = 0.8 + Math.cos(time * 1.5) * 0.1;
+
+    renderer.render(scene, camera);
+  };
+
+  animate();
+
+  // ===== RESPONSIVE RESIZE =====
+  const onWindowResize = () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  };
+
+  window.addEventListener('resize', onWindowResize);
+
+  // ===== CLEANUP ON SECTION LEAVE (OPTIONAL) =====
+  // This helps with performance when user scrolls away
+  ScrollTrigger.create({
+    trigger: '#projects',
+    start: 'top bottom',
+    end: 'bottom top',
+    onEnter: () => {
+      renderer.domElement.style.display = 'block';
+    },
+    onLeave: () => {
+      renderer.domElement.style.display = 'none';
+    },
+    onEnterBack: () => {
+      renderer.domElement.style.display = 'block';
+    },
+    onLeaveBack: () => {
+      renderer.domElement.style.display = 'none';
+    }
+  });
+
+  console.log('3D Guitar Projects Section initialized ✅');
+});
+</script>
+
+
+
+// data and ml 
+Pandas
+Numpy
+Matplotlib
+Seaborn
+Plotly
+Scikit-Learn
+NLTK
+Uvicorn
+Tableau
+Llama 3.1
