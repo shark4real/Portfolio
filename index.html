@@ -13,11 +13,16 @@
 
   <!-- Landing Section -->
   <section id="landing">
+    <div class="landing-bg" aria-hidden="true"></div>
+    <div class="landing-split-overlay" aria-hidden="true">
+      <div class="landing-panel landing-panel-top"></div>
+      <div class="landing-panel landing-panel-bottom"></div>
+    </div>
     <div class="landing-container">
       <div class="landing-left">
         <div class="landing-intro">
           <h1>Hi, I'm <span>Sharik</span></h1>
-          <p style="font-size: 50px; letter-spacing: -2px; font-weight: 300;margin-bottom: 25px;">Aspiring <span style="font-weight: 500;">Data Scientist</span><br>with a Passion for <br><span style="font-family: serif;"><i>A</i>rt  and Design</span></p>
+          <p style="font-size: 50px; letter-spacing: -2px; font-weight: 300;margin-bottom: 25px;">Aspiring <span style="font-weight: 550;">Data Scientist</span><br>with a Passion for <br><span style="font-family: serif;"><i>A</i>rt  and Design</span></p>
         </div>
         <div class="landing-tagline">
           <p>i code, i create, i design</p>
@@ -28,51 +33,16 @@
         </div>
       </div>
       <div class="landing-right">
-        <!-- Intentionally blank for now; ready for your new idea -->
+        <!-- Right side intentionally empty -->
       </div>
     </div>
-  </section>
 
-  <header>
-    <a href="#landing" class="logo">Sharik</a>
-    <nav>
-      <a href="#projects">Projects</a>
-      <a href="#about">About</a>
-      <a href="#skills">Skills</a>
-      <a href="#connect">Connect</a>
-    </nav>
-  </header>
-
-  <!-- Projects Section -->
-  <section id="projects" class="project-section">
-    <h2 class="projects-title">Projects</h2>
-    <div class="project-controls">
-      <div class="project-toggle-group">
-        <button id="codingProjectsBtn" class="project-toggle-btn active">Coding Projects</button>
-        <button id="sketchesBtn" class="project-toggle-btn">Sketches</button>
-      </div>
-    </div>
-    <div id="projectsCanvas" class="projects-canvas">
-      <!-- Project Cards Container -->
-      <div id="projectCardsContainer"></div>
-      
-      <div id="guitarLoadingIndicator" class="guitar-loading">
-        <div class="guitar-icon">Guitar</div>
-        <div class="guitar-status">Loading Guitar Model...</div>
-        <div id="loadingProgress" class="guitar-progress">0%</div>
-      </div>
-    </div>
-    </section>
-
-   
+    <!-- About Section - Positioned inside landing to be revealed by split -->
     <section id="about" class="about-section">
     
         <div class="about-header-fixed">
             <h2>About</h2>
         </div>
-    
-        <button class="about-arrow-btn left" id="aboutPrevBtn">‹</button>
-        <button class="about-arrow-btn right" id="aboutNextBtn">›</button>
     
         <div class="about-track">
     
@@ -200,6 +170,43 @@
         </div>
         
     </section>
+
+  </section>
+
+  <!-- About Navigation Buttons - Outside landing overlay -->
+  <button class="about-arrow-btn left" id="aboutPrevBtn">‹</button>
+  <button class="about-arrow-btn right" id="aboutNextBtn">›</button>
+
+  <header>
+    <a href="#landing" class="logo">Sharik</a>
+    <nav>
+      <a href="#projects">Projects</a>
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#connect">Connect</a>
+    </nav>
+  </header>
+
+  <!-- Projects Section -->
+  <section id="projects" class="project-section">
+    <h2 class="projects-title">Projects</h2>
+    <div class="project-controls">
+      <div class="project-toggle-group">
+        <button id="codingProjectsBtn" class="project-toggle-btn active">Coding Projects</button>
+        <button id="sketchesBtn" class="project-toggle-btn">Sketches</button>
+      </div>
+    </div>
+    <div id="projectsCanvas" class="projects-canvas">
+      <!-- Project Cards Container -->
+      <div id="projectCardsContainer"></div>
+      
+      <div id="guitarLoadingIndicator" class="guitar-loading">
+        <div class="guitar-icon">Guitar</div>
+        <div class="guitar-status">Loading Guitar Model...</div>
+        <div id="loadingProgress" class="guitar-progress">0%</div>
+      </div>
+    </div>
+  </section>
 
   <section id="skills" class="skills-section">
     <h2 class="skills-title">Skills</h2>

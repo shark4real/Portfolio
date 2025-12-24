@@ -2,15 +2,127 @@
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
     e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
+    const href = this.getAttribute('href');
+    const target = document.querySelector(href);
+    
+    if (!target) return;
+    
+    // Special handling for about section - scroll through landing animation
+    if (href === '#about') {
+      const landing = document.getElementById('landing');
+      if (landing) {
+        // The landing is pinned for 200% of viewport height
+        // So we need to scroll to: landing top + 200vh (the full pin duration)
+        const scrollTarget = landing.offsetTop + (window.innerHeight * 2);
+        
+        window.scrollTo({
+          top: scrollTarget,
+          behavior: 'smooth'
+        });
+        return;
+      }
     }
+    
+    // Default smooth scroll for other sections
+    target.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
   });
 });
+
+function initLandingSplitScroll() {
+  const landing = document.getElementById('landing');
+  const landingBg = document.querySelector('#landing .landing-bg');
+  const overlay = document.querySelector('.landing-split-overlay');
+  const topPanel = document.querySelector('.landing-panel-top');
+  const bottomPanel = document.querySelector('.landing-panel-bottom');
+  const landingContainer = document.querySelector('#landing .landing-container');
+  const about = document.getElementById('about');
+
+  if (!landing || !overlay || !topPanel || !bottomPanel || !landingContainer) return;
+  if (!window.gsap || !window.ScrollTrigger) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Build masked content: clone the landing into each panel so it moves with them.
+  const hasPanelContent = topPanel.querySelector('.landing-panel-content') || bottomPanel.querySelector('.landing-panel-content');
+  if (!hasPanelContent) {
+    const topWrap = document.createElement('div');
+    topWrap.className = 'landing-panel-content landing-panel-content-top';
+    topWrap.appendChild(landingContainer.cloneNode(true));
+    topPanel.appendChild(topWrap);
+
+    const bottomWrap = document.createElement('div');
+    bottomWrap.className = 'landing-panel-content landing-panel-content-bottom';
+    bottomWrap.appendChild(landingContainer.cloneNode(true));
+    bottomPanel.appendChild(bottomWrap);
+
+    landingContainer.classList.add('landing-original-hidden');
+  }
+
+  gsap.set(overlay, { autoAlpha: 1 });
+  gsap.set(topPanel, { height: '50%', y: 0 });
+  gsap.set(bottomPanel, { height: '50%', y: 0 });
+  if (landingBg) gsap.set(landingBg, { autoAlpha: 1 });
+  if (about) gsap.set(about, { y: 0 });
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: landing,
+      start: 'top top',
+      end: '+=200%',
+      scrub: true,
+      pin: true,
+      pinSpacing: true,
+      anticipatePin: 1,
+    }
+  });
+
+  // Fade the landing background as panels start to shrink.
+  if (landingBg) {
+    tl.to(landingBg, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' }, 0);
+  }
+
+  // Split from the middle by shrinking panel heights to 0.
+  // About section rises up with the top panel.
+  tl.to(topPanel, { height: '0%', duration: 0.9, ease: 'power2.inOut' }, 0.2)
+    .to(bottomPanel, { height: '0%', duration: 0.9, ease: 'power2.inOut' }, 0.2);
+  
+  if (about) {
+    tl.to(about, { y: '-100%', duration: 0.9, ease: 'power2.inOut' }, 0.2);
+  }
+  
+  tl.to(overlay, { autoAlpha: 0, duration: 0.15, ease: 'power2.inOut' }, 0.92);
+}
+
+function initHeaderHide() {
+  const header = document.querySelector('header');
+  const logo = document.querySelector('.logo');
+  if (!header) return;
+
+  let lastScroll = 0;
+
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+
+    if (currentScroll > 100) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+
+    lastScroll = currentScroll;
+  });
+
+  // When header is in compact mode, clicking it scrolls to top
+  if (logo) {
+    logo.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+}
 
 // If you want to control scroll speed more precisely, use this alternative:
 // Uncomment and adjust the duration (in milliseconds) - higher value = slower scroll
@@ -43,6 +155,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 */
 
 document.addEventListener('DOMContentLoaded', () => {
+  initLandingSplitScroll();
+  initHeaderHide();
+
   const canvasContainer = document.getElementById('projectsCanvas');
   if (!canvasContainer) return;
 
@@ -656,6 +771,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const prevBtn = document.getElementById("aboutPrevBtn");
     const nextBtn = document.getElementById("aboutNextBtn");
     const cards = document.querySelectorAll(".polaroid-card");
+    const aboutSection = document.getElementById("about");
+    
+    // Check if elements exist
+    if (!track || !prevBtn || !nextBtn || cards.length === 0) {
+        console.error("About section elements not found");
+        return;
+    }
+    
+    console.log("About section initialized", { track, prevBtn, nextBtn, cardCount: cards.length });
     
     let currentIndex = 0;
     
@@ -678,6 +802,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const cardWithGap = singleCardWidth + gap;
         const offset = currentIndex * cardWithGap * (window.innerWidth / 100);
         
+        console.log("Scrolling to index", currentIndex, "offset", offset);
+        
         gsap.to(track, {
             x: -offset,
             duration: 0.6,
@@ -688,26 +814,56 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     // Previous button
-    prevBtn.addEventListener("click", () => {
+    prevBtn.onclick = function(e) {
+        console.log("PREV BUTTON CLICKED");
         if (currentIndex > 0) {
             currentIndex--;
             scrollToIndex();
         }
-    });
+    };
     
     // Next button
-    nextBtn.addEventListener("click", () => {
+    nextBtn.onclick = function(e) {
+        console.log("NEXT BUTTON CLICKED");
         if (currentIndex < maxIndex) {
             currentIndex++;
             scrollToIndex();
         }
-    });
+    };
+    
+    // Show/hide buttons based on about section visibility
+    function checkAboutVisibility() {
+        if (!aboutSection) return;
+        
+        const rect = aboutSection.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        
+        // Only show when about section is in the main viewport
+        // Top edge must be above 80% of screen AND bottom edge must be below 20% of screen
+        const isAboutInView = rect.top < windowHeight * 0.8 && rect.bottom > windowHeight * 0.2;
+        
+        if (isAboutInView) {
+            prevBtn.style.opacity = '1';
+            prevBtn.style.visibility = 'visible';
+            nextBtn.style.opacity = '1';
+            nextBtn.style.visibility = 'visible';
+        } else {
+            prevBtn.style.opacity = '0';
+            prevBtn.style.visibility = 'hidden';
+            nextBtn.style.opacity = '0';
+            nextBtn.style.visibility = 'hidden';
+        }
+    }
+    
+    // Check visibility on scroll
+    window.addEventListener('scroll', checkAboutVisibility);
+    checkAboutVisibility();
     
     // Handle window resize
     window.addEventListener("resize", () => {
         const newIsDesktop = window.innerWidth > 768;
         if (newIsDesktop !== isDesktop) {
-            location.reload(); // Reload to recalculate properly
+            location.reload();
         }
     });
     

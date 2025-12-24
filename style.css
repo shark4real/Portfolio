@@ -19,6 +19,26 @@ header {
   align-items: center;
   box-sizing: border-box;
   z-index: 1000;
+  transform-origin: top left;
+  transition: all 0.3s ease;
+}
+
+header.scrolled {
+  width: auto;
+  padding: 8px 16px;
+  border-radius: 0 0 0px 0;
+  border-bottom: 1px solid #000;
+  border-right: 1px solid #000;
+}
+
+header nav {
+  transition: opacity 0.3s ease;
+}
+
+header.scrolled nav {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
 }
 
 .logo {
@@ -75,16 +95,22 @@ h2 {
   font-size: 14px;
   text-transform: uppercase;
   border-radius: 6px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .btn:hover {
   background: #fff;
   color: #000;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 #landing .btn:hover {
   background: #fff;
   color: #000;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 #landing {
@@ -96,7 +122,73 @@ h2 {
   align-items: center;
   text-align: left;
   border-bottom: 2px solid #000;
+  background: #111;
+  position: relative;
+  overflow: hidden;
+}
+
+/* About section revealed by split - rises with top panel */
+#landing #about {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 3;
+  margin: 0;
+}
+
+/* Landing split overlay (top/bottom panels) */
+.landing-bg {
+  position: absolute;
+  inset: 0;
   background: #fff;
+  z-index: 0;
+}
+
+.landing-split-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.landing-panel {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  overflow: hidden;
+  z-index: 100;
+  pointer-events: none;
+  will-change: height;
+}
+
+.landing-panel-top {
+  top: 0;
+  height: 50%;
+}
+
+.landing-panel-bottom {
+  bottom: 0;
+  height: 50%;
+}
+
+/* Masked landing content (cloned into panels) */
+#landing .landing-container.landing-original-hidden {
+  opacity: 0;
+}
+
+.landing-panel-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+.landing-panel-content-bottom {
+  transform: translateY(-50vh);
 }
 
 .landing-container {
@@ -105,26 +197,74 @@ h2 {
   height: 100%;
   max-width: 1400px;
   margin: 0 auto;
+  position: relative;
+  z-index: 200;
 }
 
 .landing-left {
-  width: 50%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
-  padding-left: 60px;
+  align-items: center;
+  padding-left: 0;
   box-sizing: border-box;
+  text-align: center;
 }
 
 .landing-right {
-  width: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #efefef;
-  padding: 60px;
+  width: 0;
+  display: none;
+}
+
+/* Landing Right Image Grid (matches reference layout) */
+.landing-mosaic {
+  width: min(40vw, 520px);
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* wider left column */
+  grid-template-rows: 2fr 0.9fr 2fr; /* top, small middle (right only), bottom */
+  gap: 6px; /* white cross dividers */
+  background: #ffffff; /* makes the cross appear white */
+  padding: 12px; /* outer white border */
+  border: 0px solid #000; /* site style */
   box-sizing: border-box;
+}
+
+.mosaic-item {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid #ddd; /* subtle frame */
+}
+
+/* Placements to mirror diagram */
+.mosaic-item.big-left { grid-column: 1; grid-row: 1 / span 2; }
+.mosaic-item.top-right { grid-column: 2; grid-row: 1; }
+.mosaic-item.mid-right { grid-column: 2; grid-row: 2; }
+.mosaic-item.bottom-left { grid-column: 1; grid-row: 3; }
+.mosaic-item.bottom-right { grid-column: 2; grid-row: 3; }
+
+/* Keep big-left visually square-ish */
+.mosaic-item.big-left { aspect-ratio: 1 / 1; }
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+  .landing-mosaic { width: min(60vw, 520px); }
+}
+
+@media (max-width: 768px) {
+  .landing-right { padding: 30px 20px; }
+  .landing-mosaic {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  .mosaic-item.big-left { grid-column: 1 / span 2; grid-row: 1; min-height: 220px; }
+  .mosaic-item.top-right { grid-column: 1; grid-row: 2; min-height: 140px; }
+  .mosaic-item.mid-right { grid-column: 2; grid-row: 2; min-height: 140px; }
+  .mosaic-item.bottom-left { grid-column: 1; grid-row: 3; min-height: 160px; }
+  .mosaic-item.bottom-right { grid-column: 2; grid-row: 3; min-height: 160px; }
 }
 
 .landing-intro h1 {
@@ -219,7 +359,8 @@ h2 {
 .projects-title {
     position: absolute;
     top: 40px;
-    left: 5vw;
+    left: 50%;
+    transform: translateX(-50%);
     color: #000;
     z-index: 10;
     font-size: 32px;
@@ -278,9 +419,9 @@ h2 {
 
 .projects-canvas {
   position: sticky;
-  top: 0;
+  top: -10vh;
   width: 100%;
-  height: 100vh;
+  height: 120vh;
   z-index: 1;
   background: #efefef;
   display: flex;
@@ -579,13 +720,15 @@ h2 {
     align-items: center;
     padding-left: 5vw;
     position: relative;
+    z-index: 200;
 }
 
 /* Optional Header */
 .about-header-fixed {
     position: absolute;
     top: 40px;
-    left: 5vw;
+    left: 50%;
+    transform: translateX(-50%);
     color: white;
     z-index: 10;
 }
@@ -597,7 +740,7 @@ h2 {
     margin: 0;
 }
 .about-arrow-btn {
-    position: absolute;
+    position: fixed;
     top: 50%;
     transform: translateY(-50%);
     width: 50px;
@@ -607,14 +750,17 @@ h2 {
     color: #000;
     font-size: 32px;
     font-family: 'Inter', sans-serif;
-    cursor: pointer;
+    cursor: pointer !important;
     border-radius: 6px;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 50;
+    z-index: 9999 !important;
     font-weight: bold;
+    pointer-events: auto !important;
+    opacity: 0;
+    visibility: hidden;
 }
 
 .about-arrow-btn:hover {
@@ -641,6 +787,7 @@ h2 {
     display: flex;
     gap: 5vw;
     width: max-content;
+    pointer-events: none;
 }
 
 /* --- THE POLAROID CARD --- */
@@ -654,6 +801,7 @@ h2 {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    pointer-events: auto;
 }
 
 /* Mobile Responsive - 1 card at a time */
@@ -824,7 +972,8 @@ h2 {
 .skills-title {
     position: absolute;
     top: 40px;
-    left: 5vw;
+    left: 50%;
+    transform: translateX(-50%);
     color: #000;
     z-index: 10;
     font-size: 32px;
@@ -1048,4 +1197,26 @@ h2 {
         width: 200px;
         height: 200px;
     }
+}
+
+/* ===== Global Scrollbar Styling (sharp + minimal) ===== */
+/* Firefox */
+
+
+/* WebKit: Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 12px;                       /* vertical thickness */
+  height: 12px;                      /* horizontal thickness */
+}
+::-webkit-scrollbar-track {
+  background: #ffffff;
+  border-left: 1px solid #000;       /* sharp edge */
+}
+::-webkit-scrollbar-thumb {
+  background: #000;                  /* solid thumb */
+  border: 2px solid #000;            /* stronger edge */
+  border-radius: 0px;                  /* sharp corners */
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #222;                  /* subtle hover */
 }
