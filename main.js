@@ -882,6 +882,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const skillCategories = ["Programming & Web", "Data Science", "Creative Suite", "Industry Knowledge"];
     let isScrollingSkills = false;
     let scrollTimeout;
+    let hasViewedAllCategories = false;
     
     // Update active card and disc
     function updateSkillCard(index) {
@@ -893,19 +894,24 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
         
-        // Rotate disc - 90° for each of 4 categories
+        // Check if user has viewed all categories
+        if (index === skillCards.length - 1) {
+            hasViewedAllCategories = true;
+        }
+        
+        // Rotate disc - 90° for each of 4 categories with smoother animation
         const angle = index * 90;
         gsap.to(skillsDisc, {
             rotation: angle,
-            duration: 0.5,
-            ease: "power2.inOut"
+            duration: 0.8,
+            ease: "power3.out"
         });
     }
     
     // Check if skills section is in view
     function isSkillsInFocus() {
         const rect = skillsSection.getBoundingClientRect();
-        return rect.top < window.innerHeight * 0.7 && rect.bottom > window.innerHeight * 0.3;
+        return rect.top < window.innerHeight * 0.5 && rect.bottom > window.innerHeight * 0.5;
     }
     
     // Scroll handler for skills section
@@ -917,8 +923,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const atFirst = currentSkillIndex === 0;
         const atLast = currentSkillIndex === skillCards.length - 1;
         
-        // Allow natural scroll when at boundaries
-        if ((goingDown && atLast) || (goingUp && atFirst)) {
+        // Allow natural scroll UP when at first card
+        if (goingUp && atFirst) {
+            return;
+        }
+        
+        // Only allow scroll DOWN past last card if user has viewed all categories
+        if (goingDown && atLast) {
+            if (!hasViewedAllCategories) {
+                e.preventDefault();
+                return;
+            }
+            // User has viewed all, allow natural scroll to next section
             return;
         }
         
@@ -940,7 +956,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Reset flag after scroll completes
         scrollTimeout = setTimeout(() => {
             isScrollingSkills = false;
-        }, 1000);
+        }, 800);
     }, { passive: false });
     
     // Initialize
