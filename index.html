@@ -8,8 +8,27 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  
+  <!-- Preload critical assets -->
+  <link rel="preload" href="./guitar.glb" as="fetch" crossorigin="anonymous">
+  <link rel="preload" href="./studio.hdr" as="fetch" crossorigin="anonymous">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" as="script">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js" as="script">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js" as="script">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" as="script">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" as="script">
 </head>
 <body>
+  <!-- Preloader -->
+  <div id="preloader" class="preloader">
+    <div class="preloader-content">
+      <h1>Sharik Hassan</h1>
+      <div class="preloader-bar">
+        <div class="preloader-progress" id="preloaderProgress"></div>
+      </div>
+      <p class="preloader-text" id="preloaderText">Loading assets... 0%</p>
+    </div>
+  </div>
 
   <!-- Landing Section -->
   <section id="landing">
@@ -22,8 +41,9 @@
       <div class="landing-left">
         <div class="landing-intro">
           <h1>Hi, I'm <span>Sharik</span></h1>
-          <p style="font-size: 50px; letter-spacing: -2px; font-weight: 300;margin-bottom: 25px;">Aspiring <span style="font-weight: 550;">Data Scientist</span><br>with a Passion for <br><span style="font-family: serif;"><i>A</i>rt  and Design</span></p>
+          <p class="landing-main-line">Aspiring <span style="color: #242424;">Data Scientist</span></p>
         </div>
+        <p class="landing-passion-line">with a Passion for <span style="font-family: serif; font-weight: 300;"><i>A</i>rt  and Design</span></p>
         <div class="landing-tagline">
           <p>i code, i create, i design</p>
         </div>
@@ -182,7 +202,7 @@
     <nav>
       <a href="#projects">Projects</a>
       <a href="#about">About</a>
-      <a href="#skills">Skills</a>
+      <a href="#skills">RAG</a>
       <a href="#connect">Connect</a>
     </nav>
   </header>
@@ -209,114 +229,148 @@
   </section>
 
   <section id="skills" class="skills-section">
-    <h2 class="skills-title">Skills</h2>
-    
-    <div class="skills-container">
-      <!-- Skills Cards Container -->
-      <div class="skills-cards">
-        <!-- Web Skills Card -->
-        <div class="skill-card" data-category="web" data-index="0">
-          <div class="skill-card-content">
-            <div class="skills-grid">
-              <div class="skill-box">Python</div>
-              <div class="skill-box">C/C++</div>
-              <div class="skill-box">Sql (postgres)</div>
-              <div class="skill-box">Django</div>
-              <div class="skill-box">Flask</div>
-              <div class="skill-box">HTML/CSS</div>
-              <div class="skill-box">Streamlit</div>
-              <div class="skill-box">GCP</div>
-            </div>
-            <div class="skill-card-image" style="background-image: url('./card1.jpg');"></div>
-          </div>
-          <div class="skill-card-footer">
-            <div class="skill-footer-image" style="background-image: url('./card1.jpg'); background-size: cover; background-position: center;"></div>
-            <div class="skill-footer-text">Programming & Web</div>
-          </div>
-        </div>
-
-        <!-- Data Science Skills Card -->
-        <div class="skill-card" data-category="data & ml libs" data-index="1">
-          <div class="skill-card-content">
-            <div class="skills-grid">
-              <div class="skill-box">Pandas</div>
-              <div class="skill-box">Numpy</div>
-              <div class="skill-box">Matplotlib</div>
-              <div class="skill-box">Seaborn</div>
-              <div class="skill-box">Plotly</div>
-              <div class="skill-box">Scikit-Learn</div>
-              <div class="skill-box">NLTK</div>
-              <div class="skill-box">Uvicorn</div>
-              <div class="skill-box">Llama 3.1</div>
-              <div class="skill-box">Tableau</div>
-            </div>
-            <div class="skill-card-image" style="background-image: url('./card2.jpg');"></div>
-          </div>
-          <div class="skill-card-footer">
-            <div class="skill-footer-image" style="background-image: url('./card2.jpg'); background-size: cover; background-position: center;"></div>
-            <div class="skill-footer-text">Data Science & Tools</div>
-          </div>
-        </div>
-
-        <!-- Creative Suite Card -->
-        <div class="skill-card" data-category="creative" data-index="2">
-          <div class="skill-card-content">
-            <div class="skills-grid">
-              <div class="skill-box"style="padding: 10px 20px;">Adobe Illustrator</div>
-              <div class="skill-box"style="padding: 10px 20px;">InDesign</div>
-              <div class="skill-box"style="padding: 10px 20px;">Premiere Pro</div>
-              <div class="skill-box"style="padding: 10px 20px;">After Effects</div>
-              <div class="skill-box"style="padding: 10px 20px;">Lightroom</div>
-              <div class="skill-box"style="padding: 10px 20px;">Procreate</div>
-              <div class="skill-box"style="padding: 10px 20px;">Sketchbook</div>
-              <div class="skill-box"style="padding: 10px 20px;">Figma</div>
-            </div>
-            <div class="skill-card-image" style="background-image: url('./card3.jpg');"></div>
-          </div>
-          <div class="skill-card-footer">
-            <div class="skill-footer-image" style="background-image: url('./card3.jpg'); background-size: cover; background-position: center;"></div>
-            <div class="skill-footer-text">Creative Suite</div>
-          </div>
-        </div>
-
-        <!-- Industry Knowledge Card -->
-        <div class="skill-card" data-category="industry" data-index="3">
-          <div class="skill-card-content">
-            <div class="skills-grid">
-              <div class="skill-box">Data Analysis</div>
-              <div class="skill-box">Data Science</div>
-              <div class="skill-box">Gen AI</div>
-              <div class="skill-box">AI</div>
-              <div class="skill-box">Machine Learning</div>
-              <div class="skill-box">Graphic Design</div>
-              <div class="skill-box">Character Design</div>
-            </div>
-            <div class="skill-card-image" style="background-image: url('./card4.jpg');"></div>
-          </div>
-          <div class="skill-card-footer">
-            <div class="skill-footer-image" style="background-image: url('./card4.jpg'); background-size: cover; background-position: center;"></div>
-            <div class="skill-footer-text">Industry Knowledge</div>
-          </div>
-        </div>
+    <div class="chat-main">
+      <div class="chat-hero">
+        <p class="chat-label">RAG</p>
+         <h2 class="chat-hero-title">Hey! What’s up?</h2>
+        <p class="chat-subtitle">Ask me anything</p>
       </div>
 
-      <!-- Rotating Disc -->
-      <div class="skills-disc-container">
-        <img id="skillsDisc" class="skills-disc" src="./mdisc.png" alt="Skills Disc" />
+      <div class="chat-suggestions">
+        <button type="button" class="chat-suggestion" data-question="skills">Tell me about your skills</button>
+        <button type="button" class="chat-suggestion" data-question="socials">Mention your socials</button>
+        <button type="button" class="chat-suggestion" data-question="projects">Tell me about your projects</button>
+        <a href="./sharik_hassan.pdf" download class="chat-download-resume">Download resume</a>
       </div>
+
+      <div class="chat-window" id="chatWindow"></div>
     </div>
+
+    <form class="chat-input-row chat-hero-input" id="chatForm">
+      <div class="chat-input-shell">
+        <input
+          type="text"
+          id="chatInput"
+          autocomplete="off"
+          placeholder="Ask anything about my skills, projects, or journey"
+        />
+        <button type="submit" class="chat-send-icon" aria-label="Send">
+          ➤
+        </button>
+      </div>
+    </form>
   </section>
 
   <section id="connect">
     <div class="connect-inner">
-      <h2 class="connect-title">Let's Connect</h2>
-      <p class="connect-subtitle">Whether it's <strong>AI</strong>, <strong>Data Science</strong>, <strong>Design</strong>, or just a creative idea — I'd love to talk.</p>
-      <div class="connect-links">
-        <a href="mailto:sharik.hassan@gmail.com" class="connect-email">Email Me</a>
-        <div class="social-links">
-          <a href="#" class="social-link">LinkedIn</a>
-          <a href="#" class="social-link">GitHub</a>
-          <a href="#" class="social-link">Instagram</a>
+      <div class="connect-layout">
+        <div class="connect-left">
+          <h2 class="connect-title">Let's connect</h2>
+          <p class="connect-subtitle">Whether it's <strong>AI</strong>, <strong>Data Science</strong>, <strong>Design</strong>, or just a creative idea — I'd love to talk.</p>
+
+          <form class="connect-form" id="contactForm" data-sheet-url="https://script.google.com/macros/s/AKfycbzZ1w9QYz4t_byvdLCrQeGe7rbseOtfZnaKR6VA7lAr863DZpcjY118e6eEFLdORPmznw/exec">
+            <label class="connect-field">
+              <span>Full name</span>
+              <input type="text" name="name" placeholder="Your full name" required />
+            </label>
+            <label class="connect-field">
+              <span>Email address</span>
+              <input type="email" name="email" placeholder="you@example.com" required />
+            </label>
+            <label class="connect-field">
+              <span>Subject</span>
+              <input type="text" name="subject" placeholder="Whats this about?" required />
+            </label>
+            <label class="connect-field">
+              <span>Message</span>
+              <textarea name="message" rows="4" placeholder="Tell me a bit about your idea" required></textarea>
+            </label>
+
+            <button type="submit" class="connect-submit">Submit</button>
+            <p id="contactStatus" class="contact-status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div class="connect-right">
+          <div class="connect-info-card">
+            <div class="connect-info-header">
+              <p>Get in touch with me!</p>
+              <p>Let's talk.</p>
+            </div>
+            <div class="connect-info-body">
+              <div class="connect-info-item">
+                <span class="info-icon">@</span>
+                <a href="mailto:sharik.hassan@gmail.com">sharik.hassan@gmail.com</a>
+              </div>
+              <div class="connect-info-item">
+                <span class="info-icon">in</span>
+                <a href="#" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              </div>
+              <div class="connect-info-item">
+                <span class="info-icon">GH</span>
+                <a href="#" target="_blank" rel="noopener noreferrer">GitHub</a>
+              </div>
+              <div class="connect-info-item">
+                <span class="info-icon">IG</span>
+                <a href="#" target="_blank" rel="noopener noreferrer">Instagram</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="connect-linkedin">
+            <h3 class="connect-linkedin-title">Recent LinkedIn posts</h3>
+            <p class="connect-linkedin-note">A quick peek at some of my latest updates.</p>
+
+            <div class="linkedin-carousel" id="linkedinCarousel">
+              <div class="linkedin-slide active">
+                <div class="linkedin-embed-wrapper">
+                  <iframe
+                    class="linkedin-embed-frame"
+                    src="https://www.linkedin.com/embed/feed/update/urn:li:activity:7402975807461339136"
+                    height="420"
+                    width="100%"
+                    frameborder="0"
+                    allowfullscreen=""
+                    title="LinkedIn post 1">
+                  </iframe>
+                </div>
+              </div>
+
+              <div class="linkedin-slide">
+                <div class="linkedin-embed-wrapper">
+                  <iframe
+                    class="linkedin-embed-frame"
+                    src="https://www.linkedin.com/embed/feed/update/urn:li:activity:7401154944319307776"
+                    height="420"
+                    width="100%"
+                    frameborder="0"
+                    allowfullscreen=""
+                    title="LinkedIn post 2">
+                  </iframe>
+                </div>
+              </div>
+
+              <div class="linkedin-slide">
+                <div class="linkedin-embed-wrapper">
+                  <iframe
+                    class="linkedin-embed-frame"
+                    src="https://www.linkedin.com/embed/feed/update/urn:li:activity:7367983609141522432"
+                    height="420"
+                    width="100%"
+                    frameborder="0"
+                    allowfullscreen=""
+                    title="LinkedIn post 3">
+                  </iframe>
+                </div>
+              </div>
+            </div>
+
+            <div class="linkedin-dots" id="linkedinDots">
+              <button class="linkedin-dot active" data-index="0" aria-label="Show LinkedIn post 1"></button>
+              <button class="linkedin-dot" data-index="1" aria-label="Show LinkedIn post 2"></button>
+              <button class="linkedin-dot" data-index="2" aria-label="Show LinkedIn post 3"></button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -328,6 +382,16 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script>
+    // Asset preloading system
+    window.assetsLoaded = {
+      guitar: false,
+      hdr: false,
+      scripts: false
+    };
+    
+    window.preloadedAssets = {};
+  </script>
   <script src="main.js"></script>
 </body>
 </html>
