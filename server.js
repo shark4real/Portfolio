@@ -163,9 +163,18 @@ app.post('/api/chat', async (req, res) => {
     });
 
     if (!groqResponse.ok) {
-      const error = await groqResponse.text();
-      console.error(`❌ Groq error (${groqResponse.status}):`, error);
-      return res.status(500).json({ error: 'AI service error' });
+      const errorText = await groqResponse.text();
+      let errorJson = null;
+      try {
+        errorJson = JSON.parse(errorText);
+      } catch (e) {}
+      console.error(`❌ Groq error (${groqResponse.status}):`, errorText);
+      if (errorJson && errorJson.error) {
+        res.status(500).json({ error: errorJson.error.message || errorJson.error });
+      } else {
+        res.status(500).json({ error: errorText });
+      }
+      return;
     }
 
     const data = await groqResponse.json();
