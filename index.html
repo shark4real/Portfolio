@@ -70,15 +70,10 @@
                 <div class="polaroid-inner">
                     <div class="inner-content">
                         <h4>Bio</h4>
-                        <p>Hi, I'm Sharik Hassan — a 4th-year student and aspiring
-                                Data Scientist with a strong passion for creativity and
-                                storytelling. I love exploring data, building intelligent
-                                systems, and sharing what I learn through teaching and
-                                club activities. Beyond tech, I express myself through 
-                                digital design, animation, and illustration.
-                                I enjoy working on projects that blend logic with 
-                                imagination and create meaningful, human-centered 
-                                experiences.</p>
+                      <p>Hi, I'm Sharik Hassan — a 4th-year student and aspiring Data Scientist.
+                        I love exploring data, building intelligent systems, and sharing what I learn through teaching and community.
+                        Beyond tech, I create through digital design, animation, and illustration.
+                        I enjoy projects that blend logic with creativity and storytelling.</p>
                     </div>
                 </div>
             </div>
@@ -93,10 +88,7 @@
                                 <span class="edu-degree">BSc in Data Science</span>
                                 <span class="edu-date">Sept, 2022 - Present</span>
                             </div>
-                            <p class="edu-desc">
-                                Simultaneously enrolled in IIT Madras’ rigorous program, enhancing my foundation in mathematics, programming,
-                                data analysis, and statistics.
-                            </p>
+                          <p class="edu-desc">Focused on math, programming, statistics, and data analysis.</p>
                         </div>
                         
                         <div class="edu-item">
@@ -105,10 +97,7 @@
                                 <span class="edu-degree">B.E in AI & Machine Learning</span>
                                 <span class="edu-date">Dec, 2022 - Present</span>
                             </div>
-                            <p class="edu-desc">
-                                Currently pursuing a Bachelor's degree with a strong focus on AI systems, machine learning, and real-world
-                                problem-solving through technology.
-                            </p>
+                          <p class="edu-desc">Focused on AI systems, ML, and real-world problem-solving.</p>
                         </div>
                     </div>
                 </div>
@@ -123,11 +112,7 @@
                             <div class="edu-details">
                                 <span class="edu-degree"style="color: white;">Machine Learning Lead</span>
                             </div>
-                            <p class="edu-desc"style="color: white;">
-                                Took sessions on Machine Learning and Maths for ML,
-                                 teaching Linear Regression to over <strong>400+ learners</strong>. 
-                                 Contributed to events, content, and tech planning.
-                            </p>
+                          <p class="edu-desc"style="color: white;">Taught ML + Math for ML; taught Linear Regression to <strong>400+ learners</strong>.</p>
                         </div>
                         
                         <div class="edu-item">
@@ -135,15 +120,7 @@
                             <div class="edu-details">
                                 <span class="edu-degree"style="color: white;">Design & Social-Media Lead</span>
                             </div>
-                            <p class="edu-desc" style="color: white;">
-                                One of the core organizers of the college’s flagship hackathon.
-                                 I led the <strong>design team</strong>, creating the event’s official logo,
-                                  theme, and visual identity, and co-led the <strong>social media team</strong>
-                                   to build hype and engagement online. Produced high-performing reels and content
-                                    that helped the event reach <strong>110k+ views</strong> and a total online reach
-                                     of <strong>400k+</strong>. Also collaborated with the dev team to build the
-                                      official event website.
-                            </p>
+                          <p class="edu-desc" style="color: white;">Led design + co-led social; reached <strong>110k+ views</strong> and <strong>400k+</strong> total reach. Collaborated on the event website.</p>
                         </div>
                         
                     </div>
@@ -158,29 +135,22 @@
                             <ul class="list-disc text-left"
                                 style="font-size: 15px; font-family: monospace; padding-left: 20px; line-height: 1.8;">
                                 <li>
-                                     I enjoy <strong>collaborating on new projects</strong>.
+                               <strong>Collaborating</strong> on new projects.
                                 </li>
                                 <li>
-                                    Passionate about <strong>sketching and drawing</strong>.
+                              <strong>Sketching and drawing</strong>.
                                 </li>
                                 <li>
-                                    Avid <strong>chess</strong> player with an ELO of ~1200.
+                              <strong>Chess</strong> (ELO ~1200).
                                 </li>
                                 <li>
-                                    Playing <strong>badminton</strong> keeps me active and competitive.
-                    
+                              <strong>Badminton</strong>.
                                 </li>
                                 <li>
-                                    Binge-watcher of <strong>movies and series</strong>.
+                              <strong>Movies and series</strong>.
                                 </li>
                                 <li>
-                                    Always tuned into <strong>music</strong>.
-                                </li>
-                                <li>
-                                    <strong>Gaming</strong> is a favorite way to unwind.
-                                </li>
-                                <li>
-                                    <strong>Swimming</strong> helps me relax, refresh, and stay fit.
+                              <strong>Music</strong>.
                                 </li>
                             </ul>
                         </div>
@@ -210,20 +180,13 @@
   <!-- Projects Section -->
   <section id="projects" class="project-section">
     <h2 class="projects-title">Projects</h2>
-    <div class="project-controls">
-      <div class="project-toggle-group">
-        <button id="codingProjectsBtn" class="project-toggle-btn active">Coding Projects</button>
-        <button id="sketchesBtn" class="project-toggle-btn">Sketches</button>
-      </div>
-    </div>
     <div id="projectsCanvas" class="projects-canvas">
-      <!-- Project Cards Container -->
-      <div id="projectCardsContainer"></div>
-      
-      <div id="guitarLoadingIndicator" class="guitar-loading">
-        <div class="guitar-icon">Guitar</div>
-        <div class="guitar-status">Loading Guitar Model...</div>
-        <div id="loadingProgress" class="guitar-progress">0%</div>
+      <div class="cards-stage-wrap">
+        <div class="cards-stage" id="cardsStage"></div>
+        <div class="cards-nav">
+          <button id="cardsPrev" class="cards-nav-btn">‹</button>
+          <button id="cardsNext" class="cards-nav-btn">›</button>
+        </div>
       </div>
     </div>
   </section>
@@ -299,20 +262,20 @@
             </div>
             <div class="connect-info-body">
               <div class="connect-info-item">
-                <span class="info-icon">@</span>
+                <img src="gmail.png" alt="Gmail" class="social-logo" />
                 <a href="mailto:sharik.hassan@gmail.com">sharik.hassan@gmail.com</a>
               </div>
               <div class="connect-info-item">
-                <span class="info-icon">in</span>
-                <a href="#" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <img src="linkedin.png" alt="LinkedIn" class="social-logo" />
+                <a href="https://www.linkedin.com/in/sharik-hassan" target="_blank" rel="noopener noreferrer">LinkedIn</a>
               </div>
               <div class="connect-info-item">
-                <span class="info-icon">GH</span>
-                <a href="#" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <img src="github.png" alt="GitHub" class="social-logo" />
+                <a href="https://github.com/shark4real" target="_blank" rel="noopener noreferrer">GitHub</a>
               </div>
               <div class="connect-info-item">
-                <span class="info-icon">IG</span>
-                <a href="#" target="_blank" rel="noopener noreferrer">Instagram</a>
+                <img src="instagram.png" alt="Instagram" class="social-logo" />
+                <a href="https://www.instagram.com/llsharikll" target="_blank" rel="noopener noreferrer">Instagram</a>
               </div>
             </div>
           </div>

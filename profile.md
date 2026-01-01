@@ -3,6 +3,8 @@
 ## Overview
 Hi, I’m Sayed Sharik Hassan — an aspiring Data Scientist with a strong passion for creativity, storytelling, and human-centered design.
 
+I’m a 4th-year student, and I enjoy sharing what I learn through teaching and community/club activities.
+
 I enjoy working at the intersection of data science, machine learning, backend engineering, and visual design. I love exploring data, building intelligent systems, and creating experiences that blend logic with imagination. Alongside technical work, I actively express myself through digital design, animation, and illustration.
 
 I believe the best products are built when engineering meets creativity, and I naturally gravitate toward projects that combine analytical thinking with strong visual and user experience design.

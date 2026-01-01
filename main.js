@@ -113,6 +113,9 @@ function initializeWebsite() {
   if (typeof initAboutSection === 'function') {
     initAboutSection();
   }
+  if (typeof initProjectsPin === 'function') {
+    initProjectsPin();
+  }
   if (typeof initSkillsAnimations === 'function') {
     initSkillsAnimations();
   }
@@ -122,9 +125,114 @@ function initializeWebsite() {
   if (typeof initLinkedInCarousel === 'function') {
     initLinkedInCarousel();
   }
+  if (typeof initConnectPin === 'function') {
+    initConnectPin();
+  }
   if (typeof initContactForm === 'function') {
     initContactForm();
   }
+}
+
+// Pin Connect section on desktop so it doesn't slip away quickly
+function initConnectPin() {
+  const connect = document.getElementById('connect');
+
+  if (!connect || !window.gsap || !window.ScrollTrigger) return;
+
+  const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+  if (!isDesktop) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  ScrollTrigger.create({
+    trigger: connect,
+    start: 'top top',
+    end: '+=150%',
+    pin: true,
+    pinSpacing: true,
+    anticipatePin: 1,
+  });
+}
+
+// Mobile Menu Functionality
+function initMobileMenu() {
+  // Create mobile menu elements if they don't exist
+  let mobileMenu = document.querySelector('.mobile-menu');
+  let mobileOverlay = document.querySelector('.mobile-overlay');
+  
+  if (!mobileMenu) {
+    // Create mobile menu
+    mobileMenu = document.createElement('div');
+    mobileMenu.className = 'mobile-menu';
+    mobileMenu.innerHTML = `
+      <button class="mobile-menu-close" aria-label="Close menu">&times;</button>
+      <nav>
+        <a href="#projects">Projects</a>
+        <a href="#about">About</a>
+        <a href="#skills">RAG</a>
+        <a href="#connect">Connect</a>
+      </nav>
+    `;
+    document.body.appendChild(mobileMenu);
+  }
+  
+  if (!mobileOverlay) {
+    // Create overlay
+    mobileOverlay = document.createElement('div');
+    mobileOverlay.className = 'mobile-overlay';
+    document.body.appendChild(mobileOverlay);
+  }
+  
+  const logo = document.querySelector('.logo');
+  const closeBtn = mobileMenu.querySelector('.mobile-menu-close');
+  const menuLinks = mobileMenu.querySelectorAll('a');
+  
+  function openMenu() {
+    mobileMenu.classList.add('active');
+    mobileOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function closeMenu() {
+    mobileMenu.classList.remove('active');
+    mobileOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  
+  // Open menu on logo click (mobile only)
+  if (logo && window.matchMedia('(max-width: 768px)').matches) {
+    logo.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        openMenu();
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+  
+  // Close menu
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeMenu);
+  }
+  
+  if (mobileOverlay) {
+    mobileOverlay.addEventListener('click', closeMenu);
+  }
+  
+  // Close menu when clicking a link
+  menuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      closeMenu();
+    });
+  });
+}
+
+// Initialize mobile menu
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMobileMenu);
+} else {
+  initMobileMenu();
 }
 
 // Smooth scrolling for navigation links with custom speed control
@@ -139,7 +247,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     // Special handling for about section - scroll through landing animation
     if (href === '#about') {
       const landing = document.getElementById('landing');
-      if (landing) {
+      if (landing && !window.matchMedia('(max-width: 768px)').matches) {
         // The landing is pinned for 200% of viewport height
         // So we need to scroll to: landing top + 200vh (the full pin duration)
         const scrollTarget = landing.offsetTop + (window.innerHeight * 2);
@@ -174,6 +282,8 @@ function initLandingSplitScroll() {
 
   gsap.registerPlugin(ScrollTrigger);
 
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
   // Build masked content: clone the landing into each panel so it moves with them.
   const hasPanelContent = topPanel.querySelector('.landing-panel-content') || bottomPanel.querySelector('.landing-panel-content');
   if (!hasPanelContent) {
@@ -196,8 +306,7 @@ function initLandingSplitScroll() {
   if (landingBg) gsap.set(landingBg, { autoAlpha: 1 });
   if (about) gsap.set(about, { y: 0 });
 
-  // Grab the cloned landing content inside each panel so we can
-  // gently slide it toward the corners during the split.
+  // Grab the cloned landing content inside each panel
   const topLandingLeft = topPanel.querySelector('.landing-panel-content-top .landing-left');
   const bottomLandingLeft = bottomPanel.querySelector('.landing-panel-content-bottom .landing-left');
 
@@ -205,7 +314,7 @@ function initLandingSplitScroll() {
     scrollTrigger: {
       trigger: landing,
       start: 'top top',
-      end: '+=200%',
+      end: isMobile ? '+=100%' : '+=200%', // Shorter animation on mobile
       scrub: true,
       pin: true,
       pinSpacing: true,
@@ -219,37 +328,43 @@ function initLandingSplitScroll() {
   }
 
   // Split from the middle by shrinking panel heights to 0.
-  // About section rises up with the top panel.
   tl.to(topPanel, { height: '0%', duration: 0.9, ease: 'power2.inOut' }, 0.2)
     .to(bottomPanel, { height: '0%', duration: 0.9, ease: 'power2.inOut' }, 0.2);
 
-  // As the panels split, nudge the top content toward the top-left
-  // and then the bottom content toward the bottom-right, with a
-  // slight delay between them for a staggered feel.
-  if (topLandingLeft) {
-    tl.to(
-      topLandingLeft,
-      {
+  // Simplified movement for mobile
+  if (isMobile) {
+    if (topLandingLeft) {
+      tl.to(topLandingLeft, {
+        y: '-50vh',
+        duration: 1.2,
+        ease: 'power3.inOut',
+      }, 0.25);
+    }
+    if (bottomLandingLeft) {
+      tl.to(bottomLandingLeft, {
+        y: '50vh',
+        duration: 1.2,
+        ease: 'power3.inOut',
+      }, 0.35);
+    }
+  } else {
+    // Desktop animation with horizontal movement
+    if (topLandingLeft) {
+      tl.to(topLandingLeft, {
         x: '-58vw',
         y: '-35vh',
         duration: 1.4,
         ease: 'power3.inOut',
-      },
-      0.25
-    );
-  }
-
-  if (bottomLandingLeft) {
-    tl.to(
-      bottomLandingLeft,
-      {
+      }, 0.25);
+    }
+    if (bottomLandingLeft) {
+      tl.to(bottomLandingLeft, {
         x: '58vw',
         y: '35vh',
         duration: 1.4,
         ease: 'power3.inOut',
-      },
-      0.45
-    );
+      }, 0.45);
+    }
   }
   
   if (about) {
@@ -317,735 +432,393 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 */
 
+/**
+ * Portfolio Project Gallery
+ * Features: 3D Perspective Carousel, Premium Mouse-Tilt, and Parallax Effects
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
-  initHeaderHide();
-  // 3D scene will be initialized by initializeWebsite() after assets load
+  // Initialize other components if they exist
+  if (typeof initHeaderHide === 'function') initHeaderHide();
+  
+  // Initialize the 3D Project Gallery
+  initProjectCards();
 });
 
-// Store codingProjects globally so preloader can access it
+// Project Data (updated with provided entries)
 const codingProjects = [
   { title: 'Datanaut.ai', description: 'An EDA tool, which lets u upload dataset and get instant insights', github: 'https://github.com/shark4real/Datanaut', demo: 'https://datanaut.onrender.com/', thumbnail: './datanaut.ai.png', image: './datanaut.ai.png' },
   { title: 'Genly.ai', description: 'An AI-Email generator app for professional and bulk emailing', github: 'https://github.com/shark4real/Genly.ai', demo: 'https://genly-ai.onrender.com/', thumbnail: './genlyz.png', image: './genly.png' },
   { title: 'Retail_order', description: 'An end to end Data Analysis pipline journey showcasing my skills in Python , Postgres & Tableau', github: 'https://github.com/shark4real/Retail_order_DA_project', demo: 'https://shark4real.github.io/Retail_order_DA_project', thumbnail: './Retail_order.png', image: '/Retail_order.png' },
   { title: 'TDS_LLM', description: 'This project was developed as part of my academic curriculum at IIT Madras.', github: 'https://github.com/shark4real/tds_llm_project', demo: '#', thumbnail: './tdsllm.png', image: './tdsllm.png' },
-  { title: 'Autoparser', description: ' an AI-powered agent in Python that autonomously generates, tests, and self-corrects parsers for unstructured bank statement PDFs', github: 'https://github.com/shark4real/ai-agent-challenge', demo: '#', thumbnail: './Autoparser.png', image: './Autoparser.png' },
+  { title: 'Autoparser', description: 'an AI-powered agent in Python that autonomously generates, tests, and self-corrects parsers for unstructured bank statement PDFs', github: 'https://github.com/shark4real/ai-agent-challenge', demo: '#', thumbnail: './Autoparser.png', image: './Autoparser.png' },
   { title: 'Creative Coding', description: 'A small project on creative coding using Fourier Series Transformation', github: 'https://github.com/shark4real/Fourier_python', demo: 'https://shark4real.github.io/fourieronline/', thumbnail: './ftcc.png', image: './ftcc.png' }
 ];
 
-function init3DScene() {
-  const canvasContainer = document.getElementById('projectsCanvas');
-  if (!canvasContainer) return;
+// Global assignment for consistency
+window.codingProjects = codingProjects;
 
-  const sketchProjects = [
-    { title: 'Sketch 1', thumbnail: '' },
-    { title: 'Sketch 2', thumbnail: '' },
-    { title: 'Sketch 3', thumbnail: '' },
-    { title: 'Sketch 4', thumbnail: '' },
-    { title: 'Sketch 5', thumbnail: '' },
-    { title: 'Sketch 6', thumbnail: '' }
-  ];
+function initProjectCards() {
+  const stage = document.getElementById('cardsStage');
+  const btnPrev = document.getElementById('cardsPrev');
+  const btnNext = document.getElementById('cardsNext');
 
-  let currentMode = 'coding';
+  if (!stage || !window.codingProjects) return;
 
-  const scene = new THREE.Scene();
-  scene.background = null;
+  stage.innerHTML = '';
+  const projects = window.codingProjects;
+  const count = projects.length;
+  let currentIndex = 0;
+  const cards = [];
 
-  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 20, 30);
-  camera.lookAt(0, 5, 0);
+  // 1. Generate Card DOM Elements
+  projects.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.index = i;
 
-  let renderer;
-  try {
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  } catch (err) {
-    console.error('WebGL not available or failed to initialize:', err);
-    const loadingIndicator = document.getElementById('guitarLoadingIndicator');
-    const loadingProgress = document.getElementById('loadingProgress');
-    if (loadingIndicator) {
-      loadingIndicator.classList.add('error');
-      const status = loadingIndicator.querySelector('.guitar-status');
-      if (status) status.textContent = '3D view not supported on this device.';
-    }
-    if (loadingProgress) {
-      loadingProgress.textContent = '';
-    }
-    return;
-  }
+    const inner = document.createElement('div');
+    inner.className = 'card-inner';
 
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.physicallyCorrectLights = true;
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
-  canvasContainer.appendChild(renderer.domElement);
-
-  const pmrem = new THREE.PMREMGenerator(renderer);
-
-  // Use preloaded HDR if available
-  if (window.assetsLoaded.hdr && window.preloadedAssets.hdrBlob) {
-    const objectURL = URL.createObjectURL(window.preloadedAssets.hdrBlob);
-    new THREE.RGBELoader().load(objectURL, (hdr) => {
-      const envMap = pmrem.fromEquirectangular(hdr).texture;
-      scene.environment = envMap;
-      scene.background = null;
-      URL.revokeObjectURL(objectURL);
-    }, undefined, (error) => {
-      console.warn('HDR failed to load from preloaded blob, using fallback lighting');
-    });
-  } else {
-    // Fallback to regular loading if preload failed
-    new THREE.RGBELoader().load('./studio.hdr', (hdr) => {
-      const envMap = pmrem.fromEquirectangular(hdr).texture;
-      scene.environment = envMap;
-      scene.background = null;
-    }, undefined, (error) => {
-      console.warn('HDR not found, using fallback lighting');
-    });
-  }
-
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-  scene.add(ambientLight);
-
-  const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
-  keyLight.position.set(10, 15, 10);
-  keyLight.castShadow = true;
-  scene.add(keyLight);
-
-  const fillLight = new THREE.DirectionalLight(0xffffff, 1.5);
-  fillLight.position.set(-10, 10, -10);
-  scene.add(fillLight);
-
-  const rimLight = new THREE.DirectionalLight(0xffffff, 2);
-  rimLight.position.set(0, 15, -15);
-  scene.add(rimLight);
-
-  let guitar = null;
-  const loader = new THREE.GLTFLoader();
-
-  const guitarPath = './guitar.glb';
-
-  const loadingIndicator = document.getElementById('guitarLoadingIndicator');
-  const loadingProgress = document.getElementById('loadingProgress');
-
-  // Use preloaded guitar model if available
-  if (window.assetsLoaded.guitar && window.preloadedAssets.guitarBlob) {
-    const objectURL = URL.createObjectURL(window.preloadedAssets.guitarBlob);
-    
-    loader.load(
-      objectURL,
-      (gltf) => {
-        console.log('Guitar loaded from preloaded blob');
-        guitar = gltf.scene;
-
-        const box = new THREE.Box3().setFromObject(guitar);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-
-        guitar.position.sub(center);
-
-        const scaleFactor = 3;
-        guitar.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
-        let meshCount = 0;
-        guitar.traverse((child) => {
-          if (child.isMesh) {
-            meshCount++;
-            child.castShadow = true;
-            child.receiveShadow = true;
-
-            if (child.material && child.material.transparent) {
-              child.material.opacity = 1;
-            }
-          }
-        });
-
-        scene.add(guitar);
-
-        if (loadingIndicator) {
-          loadingIndicator.style.display = 'none';
+    // Helper to create buttons and handle external links
+    const createBtn = (text, url, type) => {
+      const btn = document.createElement('button');
+      btn.className = `proj-btn ${type}-btn`;
+      btn.textContent = text;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevents flipping the card when clicking button
+        if (url && url !== '#') {
+          window.open(url, '_blank', 'noopener,noreferrer');
         }
-        
-        URL.revokeObjectURL(objectURL);
-      },
-      (progress) => {
-        if (progress.total > 0) {
-          const percent = Math.round((progress.loaded / progress.total) * 100);
-          if (loadingProgress) {
-            loadingProgress.textContent = `${percent}%`;
-          }
-        }
-      },
-      (error) => {
-        console.error('Failed to load guitar from preloaded blob:', error);
-        if (loadingProgress) {
-          loadingProgress.textContent = 'Load failed';
-        }
-        if (loadingIndicator) {
-          loadingIndicator.classList.add('error');
-        }
-        URL.revokeObjectURL(objectURL);
-      }
-    );
-  } else {
-    // Fallback to regular loading if preload failed
-    loader.load(
-      guitarPath,
-      (gltf) => {
-        console.log('Guitar loaded');
-        guitar = gltf.scene;
-
-        const box = new THREE.Box3().setFromObject(guitar);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-
-        guitar.position.sub(center);
-
-        const scaleFactor = 3;
-        guitar.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
-        let meshCount = 0;
-        guitar.traverse((child) => {
-          if (child.isMesh) {
-            meshCount++;
-            child.castShadow = true;
-            child.receiveShadow = true;
-
-            if (child.material && child.material.transparent) {
-              child.material.opacity = 1;
-            }
-          }
-        });
-
-        scene.add(guitar);
-
-        if (loadingIndicator) {
-          loadingIndicator.style.display = 'none';
-        }
-      },
-      (progress) => {
-        if (progress.total > 0) {
-          const percent = Math.round((progress.loaded / progress.total) * 100);
-          if (loadingProgress) {
-            loadingProgress.textContent = `${percent}%`;
-          }
-        }
-      },
-      (error) => {
-        console.error('Failed to load guitar:', error);
-        if (loadingProgress) {
-          loadingProgress.textContent = 'Load failed';
-        }
-        if (loadingIndicator) {
-          loadingIndicator.classList.add('error');
-        }
-      }
-    );
-  }
-
-  const projectPlanes = [];
-  const planeRadius = 13;
-  const planeCount = 6;
-
-  const textureLoader = new THREE.TextureLoader();
-
-  // Placeholder if texture fails
-  const placeholder = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    side: THREE.DoubleSide,
-    roughness: 0.4,
-    metalness: 0,
-    emissive: 0x111111,
-    emissiveIntensity: 0.3
-  });
-
-  // Texture cache to avoid recreating the same textures
-  const textureCache = new Map();
-  
-  // Function to create polaroid-style texture with white border and title
-  const createPolaroidTexture = (imageUrl, title) => {
-    const cacheKey = `${imageUrl}_${title}`;
-    if (textureCache.has(cacheKey)) {
-      return Promise.resolve(textureCache.get(cacheKey));
-    }
-    
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 320;
-      const ctx = canvas.getContext('2d', { willReadFrequently: false });
-
-      // White polaroid border
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Image area
-      const borderSize = 15;
-      const imageHeight = 225;
-      ctx.fillStyle = '#f5f5f5';
-      ctx.fillRect(borderSize, borderSize, canvas.width - borderSize * 2, imageHeight);
-
-      // Load and draw image
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        // Flip canvas horizontally to show correct orientation
-        ctx.save();
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(img, borderSize, borderSize, canvas.width - borderSize * 2, imageHeight);
-        ctx.restore();
-
-        // Draw title at bottom (polaroid text area) - also flipped
-        ctx.save();
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-        ctx.fillStyle = '#000000';
-        ctx.font = 'bold 14px Inter, sans-serif';
-        ctx.textAlign = 'right';
-        ctx.fillText(title, canvas.width - borderSize - 10, borderSize + imageHeight + 30);
-        ctx.restore();
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.encoding = THREE.sRGBEncoding;
-        texture.magFilter = THREE.LinearFilter;
-        texture.minFilter = THREE.LinearMipMapLinearFilter;
-        texture.generateMipmaps = true;
-        textureCache.set(cacheKey, texture);
-        resolve(texture);
-      };
-      img.onerror = () => {
-        // Fallback - also flip the text
-        ctx.fillStyle = '#e0e0e0';
-        ctx.fillRect(borderSize, borderSize, canvas.width - borderSize * 2, imageHeight);
-        ctx.save();
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-        ctx.fillStyle = '#000000';
-        ctx.font = 'bold 14px Inter, sans-serif';
-        ctx.textAlign = 'right';
-        ctx.fillText(title, canvas.width - borderSize - 10, borderSize + imageHeight + 30);
-        ctx.restore();
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.encoding = THREE.sRGBEncoding;
-        texture.magFilter = THREE.LinearFilter;
-        texture.minFilter = THREE.LinearMipMapLinearFilter;
-        textureCache.set(cacheKey, texture);
-        resolve(texture);
-      };
-      img.src = imageUrl;
-    });
-  };
-
-  for (let i = 0; i < planeCount; i++) {
-    const angle = (i / planeCount) * Math.PI * 2;
-    const x = Math.cos(angle) * planeRadius;
-    const z = Math.sin(angle) * planeRadius;
-    const y = 10 + (i * 2.5);
-
-    const planeGeometry = new THREE.PlaneGeometry(4, 5);
-
-    // Create polaroid texture with title
-    createPolaroidTexture(codingProjects[i].thumbnail, codingProjects[i].title).then((texture) => {
-      const material = new THREE.MeshStandardMaterial({
-        map: texture,
-        side: THREE.DoubleSide,
-        transparent: true,
-        roughness: 0.3,
-        metalness: 0,
-        emissive: 0x111111,
-        emissiveIntensity: 0.2
       });
-
-      const planeMesh = projectPlanes[i];
-      planeMesh.material = material;
-    });
-
-    const material = codingProjects[i].thumbnail
-      ? new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          side: THREE.DoubleSide,
-          transparent: true,
-          roughness: 0.4,
-          metalness: 0,
-          emissive: 0x111111,
-          emissiveIntensity: 0.3
-        })
-      : placeholder;
-
-    const planeMesh = new THREE.Mesh(planeGeometry, material);
-
-    planeMesh.position.set(x, y, z);
-
-    // Make sure plane always faces outward (no inversion)
-    planeMesh.rotation.y = angle;
-
-    planeMesh.castShadow = false;
-    planeMesh.receiveShadow = false;
-
-    planeMesh.userData = {
-      projectIndex: i,
-      initialAngle: angle,
-      initialY: y,
-      hovered: false
+      return btn;
     };
 
-    scene.add(planeMesh);
-    projectPlanes.push(planeMesh);
-  }
+    // Front Face
+    const front = document.createElement('div');
+    front.className = 'card-face card-front';
+    
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    if (p.thumbnail) thumb.style.backgroundImage = `url('${p.thumbnail}')`;
 
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-  let frontCardIndex = 0;
+    // remove overlay buttons from thumbnail; add a white info area under the thumbnail
+    thumb.appendChild(document.createElement('div')); // placeholder to preserve structure if needed
+    front.appendChild(thumb);
 
-  const onMouseMove = (event) => {
-    const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    const info = document.createElement('div');
+    info.className = 'card-info';
 
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(projectPlanes);
+    const infoTitle = document.createElement('h3');
+    infoTitle.className = 'card-title';
+    infoTitle.textContent = p.title || 'Project';
 
-    // Reset all planes - only update the one that changed
-    projectPlanes.forEach((plane, idx) => {
-      const wasHovered = plane.userData.hovered;
-      plane.userData.hovered = false;
-      
-      if (wasHovered) {
-        plane.scale.set(1, 1, 1);
-        plane.material.emissiveIntensity = 0.1;
+    // Only show centered project title in the white bar (buttons moved to preview modal)
+    info.appendChild(infoTitle);
+    front.appendChild(info);
+
+    // Back Face
+    const back = document.createElement('div');
+    back.className = 'card-face card-back';
+    
+    const backContent = document.createElement('div');
+    backContent.innerHTML = `<h3>${p.title}</h3><p>${p.description}</p>`;
+    
+    const backBtns = document.createElement('div');
+    backBtns.className = 'proj-btns';
+    backBtns.appendChild(createBtn('Demo', p.demo, 'demo'));
+    backBtns.appendChild(createBtn('Github', p.github, 'github'));
+
+    back.appendChild(backContent);
+    back.appendChild(backBtns);
+
+    inner.appendChild(front);
+    inner.appendChild(back);
+    card.appendChild(inner);
+
+    // Click to flip + open preview (Only if card is in the center)
+    card.addEventListener('click', () => {
+      if (card.classList.contains('center')) {
+        openPreviewSequence(card, p);
       }
     });
 
-    if (intersects.length > 0) {
-      const hoveredPlane = intersects[0].object;
-      hoveredPlane.userData.hovered = true;
-      hoveredPlane.scale.set(1.15, 1.15, 1.15);
-      hoveredPlane.material.emissiveIntensity = 0.3;
-      renderer.domElement.style.cursor = 'pointer';
-    } else {
-      renderer.domElement.style.cursor = 'default';
-    }
-  };
+    stage.appendChild(card);
+    cards.push(card);
+  });
 
-  // Create project cards
-  const cardsContainer = document.getElementById('projectCardsContainer');
-  const projectCards = [];
+  // 2. Position Cards in 3D Space
+  function updateCardPositions() {
+    cards.forEach((card, i) => {
+      card.classList.remove('center', 'left', 'right', 'far-left', 'far-right', 'hidden', 'flipped');
+      
+      // Infinite Loop Logic: Finds relative position of each card to the current index
+      const diff = (i - currentIndex + count) % count;
 
-  for (let i = 0; i < 6; i++) {
-    const card = document.createElement('div');
-    card.className = 'project-card';
-    card.id = `project-card-${i}`;
-    
-    const project = currentMode === 'coding' ? codingProjects[i] : sketchProjects[i];
-    
-    // Set background image from thumbnail
-    if (project.thumbnail) {
-      card.style.backgroundImage = `url('${project.thumbnail}')`;
+      if (diff === 0) {
+        card.classList.add('center');
+      } else if (diff === 1) {
+        card.classList.add('right');
+      } else if (diff === count - 1) {
+        card.classList.add('left');
+      } else if (diff === 2) {
+        card.classList.add('far-right');
+      } else if (diff === count - 2) {
+        card.classList.add('far-left');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+  }
+
+  // 3. Premium Interactive Tilt Logic
+  // Smooth, inertia-driven hover using RAF and lerp for realism
+  cards.forEach((card) => {
+    const inner = card.querySelector('.card-inner');
+    const thumb = card.querySelector('.thumb');
+    const info = card.querySelector('.card-info');
+    let bounds = null;
+
+    // target and current values for smoothing
+    let targetRx = 0, targetRy = 0;
+    let curRx = 0, curRy = 0;
+    let targetZ = 0, curZ = 0;
+    let animating = false;
+
+    // lerp helper
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    function rafLoop() {
+      animating = true;
+      // ease factor (smaller = more inertia)
+      const t = 0.12;
+
+      curRx = lerp(curRx, targetRx, t);
+      curRy = lerp(curRy, targetRy, t);
+      curZ = lerp(curZ, targetZ, t);
+
+      const scale = 1 + Math.min(0.07, Math.abs(curRx + curRy) * 0.0025);
+
+      inner.style.transform = `rotateX(${curRx}deg) rotateY(${curRy}deg) translateZ(${curZ}px) scale(${scale})`;
+
+      // update parallax thumb and spotlight variables
+      thumb.style.setProperty('--parallax-x', `${curRy * 0.8}px`);
+      thumb.style.setProperty('--parallax-y', `${-curRx * 0.8}px`);
+      inner.style.setProperty('--mouse-x', `${50 + (curRy/40)*50}%`);
+      inner.style.setProperty('--mouse-y', `${50 + (curRx/40)*50}%`);
+      if (info) info.style.setProperty('--button-lift', `${-Math.abs(curRx) * 0.5}px`);
+
+      // dynamic shadow intensity tied to Z and rotation
+      const shadowDepth = Math.max(20, 40 + curZ * 0.6 + Math.abs(curRx) * 0.6 + Math.abs(curRy) * 0.6);
+      inner.style.boxShadow = `0 ${shadowDepth}px ${shadowDepth * 2}px rgba(0,0,0,0.35)`;
+
+      // continue loop while not at rest
+      if (Math.abs(curRx - targetRx) > 0.01 || Math.abs(curRy - targetRy) > 0.01 || Math.abs(curZ - targetZ) > 0.1) {
+        requestAnimationFrame(rafLoop);
+      } else {
+        animating = false;
+      }
     }
-    
-    // Build buttons conditionally - only show Demo if demo link exists
-    let buttonsHTML = '';
-    if (project.demo && project.demo !== '#') {
-      buttonsHTML += `<button class="project-card-btn demo-btn">Demo</button>`;
+
+    function onMouseMove(e) {
+      if (!card.classList.contains('center') || card.classList.contains('flipped')) return;
+      if (!bounds) bounds = inner.getBoundingClientRect();
+
+      const mouseX = e.clientX - bounds.left;
+      const mouseY = e.clientY - bounds.top;
+      const cx = bounds.width / 2;
+      const cy = bounds.height / 2;
+
+      // softer max tilt (12deg) with a slight offset for realism
+      const maxTilt = 12;
+      const rx = (-(mouseY - cy) / cy) * maxTilt;
+      const ry = ((mouseX - cx) / cx) * maxTilt;
+
+      // Z translation proportional to combined tilt
+      const z = 60 + Math.min(80, Math.abs(rx) + Math.abs(ry) * 2);
+
+      targetRx = rx;
+      targetRy = ry;
+      targetZ = z;
+
+      if (!animating) requestAnimationFrame(rafLoop);
     }
-    if (project.github && project.github !== '#') {
-      buttonsHTML += `<button class="project-card-btn github-btn">Github</button>`;
+
+    function onEnter() {
+      bounds = inner.getBoundingClientRect();
+      // small initial pop
+      targetZ = 70;
+      if (!animating) requestAnimationFrame(rafLoop);
     }
-    
-    card.innerHTML = `
-      <div class="project-card-image" style="background-image: url('${project.thumbnail}');"></div>
-      <button class="project-card-close">×</button>
-      <div class="project-card-content">
-        <h3>${project.title}</h3>
-        <p>${project.description || ''}</p>
-        <div class="project-card-buttons">
-          ${buttonsHTML}
+
+    function onLeave() {
+      // return to neutral
+      targetRx = 0; targetRy = 0; targetZ = 0;
+      bounds = null;
+      if (!animating) requestAnimationFrame(rafLoop);
+    }
+
+    card.addEventListener('mouseenter', onEnter);
+    card.addEventListener('mousemove', onMouseMove);
+    card.addEventListener('mouseleave', onLeave);
+  });
+
+  // Modal: create once and attach to body
+  let modalEl = null;
+  function createPreviewModal() {
+    modalEl = document.createElement('div');
+    modalEl.id = 'projectPreviewModal';
+    modalEl.className = 'project-preview-modal';
+    modalEl.innerHTML = `
+      <div class="ppm-overlay"></div>
+      <div class="ppm-shell" role="dialog" aria-modal="true">
+        <button class="ppm-close" aria-label="Close preview">×</button>
+        <div class="ppm-content">
+          <div class="ppm-thumb"></div>
+          <div class="ppm-info">
+            <h3 class="ppm-title"></h3>
+            <p class="ppm-desc"></p>
+            <div class="ppm-links"></div>
+          </div>
         </div>
       </div>
     `;
-    
-    // Add event listeners
-    const closeBtn = card.querySelector('.project-card-close');
-    closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      card.classList.remove('active');
-    });
-    
-    const demoBtn = card.querySelector('.demo-btn');
-    if (demoBtn) {
-      demoBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        window.open(project.demo, '_blank');
-      });
-    }
-    
-    const githubBtn = card.querySelector('.github-btn');
-    if (githubBtn) {
-      githubBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        window.open(project.github, '_blank');
-      });
-    }
-    
-    cardsContainer.appendChild(card);
-    projectCards.push(card);
+
+    document.body.appendChild(modalEl);
+
+    // Close handlers
+    modalEl.querySelector('.ppm-close').addEventListener('click', closePreview);
+    modalEl.querySelector('.ppm-overlay').addEventListener('click', closePreview);
   }
 
-  const onMouseClick = (event) => {
-    const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  function showPreview(project, card) {
+    if (!modalEl) createPreviewModal();
+    const shell = modalEl.querySelector('.ppm-shell');
+    const thumb = modalEl.querySelector('.ppm-thumb');
+    const title = modalEl.querySelector('.ppm-title');
+    const desc = modalEl.querySelector('.ppm-desc');
+    const links = modalEl.querySelector('.ppm-links');
 
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(projectPlanes);
+    thumb.style.backgroundImage = project.thumbnail ? `url('${project.thumbnail}')` : '';
+    title.textContent = project.title || '';
+    desc.textContent = project.description || '';
 
-    if (intersects.length > 0) {
-      const clickedPlane = intersects[0].object;
-      const clickedIndex = clickedPlane.userData.projectIndex;
-
-      // Rotate all planes to bring clicked one to front with smooth animation
-      const rotationNeeded = (clickedIndex - frontCardIndex) * (Math.PI * 2 / planeCount);
-
-      projectPlanes.forEach((plane, idx) => {
-        const targetAngle = plane.userData.initialAngle + rotationNeeded;
-        
-        gsap.to(plane.position, {
-          x: Math.cos(targetAngle) * planeRadius,
-          z: Math.sin(targetAngle) * planeRadius,
-          duration: 0.8,
-          ease: 'power2.inOut'
-        });
-      });
-
-      frontCardIndex = clickedIndex;
-
-      // Show clicked card after a short delay
-      setTimeout(() => {
-        projectCards.forEach(card => {
-          card.classList.remove('active');
-        });
-
-        const card = projectCards[clickedIndex];
-        card.style.left = '50%';
-        card.style.top = '50%';
-        card.style.transform = 'translate(-50%, -50%)';
-        card.classList.add('active');
-      }, 400);
+    links.innerHTML = '';
+    if (project.demo && project.demo !== '#') {
+      const a = document.createElement('a');
+      a.className = 'ppm-link demo-link';
+      a.href = project.demo;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = 'Live Demo';
+      links.appendChild(a);
     }
-  };
-
-  // Close card on click outside
-  document.addEventListener('click', (event) => {
-    if (!renderer.domElement.contains(event.target) && !cardsContainer.contains(event.target)) {
-      projectCards.forEach(card => {
-        card.classList.remove('active');
-      });
+    if (project.github && project.github !== '#') {
+      const a2 = document.createElement('a');
+      a2.className = 'ppm-link github-link';
+      a2.href = project.github;
+      a2.target = '_blank';
+      a2.rel = 'noopener noreferrer';
+      a2.textContent = 'github';
+      links.appendChild(a2);
     }
+
+    // Show modal
+    modalEl.classList.add('open');
+    // keep the card flipped while modal open
+    if (card) card.classList.add('flipped');
+  }
+
+  function closePreview() {
+    if (!modalEl) return;
+    // remove open state
+    modalEl.classList.remove('open');
+    // remove flipped class from any card
+    cards.forEach(c => c.classList.remove('flipped'));
+  }
+
+  function openPreviewSequence(card, project) {
+    // flip the card first, then open modal after a short delay for the flip animation
+    card.classList.add('flipped');
+    setTimeout(() => showPreview(project, card), 380);
+  }
+
+  // 4. Navigation Events
+  btnPrev?.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + count) % count;
+    updateCardPositions();
   });
 
-  // Throttle mouse move to improve performance
-  let lastMouseMoveTime = 0;
-  const mouseMoveThrottle = 100; // ~10fps - lighter on CPU
+  btnNext?.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % count;
+    updateCardPositions();
+  });
+
+  // Add touch swipe support for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
   
-  const throttledMouseMove = (event) => {
-    const now = performance.now();
-    if (now - lastMouseMoveTime > mouseMoveThrottle) {
-      onMouseMove(event);
-      lastMouseMoveTime = now;
-    }
-  };
-
-  renderer.domElement.addEventListener('mousemove', throttledMouseMove);
-  renderer.domElement.addEventListener('click', onMouseClick);
-
-  const codingBtn = document.getElementById('codingProjectsBtn');
-  const sketchesBtn = document.getElementById('sketchesBtn');
-
-  const switchToMode = (mode) => {
-    currentMode = mode;
-
-    if (mode === 'coding') {
-      codingBtn.classList.add('active');
-      sketchesBtn.classList.remove('active');
-    } else {
-      sketchesBtn.classList.add('active');
-      codingBtn.classList.remove('active');
-    }
-
-    projectPlanes.forEach((plane, i) => {
-      if (mode === 'coding') {
-        // For coding mode, create polaroid texture with title
-        createPolaroidTexture(codingProjects[i].thumbnail, codingProjects[i].title).then((texture) => {
-          plane.material.map = texture;
-          plane.material.needsUpdate = true;
-        });
-      } else {
-        // For sketches mode, use basic texture loader
-        const newTexture = sketchProjects[i].thumbnail;
-        if (newTexture) {
-          const textureLoader = new THREE.TextureLoader();
-          textureLoader.load(
-            newTexture,
-            (texture) => {
-              texture.encoding = THREE.sRGBEncoding;
-              plane.material.map = texture;
-              plane.material.needsUpdate = true;
-            },
-            undefined,
-            () => {
-              plane.material.color.set(0xcccccc);
-              plane.material.map = null;
-              plane.material.needsUpdate = true;
-            }
-          );
-        } else {
-          plane.material.map = null;
-          plane.material.needsUpdate = true;
-        }
-      }
-
-      gsap.to(plane.rotation, {
-        y: plane.rotation.y + Math.PI,
-        duration: 0.6,
-        ease: 'power2.inOut'
-      });
-    });
-  };
-
-  codingBtn.addEventListener('click', () => switchToMode('coding'));
-  sketchesBtn.addEventListener('click', () => switchToMode('sketches'));
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  let scrollProgress = { value: 0 };
-
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: '#projects',
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 1,
-      pin: '#projectsCanvas',
-      pinSpacing: false,
-      markers: false,
-      onUpdate: (self) => {
-        scrollProgress.value = self.progress;
-      }
-    }
-  });
-
-  tl.to(camera.position, {
-    y: -20,
-    z: 30,
-    duration: 1,
-    ease: 'none'
-  });
-
-  const cameraLookAt = { y: 5 };
-  tl.to(cameraLookAt, {
-    y: -10,
-    duration: 1,
-    ease: 'none',
-    onUpdate: () => {
-      camera.lookAt(0, cameraLookAt.y, 0);
-    }
-  }, 0);
-
-  const planeInitialData = projectPlanes.map((plane, i) => ({
-    angle: (i / planeCount) * Math.PI * 2,
-    y: 10 + (i * 1.5)
-  }));
-
-  projectPlanes.forEach((plane, i) => {
-    tl.fromTo(
-      plane.material,
-      { opacity: 0 },
-      {
-        opacity: 1,
-        duration: 0.2
-      },
-      0.1 + i * 0.03
-    );
-
-    tl.to(
-      plane.position,
-      {
-        y: -10 - (i * 1.5),
-        duration: 1,
-        ease: 'none'
-      },
-      0
-    );
-  });
-
-  let isProjectsVisible = false;
-  let animationFrameId = null;
+  stage.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
   
-  const animate = () => {
-    if (!isProjectsVisible) {
-      animationFrameId = null;
-      return; // Stop animation when not visible
+  stage.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+  
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    if (touchStartX - touchEndX > swipeThreshold) {
+      // Swipe left - next card
+      currentIndex = (currentIndex + 1) % count;
+      updateCardPositions();
+    } else if (touchEndX - touchStartX > swipeThreshold) {
+      // Swipe right - previous card
+      currentIndex = (currentIndex - 1 + count) % count;
+      updateCardPositions();
     }
-    
-    animationFrameId = requestAnimationFrame(animate);
+  }
 
-    if (guitar) {
-      guitar.rotation.y = scrollProgress.value * Math.PI * 2;
-    }
-
-    projectPlanes.forEach((plane, i) => {
-      const baseAngle = planeInitialData[i].angle;
-      const scrollRotation = scrollProgress.value * Math.PI * 2;
-      const angle = baseAngle + scrollRotation;
-
-      plane.position.x = Math.cos(angle) * planeRadius;
-      plane.position.z = Math.sin(angle) * planeRadius;
-
-      plane.lookAt(0, plane.position.y, 0);
-    });
-
-    renderer.render(scene, camera);
-  };
-
-  const onWindowResize = () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  };
-
-  window.addEventListener('resize', onWindowResize);
-
-  ScrollTrigger.create({
-    trigger: '#projects',
-    start: 'top bottom',
-    end: 'bottom top',
-    onEnter: () => {
-      renderer.domElement.style.display = 'block';
-      isProjectsVisible = true;
-      if (!animationFrameId) animate(); // Start animation
-    },
-    onLeave: () => {
-      renderer.domElement.style.display = 'none';
-      isProjectsVisible = false; // Stop animation
-    },
-    onEnterBack: () => {
-      renderer.domElement.style.display = 'block';
-      isProjectsVisible = true;
-      if (!animationFrameId) animate(); // Restart animation
-    },
-    onLeaveBack: () => {
-      renderer.domElement.style.display = 'none';
-      isProjectsVisible = false; // Stop animation
-    }
-  });
-
-  console.log('3D Guitar Projects Section initialized');
+  // Initial render
+  updateCardPositions();
 }
 
+// Pin projects section for extended scroll (optimized for performance)
+function initProjectsPin() {
+  const projectsSection = document.getElementById('projects');
+  const projectsCanvas = document.getElementById('projectsCanvas');
+  
+  if (!projectsSection || !projectsCanvas || !window.gsap || !window.ScrollTrigger) return;
+  
+  gsap.registerPlugin(ScrollTrigger);
+
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  // Mobile: pin the whole section (title + controls + canvas) so it
+  // stays in place for a few scrolls.
+  if (isMobile) {
+    ScrollTrigger.create({
+      trigger: projectsSection,
+      start: 'top top',
+      end: '+=220%',
+      pin: true,
+      pinSpacing: true,
+      anticipatePin: 1,
+    });
+    return;
+  }
+
+  // Desktop: pin just the canvas; title/controls are sticky.
+  ScrollTrigger.create({
+    trigger: projectsSection,
+    start: 'top top',
+    end: '+=150%', // Pin for 150% of viewport height
+    pin: projectsCanvas,
+    pinSpacing: true,
+    anticipatePin: 1,
+  });
+}
 
 // about section
 function initAboutSection() {
@@ -1066,7 +839,8 @@ function initAboutSection() {
     let currentIndex = 0;
     
     // Desktop: 2 cards visible, Mobile: 1 card visible
-    const isDesktop = window.innerWidth > 768;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const isDesktop = !isMobile;
     const cardsPerView = isDesktop ? 2 : 1;
     const totalCards = cards.length;
     const maxIndex = Math.max(0, totalCards - cardsPerView);
@@ -1113,6 +887,31 @@ function initAboutSection() {
         }
     };
     
+    // Add touch swipe for mobile
+    if (isMobile) {
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        track.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        track.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const swipeThreshold = 50;
+            
+            if (touchStartX - touchEndX > swipeThreshold && currentIndex < maxIndex) {
+                // Swipe left - next
+                currentIndex++;
+                scrollToIndex();
+            } else if (touchEndX - touchStartX > swipeThreshold && currentIndex > 0) {
+                // Swipe right - previous
+                currentIndex--;
+                scrollToIndex();
+            }
+        }, { passive: true });
+    }
+    
     // Show/hide buttons based on about section visibility
     function checkAboutVisibility() {
         if (!aboutSection) return;
@@ -1143,8 +942,8 @@ function initAboutSection() {
     
     // Handle window resize
     window.addEventListener("resize", () => {
-        const newIsDesktop = window.innerWidth > 768;
-        if (newIsDesktop !== isDesktop) {
+        const newIsMobile = window.matchMedia("(max-width: 768px)").matches;
+        if (newIsMobile !== isMobile) {
             location.reload();
         }
     });
