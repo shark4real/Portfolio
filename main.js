@@ -131,6 +131,13 @@ function initializeWebsite() {
   if (typeof initContactForm === 'function') {
     initContactForm();
   }
+  
+  // Refresh ScrollTrigger after all animations are set up
+  if (window.ScrollTrigger) {
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+  }
 }
 
 // Pin Connect section on desktop so it doesn't slip away quickly
@@ -235,6 +242,17 @@ if (document.readyState === 'loading') {
   initMobileMenu();
 }
 
+// Refresh ScrollTrigger on resize to handle orientation changes and mobile/desktop switches
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (window.ScrollTrigger) {
+      ScrollTrigger.refresh();
+    }
+  }, 250);
+});
+
 // Smooth scrolling for navigation links with custom speed control
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
@@ -300,25 +318,28 @@ function initLandingSplitScroll() {
     landingContainer.classList.add('landing-original-hidden');
   }
 
+  // Grab the cloned landing content inside each panel
+  const topLandingLeft = topPanel.querySelector('.landing-panel-content-top .landing-left');
+  const bottomLandingLeft = bottomPanel.querySelector('.landing-panel-content-bottom .landing-left');
+
+  // Force initial state - panels cover the landing
   gsap.set(overlay, { autoAlpha: 1 });
   gsap.set(topPanel, { height: '50%', y: 0 });
   gsap.set(bottomPanel, { height: '50%', y: 0 });
   if (landingBg) gsap.set(landingBg, { autoAlpha: 1 });
   if (about) gsap.set(about, { y: 0 });
 
-  // Grab the cloned landing content inside each panel
-  const topLandingLeft = topPanel.querySelector('.landing-panel-content-top .landing-left');
-  const bottomLandingLeft = bottomPanel.querySelector('.landing-panel-content-bottom .landing-left');
-
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: landing,
       start: 'top top',
-      end: isMobile ? '+=100%' : '+=200%', // Shorter animation on mobile
-      scrub: true,
+      end: isMobile ? '+=150%' : '+=200%', // Longer scroll distance for mobile
+      scrub: 1,
       pin: true,
       pinSpacing: true,
       anticipatePin: 1,
+      markers: false,
+      refreshPriority: 1,
     }
   });
 

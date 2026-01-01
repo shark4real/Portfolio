@@ -319,6 +319,14 @@ nav a:hover {
   margin: 0;
 }
 
+@media (max-width: 768px) {
+  #landing #about {
+    top: 100%;
+    left: 0;
+    right: 0;
+  }
+}
+
 /* Landing split overlay (top/bottom panels) */
 .landing-bg {
   position: absolute;
@@ -327,11 +335,24 @@ nav a:hover {
   z-index: 0;
 }
 
+@media (max-width: 768px) {
+  .landing-bg {
+    display: block;
+  }
+}
+
 .landing-split-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 10;
+  z-index: 150;
+}
+
+@media (max-width: 768px) {
+  .landing-split-overlay {
+    display: block;
+    visibility: visible;
+  }
 }
 
 .landing-panel {
@@ -340,9 +361,15 @@ nav a:hover {
   width: 100%;
   background: #fff;
   overflow: hidden;
-  z-index: 100;
+  z-index: 200;
   pointer-events: none;
   will-change: height;
+}
+
+@media (max-width: 768px) {
+  .landing-panel {
+    display: block;
+  }
 }
 
 .landing-panel-top {
@@ -366,10 +393,17 @@ nav a:hover {
   left: 0;
   width: 100%;
   height: 100vh;
+  pointer-events: none;
 }
 
 .landing-panel-content-bottom {
   transform: translateY(-50vh);
+}
+
+@media (max-width: 768px) {
+  .landing-panel-content {
+    display: block;
+  }
 }
 
 .landing-container {
