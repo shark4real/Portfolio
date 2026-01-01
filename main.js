@@ -102,7 +102,117 @@
 // ============================================
 // WEBSITE INITIALIZATION (Called after preload)
 // ============================================
+function onEnterViewportOnce(element, callback, options) {
+  if (!element || typeof callback !== 'function') return;
+
+  if (!('IntersectionObserver' in window)) {
+    callback();
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        observer.disconnect();
+        callback();
+        break;
+      }
+    }
+  }, options || { root: null, threshold: 0.15 });
+
+  observer.observe(element);
+}
+
+function initMobileSectionSnap() {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+
+  const scrollEl = document.scrollingElement || document.documentElement;
+  const connect = document.getElementById('connect');
+  const sections = Array.from(document.querySelectorAll('section'))
+    .filter((s) => s && s.offsetHeight > 0);
+
+  if (!sections.length) return;
+
+  let scrollTimer = null;
+  let isSnapping = false;
+
+  function isInConnectScrollRegion() {
+    if (!connect) return false;
+
+    const activeEl = document.activeElement;
+    if (activeEl && connect.contains(activeEl)) return true;
+
+    const currentTop = scrollEl.scrollTop;
+    const connectTop = connect.getBoundingClientRect().top + currentTop;
+    const connectBottom = connectTop + connect.offsetHeight;
+
+    // If viewport is within the connect section bounds, don't snap.
+    return currentTop >= (connectTop - 8) && currentTop <= (connectBottom - window.innerHeight + 8);
+  }
+
+  function getNearestSectionTop() {
+    const currentTop = scrollEl.scrollTop;
+    let nearestTop = 0;
+    let minDistance = Number.POSITIVE_INFINITY;
+
+    for (const section of sections) {
+      const top = section.getBoundingClientRect().top + currentTop;
+      const distance = Math.abs(currentTop - top);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestTop = top;
+      }
+    }
+
+    return nearestTop;
+  }
+
+  function snapToNearestSection() {
+    if (isSnapping) return;
+    if (isInConnectScrollRegion()) return;
+
+    const targetTop = getNearestSectionTop();
+    const currentTop = scrollEl.scrollTop;
+
+    // Avoid micro-adjustments
+    if (Math.abs(currentTop - targetTop) < 12) return;
+
+    isSnapping = true;
+    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+
+    window.setTimeout(() => {
+      isSnapping = false;
+    }, 450);
+  }
+
+  window.addEventListener('scroll', () => {
+    if (isSnapping) return;
+    if (isInConnectScrollRegion()) return;
+    if (scrollTimer) window.clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(snapToNearestSection, 120);
+  }, { passive: true });
+}
+
+function relocateAboutForMobile() {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+
+  const landing = document.getElementById('landing');
+  const about = document.getElementById('about');
+  if (!landing || !about) return;
+
+  // Only relocate if About is nested inside Landing (current desktop structure)
+  if (landing.contains(about)) {
+    landing.insertAdjacentElement('afterend', about);
+    about.setAttribute('data-mobile-relocated', 'true');
+  }
+}
+
 function initializeWebsite() {
+  // Mobile-only: ensure About is not nested inside Landing
+  relocateAboutForMobile();
+
   // Initialize all scroll effects and animations
   if (typeof initLandingSplitScroll === 'function') {
     initLandingSplitScroll();
@@ -130,6 +240,10 @@ function initializeWebsite() {
   }
   if (typeof initContactForm === 'function') {
     initContactForm();
+  }
+
+  if (typeof initMobileSectionSnap === 'function') {
+    initMobileSectionSnap();
   }
   
   // Refresh ScrollTrigger after all animations are set up
@@ -822,17 +936,9 @@ function initProjectsPin() {
 
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
-  // Mobile: pin the whole section (title + controls + canvas) so it
-  // stays in place for a few scrolls.
+  // Mobile: NO PIN - just let it scroll naturally
   if (isMobile) {
-    ScrollTrigger.create({
-      trigger: projectsSection,
-      start: 'top top',
-      end: '+=120%',
-      pin: true,
-      pinSpacing: true,
-      anticipatePin: 1,
-    });
+    console.log('Projects pin disabled on mobile');
     return;
   }
 
@@ -981,10 +1087,72 @@ function initAboutSection() {
 
 // ===== SKILLS SECTION CARD ANIMATIONS =====
 function initSkillsAnimations() {
-  if (!window.gsap || !window.ScrollTrigger) return;
+  if (!window.gsap) return;
   
   const skillsSection = document.getElementById('skills');
   if (!skillsSection) return;
+
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  // Mobile: avoid ScrollTrigger reliability issues; animate once on enter.
+  if (isMobile) {
+    const playMobileSkills = () => {
+      // Ensure nothing is stuck hidden from previous GSAP state
+      const suggestions = document.querySelectorAll('.chat-suggestion, .chat-download-resume');
+
+      const tl = gsap.timeline();
+      tl.to('.chat-hero', {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: 'power3.out'
+      })
+      .to('.chat-label', {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.55,
+        ease: 'back.out(1.7)'
+      }, '<+0.1')
+      .to('.chat-hero-title', {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.65,
+        ease: 'back.out(1.7)'
+      }, '<+0.05')
+      .to('.chat-subtitle', {
+        opacity: 1,
+        y: 0,
+        duration: 0.55,
+        ease: 'power2.out'
+      }, '<+0.05')
+      .to('.chat-suggestions', {
+        opacity: 1,
+        y: 0,
+        duration: 0.55,
+        ease: 'power2.out'
+      }, '<+0.05');
+
+      if (suggestions && suggestions.length) {
+        tl.to(suggestions, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.55,
+          ease: 'back.out(2)',
+          stagger: 0.08
+        }, '<+0.05');
+      }
+    };
+
+    onEnterViewportOnce(skillsSection, playMobileSkills, { root: null, threshold: 0.2 });
+    return;
+  }
+
+  // Desktop: keep ScrollTrigger-based reveals
+  if (!window.ScrollTrigger) return;
+  gsap.registerPlugin(ScrollTrigger);
   
   // Animate chat hero
   gsap.to('.chat-hero', {
@@ -1112,41 +1280,65 @@ function initChatBot() {
     const connectRight = document.querySelector('.connect-right');
     
     if (connectLeft && connectRight) {
-      gsap.set([connectLeft, connectRight], { 
-        opacity: 0, 
-        y: 120,
-        scale: 0.9,
-        rotateX: 15
-      });
+      const connectSection = document.getElementById('connect');
       
-      gsap.to(connectLeft, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        rotateX: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: "#connect",
-          start: "top 75%",
-          toggleActions: "play none none reverse"
-        }
-      });
-      
-      gsap.to(connectRight, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        rotateX: 0,
-        duration: 1.2,
-        delay: 0.3,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: "#connect",
-          start: "top 75%",
-          toggleActions: "play none none reverse"
-        }
-      });
+      // Mobile: never pre-hide Connect; animate once on enter.
+      if (isMobile) {
+        // Hard safety: if something previously hid it, show it.
+        gsap.set([connectLeft, connectRight], { opacity: 1, y: 0, scale: 1, rotateX: 0 });
+
+        onEnterViewportOnce(connectSection, () => {
+          gsap.from([connectLeft, connectRight], {
+            opacity: 0,
+            y: 80,
+            scale: 0.96,
+            rotateX: 10,
+            duration: 0.9,
+            ease: 'power3.out',
+            stagger: 0.2,
+            immediateRender: false
+          });
+        }, { root: null, threshold: 0.2 });
+      }
+
+      if (!isMobile) {
+        // Desktop: ScrollTrigger reveal
+        gsap.set([connectLeft, connectRight], {
+          opacity: 0,
+          y: 120,
+          scale: 0.9,
+          rotateX: 15
+        });
+
+        gsap.to(connectLeft, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotateX: 0,
+          duration: 1.2,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: "#connect",
+            start: "top 75%",
+            toggleActions: "play none none reverse"
+          }
+        });
+
+        gsap.to(connectRight, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotateX: 0,
+          duration: 1.2,
+          delay: 0.3,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: "#connect",
+            start: "top 75%",
+            toggleActions: "play none none reverse"
+          }
+        });
+      }
     }
   }
 

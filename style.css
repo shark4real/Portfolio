@@ -305,6 +305,10 @@ nav a:hover {
     height: 100vh;
     min-height: 100vh;
     max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 }
 
@@ -320,12 +324,11 @@ nav a:hover {
 }
 
 @media (max-width: 768px) {
-  /* On mobile, About is a separate section below Landing */
+  /* On mobile, About becomes a normal visible section */
   #landing #about {
-    position: relative;
-    top: 0;
-    left: 0;
-    right: 0;
+    position: static;
+    display: block;
+    width: 100%;
   }
 }
 
@@ -339,7 +342,7 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .landing-bg {
-    display: block;
+    display: none;
   }
 }
 
@@ -352,8 +355,7 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .landing-split-overlay {
-    display: block;
-    visibility: visible;
+    display: none;
   }
 }
 
@@ -420,6 +422,7 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .landing-container {
+    background-color: #fff;
     padding: 0 20px;
   }
 }
@@ -544,7 +547,8 @@ nav a:hover {
 }
 
 .landing-main-line {
-  font-size: 75px;
+  text-align: left;
+  font-size: 95px;
   letter-spacing: -2px;
   font-weight: 550;
   margin-bottom: 0;
@@ -558,7 +562,7 @@ nav a:hover {
 }
 
 .landing-passion-line {
-  font-size: 75px;
+  font-size: 95px;
   letter-spacing: -2px;
   font-weight: 550;
   margin: 0 80px 25px 0;
@@ -625,11 +629,13 @@ nav a:hover {
     width: 100%;
     gap: 12px;
     margin-top: 25px;
+    align-items: center;
   }
   
   .landing-buttons .btn {
-    width: 100%;
+    width: min(240px, 35%);
     text-align: center;
+    padding: 10px 16px;
   }
 }
 
@@ -1285,9 +1291,11 @@ nav a:hover {
   
   .projects-title {
     font-size: 28px;
-    top: 60px;
+    position: relative;
+    top: 0;
+    z-index: 1;
     padding: 15px 20px;
-    position: sticky;
+    margin-bottom: 20px;
   }
 
   .project-controls {
@@ -1382,6 +1390,7 @@ nav a:hover {
     overflow-y: visible;
     display: flex;
     flex-direction: column;
+    background: #ffffff;
   }
 }
 
@@ -1389,6 +1398,14 @@ nav a:hover {
   max-width: 1100px;
   padding: 0;
   box-sizing: border-box;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .connect-inner {
+    width: 100%;
+    padding: 0;
+  }
 }
 .connect-layout {
   display: flex;
@@ -1399,11 +1416,19 @@ nav a:hover {
   .connect-layout {
     flex-direction: column;
     gap: 40px;
+    width: 100%;
   }
 }
 
 .connect-left {
   flex: 1.3;
+}
+
+@media (max-width: 768px) {
+  .connect-left {
+    width: 100%;
+    flex: none;
+  }
 }
 
 .connect-right {
@@ -1415,6 +1440,8 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .connect-right {
+    width: 100%;
+    flex: none;
     position: relative;
     top: 0;
     max-height: none;
@@ -1774,10 +1801,13 @@ nav a:hover {
         height: 100vh;
         min-height: 100vh;
         max-height: 100vh;
-    padding-left: 20px;
-    padding-top: 76px; /* reserve space for the header */
-    box-sizing: border-box;
-    align-items: flex-start;
+        padding-left: 20px;
+        padding-top: 76px;
+        box-sizing: border-box;
+        align-items: flex-start;
+        background-color: #111;
+        width: 100%;
+        display: block;
     }
 }
 
@@ -2106,13 +2136,14 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .skills-section {
-    height: 100vh;
+    height: auto;
     min-height: 100vh;
-    max-height: 100vh;
+    max-height: none;
     padding: 80px 15px 30px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    background-color: #050505;
   }
 }
 
@@ -2547,4 +2578,85 @@ nav a:hover {
   background: #fff !important;
   color: #000 !important;
   transform: translateY(-2px);
+}
+
+/* ============================================
+   MOBILE: ONE SCREEN PER SECTION (STRICT)
+   ============================================ */
+@media (max-width: 768px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: 0px;
+  }
+
+  /* These sections must occupy exactly one screen */
+  #projects,
+  #skills {
+    height: 100svh;
+    min-height: 100svh;
+    max-height: 100svh;
+  }
+
+  section {
+    width: 100%;
+    max-width: 100%;
+    height: 100svh;
+    min-height: 100svh;
+    max-height: 100svh;
+    overflow: hidden;
+    overflow-x: hidden;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* If content is taller than one screen, scroll inside the section */
+  #skills {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Override earlier mobile rules that set auto heights */
+  .skills-section {
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
+  }
+
+  /* Connect: allow it to be taller than one screen (no cropping) */
+  #connect {
+    height: auto;
+    min-height: 100svh;
+    max-height: none;
+    overflow: visible;
+    overflow-x: hidden;
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+  }
+
+  /* Prevent Projects 3D cards from creating sideways scroll */
+  .projects-canvas,
+  .cards-stage-wrap,
+  .cards-stage {
+    overflow: hidden;
+  }
+
+  /* Make Projects title + canvas fit inside the 1-screen section */
+  .project-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .project-section > .projects-title {
+    flex: 0 0 auto;
+  }
+
+  .project-section > .projects-canvas {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
 }
