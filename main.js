@@ -301,6 +301,12 @@ function initLandingSplitScroll() {
   gsap.registerPlugin(ScrollTrigger);
 
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  
+  // DISABLE SPLIT ANIMATION ON MOBILE - just return
+  if (isMobile) {
+    console.log('Split animation disabled on mobile');
+    return;
+  }
 
   // Build masked content: clone the landing into each panel so it moves with them.
   const hasPanelContent = topPanel.querySelector('.landing-panel-content') || bottomPanel.querySelector('.landing-panel-content');
@@ -822,7 +828,7 @@ function initProjectsPin() {
     ScrollTrigger.create({
       trigger: projectsSection,
       start: 'top top',
-      end: '+=220%',
+      end: '+=120%',
       pin: true,
       pinSpacing: true,
       anticipatePin: 1,
@@ -1084,7 +1090,10 @@ function initChatBot() {
   const conversation = [];
 
   // Pin the SharkGPT section for extra scroll time without increasing its height
-  if (window.gsap && window.ScrollTrigger && skillsSection) {
+  // ONLY on desktop - not on mobile
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  
+  if (window.gsap && window.ScrollTrigger && skillsSection && !isMobile) {
     gsap.registerPlugin(ScrollTrigger);
     ScrollTrigger.create({
       trigger: skillsSection,

@@ -320,8 +320,10 @@ nav a:hover {
 }
 
 @media (max-width: 768px) {
+  /* On mobile, About is a separate section below Landing */
   #landing #about {
-    top: 100%;
+    position: relative;
+    top: 0;
     left: 0;
     right: 0;
   }
@@ -1274,14 +1276,18 @@ nav a:hover {
     height: 100vh;
     min-height: 100vh;
     max-height: 100vh;
-    padding: 40px 0;
+    padding: 0;
     overflow: visible;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   
   .projects-title {
     font-size: 28px;
     top: 60px;
     padding: 15px 20px;
+    position: sticky;
   }
 
   .project-controls {
@@ -1301,9 +1307,12 @@ nav a:hover {
   }
 
   .cards-stage {
-    height: calc(100vh - 200px);
-    max-height: 500px;
-    margin-top: 20px;
+    height: 60vh;
+    max-height: 60vh;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .card {
@@ -1366,11 +1375,13 @@ nav a:hover {
 
 @media (max-width: 768px) {
   #connect {
-    padding: 60px 20px;
-    height: 100vh;
+    padding: 80px 20px 40px;
     min-height: 100vh;
-    max-height: 100vh;
-    overflow-y: auto;
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -1834,6 +1845,8 @@ nav a:hover {
     width: 40px;
     height: 40px;
     font-size: 24px;
+    opacity: 1;
+    visibility: visible;
   }
   
   .about-arrow-btn.left {
@@ -2096,7 +2109,10 @@ nav a:hover {
     height: 100vh;
     min-height: 100vh;
     max-height: 100vh;
-    padding: 60px 15px 30px;
+    padding: 80px 15px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 }
 
