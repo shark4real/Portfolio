@@ -1,16 +1,10 @@
 {
-  "rewrites": [
-    { "source": "/api/chat", "destination": "/api" },
-    { "source": "/api/contact", "destination": "/api" }
-  ],
-  "routes": [
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|glb|hdr|pdf|md))",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+  "buildCommand": "echo 'No build needed'",
+  "outputDirectory": ".",
+  "functions": {
+    "api/index.js": {
+      "memory": 1024,
+      "maxDuration": 10
     }
-  ]
+  }
 }
