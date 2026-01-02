@@ -1881,7 +1881,7 @@ nav a:hover {
     justify-content: center;
     z-index: 9999 !important;
     font-weight: bold;
-    pointer-events: auto !important;
+  pointer-events: none;
     opacity: 0;
     visibility: hidden;
 }
@@ -1910,8 +1910,6 @@ nav a:hover {
     width: 40px;
     height: 40px;
     font-size: 24px;
-    opacity: 1;
-    visibility: visible;
   }
   
   .about-arrow-btn.left {
@@ -1920,6 +1918,24 @@ nav a:hover {
   
   .about-arrow-btn.right {
     right: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Only show About nav arrows when About is in view on mobile */
+  html.about-nav-active .about-arrow-btn,
+  body.about-nav-active .about-arrow-btn {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* While typing in RAG/chat, never let About arrows appear */
+  html.keyboard-open .about-arrow-btn,
+  body.keyboard-open .about-arrow-btn {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 }
 

@@ -233,14 +233,16 @@ function initMobileSectionLock() {
 
   // Lock only non-form sections on mobile.
   // Pinning sections with inputs (skills chat / connect form) can cause focus loss when the keyboard opens.
-  const sectionIds = ['projects'];
+  const sectionIds = ['projects', 'skills'];
   const sections = sectionIds
     .map((id) => document.getElementById(id))
     .filter(Boolean);
 
   // Add ~2 extra viewport scrolls per section (no height changes).
   for (const section of sections) {
+    const triggerId = section.id === 'skills' ? 'mobile-lock-skills' : (section.id === 'projects' ? 'mobile-lock-projects' : `mobile-lock-${section.id}`);
     ScrollTrigger.create({
+      id: triggerId,
       trigger: section,
       start: 'top top',
       end: '+=200%',
@@ -332,6 +334,16 @@ function initMobileKeyboardGuard() {
     root.classList.add('keyboard-open');
     body.classList.add('keyboard-open');
 
+    // If Skills is pinned for extra scroll, disable it while typing.
+    try {
+      if (window.ScrollTrigger && typeof ScrollTrigger.getById === 'function') {
+        const skillsLock = ScrollTrigger.getById('mobile-lock-skills');
+        if (skillsLock && skillsLock.enabled) {
+          skillsLock.disable(false);
+        }
+      }
+    } catch (e) {}
+
     // Keep the whole section from moving when the keyboard appears.
     lockPageScroll();
 
@@ -350,6 +362,17 @@ function initMobileKeyboardGuard() {
     root.style.removeProperty('--kb-vh');
 
     unlockPageScroll();
+
+    // Re-enable Skills pin after keyboard closes.
+    try {
+      if (window.ScrollTrigger && typeof ScrollTrigger.getById === 'function') {
+        const skillsLock = ScrollTrigger.getById('mobile-lock-skills');
+        if (skillsLock && !skillsLock.enabled) {
+          skillsLock.enable(false);
+          ScrollTrigger.refresh();
+        }
+      }
+    } catch (e) {}
   }
 
   document.addEventListener('focusin', (e) => {
@@ -1161,6 +1184,30 @@ function initAboutSection() {
     }
     
     console.log("About section initialized", { track, prevBtn, nextBtn, cardCount: cards.length });
+
+    // Mobile-only: show the arrow buttons only while the About section is in view.
+    (function setupMobileAboutNavVisibility() {
+      const isMobileNow = window.matchMedia("(max-width: 768px)").matches;
+      if (!isMobileNow) return;
+      if (!aboutSection) return;
+
+      const root = document.documentElement;
+      const body = document.body;
+
+      if (!('IntersectionObserver' in window)) {
+        // Fallback: if no observer, keep arrows hidden unless About is focused.
+        return;
+      }
+
+      const obs = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        const active = !!(entry && entry.isIntersecting);
+        root.classList.toggle('about-nav-active', active);
+        body.classList.toggle('about-nav-active', active);
+      }, { threshold: 0.35 });
+
+      obs.observe(aboutSection);
+    })();
     
     let currentIndex = 0;
     
