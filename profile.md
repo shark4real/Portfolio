@@ -1,6 +1,7 @@
 # Profile — Sayed Sharik Hassan
 
 ## Overview
+Full name is Sayed Sharik Hassan
 Hi, I’m Sayed Sharik Hassan — an aspiring Data Scientist with a strong passion for creativity, storytelling, and human-centered design.
 
 I’m a 4th-year student, and I enjoy sharing what I learn through teaching and community/club activities.
