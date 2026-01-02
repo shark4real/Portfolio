@@ -127,6 +127,10 @@ function initMobileSectionSnap() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
   if (!isMobile) return;
 
+  const landing = document.getElementById('landing');
+  // If the landing split animation is active, it pins scroll; section snapping fights it.
+  if (landing && landing.dataset && landing.dataset.splitActive === 'true') return;
+
   const scrollEl = document.scrollingElement || document.documentElement;
   const connect = document.getElementById('connect');
   const sections = Array.from(document.querySelectorAll('section'))
@@ -202,6 +206,9 @@ function relocateAboutForMobile() {
   const about = document.getElementById('about');
   if (!landing || !about) return;
 
+  // If the landing split animation is enabled, About must remain inside Landing.
+  if (landing.dataset && landing.dataset.splitActive === 'true') return;
+
   // Only relocate if About is nested inside Landing (current desktop structure)
   if (landing.contains(about)) {
     landing.insertAdjacentElement('afterend', about);
@@ -210,13 +217,13 @@ function relocateAboutForMobile() {
 }
 
 function initializeWebsite() {
-  // Mobile-only: ensure About is not nested inside Landing
-  relocateAboutForMobile();
-
   // Initialize all scroll effects and animations
   if (typeof initLandingSplitScroll === 'function') {
     initLandingSplitScroll();
   }
+
+  // Mobile fallback: if split is not active, keep About as a normal section
+  relocateAboutForMobile();
   if (typeof init3DScene === 'function') {
     init3DScene();
   }
@@ -415,12 +422,9 @@ function initLandingSplitScroll() {
   gsap.registerPlugin(ScrollTrigger);
 
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
-  
-  // DISABLE SPLIT ANIMATION ON MOBILE - just return
-  if (isMobile) {
-    console.log('Split animation disabled on mobile');
-    return;
-  }
+
+  // Mark split as active so other mobile behaviors can avoid conflicting.
+  landing.dataset.splitActive = 'true';
 
   // Build masked content: clone the landing into each panel so it moves with them.
   const hasPanelContent = topPanel.querySelector('.landing-panel-content') || bottomPanel.querySelector('.landing-panel-content');
@@ -453,13 +457,33 @@ function initLandingSplitScroll() {
     scrollTrigger: {
       trigger: landing,
       start: 'top top',
-      end: isMobile ? '+=150%' : '+=200%', // Longer scroll distance for mobile
+      end: '+=200%',
       scrub: 1,
       pin: true,
       pinSpacing: true,
       anticipatePin: 1,
       markers: false,
       refreshPriority: 1,
+      onEnter: () => {
+        if (!isMobile) return;
+        document.documentElement.classList.add('split-active');
+        document.body.classList.add('split-active');
+      },
+      onEnterBack: () => {
+        if (!isMobile) return;
+        document.documentElement.classList.add('split-active');
+        document.body.classList.add('split-active');
+      },
+      onLeave: () => {
+        if (!isMobile) return;
+        document.documentElement.classList.remove('split-active');
+        document.body.classList.remove('split-active');
+      },
+      onLeaveBack: () => {
+        if (!isMobile) return;
+        document.documentElement.classList.remove('split-active');
+        document.body.classList.remove('split-active');
+      },
     }
   });
 
@@ -472,40 +496,22 @@ function initLandingSplitScroll() {
   tl.to(topPanel, { height: '0%', duration: 0.9, ease: 'power2.inOut' }, 0.2)
     .to(bottomPanel, { height: '0%', duration: 0.9, ease: 'power2.inOut' }, 0.2);
 
-  // Simplified movement for mobile
-  if (isMobile) {
-    if (topLandingLeft) {
-      tl.to(topLandingLeft, {
-        y: '-50vh',
-        duration: 1.2,
-        ease: 'power3.inOut',
-      }, 0.25);
-    }
-    if (bottomLandingLeft) {
-      tl.to(bottomLandingLeft, {
-        y: '50vh',
-        duration: 1.2,
-        ease: 'power3.inOut',
-      }, 0.35);
-    }
-  } else {
-    // Desktop animation with horizontal movement
-    if (topLandingLeft) {
-      tl.to(topLandingLeft, {
-        x: '-58vw',
-        y: '-35vh',
-        duration: 1.4,
-        ease: 'power3.inOut',
-      }, 0.25);
-    }
-    if (bottomLandingLeft) {
-      tl.to(bottomLandingLeft, {
-        x: '58vw',
-        y: '35vh',
-        duration: 1.4,
-        ease: 'power3.inOut',
-      }, 0.45);
-    }
+  // Match desktop split movement on mobile too
+  if (topLandingLeft) {
+    tl.to(topLandingLeft, {
+      x: '-58vw',
+      y: '-35vh',
+      duration: 1.4,
+      ease: 'power3.inOut',
+    }, 0.25);
+  }
+  if (bottomLandingLeft) {
+    tl.to(bottomLandingLeft, {
+      x: '58vw',
+      y: '35vh',
+      duration: 1.4,
+      ease: 'power3.inOut',
+    }, 0.45);
   }
   
   if (about) {

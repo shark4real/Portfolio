@@ -324,10 +324,12 @@ nav a:hover {
 }
 
 @media (max-width: 768px) {
-  /* On mobile, About becomes a normal visible section */
   #landing #about {
-    position: static;
-    display: block;
+    /* Keep About in the split animation flow on mobile too */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     width: 100%;
   }
 }
@@ -342,7 +344,7 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .landing-bg {
-    display: none;
+    display: block;
   }
 }
 
@@ -355,7 +357,7 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .landing-split-overlay {
-    display: none;
+    display: block;
   }
 }
 
@@ -407,6 +409,11 @@ nav a:hover {
 @media (max-width: 768px) {
   .landing-panel-content {
     display: block;
+    height: 100svh;
+  }
+
+  .landing-panel-content-bottom {
+    transform: translateY(-50svh);
   }
 }
 
@@ -2619,6 +2626,18 @@ nav a:hover {
     overflow-x: hidden;
     scroll-snap-type: y mandatory;
     scroll-padding-top: 0px;
+  }
+
+  /* While the landing split is pinned, disable scroll snapping (it fights GSAP pinning). */
+  html.split-active,
+  body.split-active {
+    scroll-snap-type: none !important;
+  }
+
+  html.split-active section,
+  body.split-active section {
+    scroll-snap-align: none !important;
+    scroll-snap-stop: normal !important;
   }
 
   /* These sections must occupy exactly one screen */
