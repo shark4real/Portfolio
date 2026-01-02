@@ -2640,6 +2640,18 @@ nav a:hover {
     scroll-snap-stop: normal !important;
   }
 
+  /* When mobile section locking is enabled, turn off snap (pin controls scroll). */
+  html.mobile-lock,
+  body.mobile-lock {
+    scroll-snap-type: none !important;
+  }
+
+  html.mobile-lock section,
+  body.mobile-lock section {
+    scroll-snap-align: none !important;
+    scroll-snap-stop: normal !important;
+  }
+
   /* These sections must occupy exactly one screen */
   #projects,
   #skills {

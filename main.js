@@ -127,6 +127,9 @@ function initMobileSectionSnap() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
   if (!isMobile) return;
 
+  // If mobile section locking is enabled, snapping fights the pinning.
+  if (document.documentElement.classList.contains('mobile-lock')) return;
+
   const landing = document.getElementById('landing');
   // If the landing split animation is active, it pins scroll; section snapping fights it.
   if (landing && landing.dataset && landing.dataset.splitActive === 'true') return;
@@ -198,6 +201,39 @@ function initMobileSectionSnap() {
   }, { passive: true });
 }
 
+function initMobileSectionLock() {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+
+  // Requires GSAP + ScrollTrigger (already used elsewhere).
+  if (!window.gsap || !window.ScrollTrigger) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Disable CSS scroll-snap while we use pin-based locking.
+  document.documentElement.classList.add('mobile-lock');
+  document.body.classList.add('mobile-lock');
+
+  const sectionIds = ['projects', 'skills', 'connect'];
+  const sections = sectionIds
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
+
+  // Add ~2 extra viewport scrolls per section (no height changes).
+  for (const section of sections) {
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top top',
+      end: '+=200%',
+      pin: true,
+      pinSpacing: true,
+      anticipatePin: 1,
+      markers: false,
+      refreshPriority: 0,
+    });
+  }
+}
+
 function relocateAboutForMobile() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
   if (!isMobile) return;
@@ -220,6 +256,10 @@ function initializeWebsite() {
   // Initialize all scroll effects and animations
   if (typeof initLandingSplitScroll === 'function') {
     initLandingSplitScroll();
+  }
+
+  if (typeof initMobileSectionLock === 'function') {
+    initMobileSectionLock();
   }
 
   // Mobile fallback: if split is not active, keep About as a normal section
