@@ -302,13 +302,13 @@ nav a:hover {
 
 @media (max-width: 768px) {
   #landing {
-    height: 100vh;
-    min-height: 100vh;
-    max-height: 100vh;
+    height: 100svh;
+    min-height: 100svh;
+    max-height: none;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: stretch;
   }
 }
 
@@ -423,7 +423,11 @@ nav a:hover {
 @media (max-width: 768px) {
   .landing-container {
     background-color: #fff;
-    padding: 0 20px;
+    /* account for fixed header on mobile while keeping content vertically centered */
+    padding: 56px 20px 24px;
+    min-height: 100svh;
+    height: auto;
+    flex-direction: column;
   }
 }
 
@@ -441,6 +445,10 @@ nav a:hover {
 @media (max-width: 768px) {
   .landing-left {
     padding-left: 0;
+    flex: 1 1 auto;
+    position: relative;
+    /* reserve space so absolutely-positioned buttons don't overlap content */
+    padding-bottom: clamp(120px, 22svh, 220px);
     align-items: center;
     text-align: center;
   }
@@ -524,6 +532,7 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .landing-intro h1 {
+    text-align: left;
     font-size: 18px;
     letter-spacing: -1px;
   }
@@ -556,7 +565,7 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .landing-main-line {
-    font-size: 36px;
+    font-size: 45px;
     letter-spacing: -1px;
   }
 }
@@ -572,11 +581,16 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .landing-passion-line {
-    font-size: 28px;
+    font-size: 45px;
     letter-spacing: -1px;
-    margin: 10px 0 20px 0;
-    text-align: center;
+    margin: 10px 0px 20px 100px;
+    text-align: right;
     align-self: center;
+  }
+
+  /* Mobile: force “Art and Design” onto the next line */
+  .landing-passion-line span {
+    display: block;
   }
 }
 
@@ -589,15 +603,22 @@ nav a:hover {
   margin: 0 0 15px 0;
   word-spacing: 8px;
 }
+@media (max-width: 768px) {
+  .landing-tagline p {
+    margin: 0;
+  }
+}
 
 .landing-tagline {
   align-self: center;
   text-align: center;
 }
 
+
 @media (max-width: 768px) {
   .landing-tagline {
     width: 100%;
+    margin-top: 18px;
   }
 }
 
@@ -625,15 +646,22 @@ nav a:hover {
 
 @media (max-width: 768px) {
   .landing-buttons {
-    flex-direction: column;
+    /* keep buttons below, without affecting text vertical centering */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: clamp(24px, 8svh, 96px);
+
+    flex-direction: row;
     width: 100%;
     gap: 12px;
-    margin-top: 25px;
+    margin-top: 0;
     align-items: center;
+    justify-content: center;
   }
   
   .landing-buttons .btn {
-    width: min(240px, 35%);
+    width: min(240px, 46vw);
     text-align: center;
     padding: 10px 16px;
   }
