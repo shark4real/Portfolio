@@ -260,6 +260,32 @@ function initMobileKeyboardGuard() {
   const root = document.documentElement;
   const body = document.body;
 
+  let scrollLocked = false;
+  let lockedScrollY = 0;
+
+  function lockPageScroll() {
+    if (scrollLocked) return;
+    lockedScrollY = window.scrollY || window.pageYOffset || 0;
+    // Lock the page in place so keyboard resize doesn't shift sections.
+    body.style.position = 'fixed';
+    body.style.top = `-${lockedScrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
+    scrollLocked = true;
+  }
+
+  function unlockPageScroll() {
+    if (!scrollLocked) return;
+    body.style.position = '';
+    body.style.top = '';
+    body.style.left = '';
+    body.style.right = '';
+    body.style.width = '';
+    window.scrollTo(0, lockedScrollY);
+    scrollLocked = false;
+  }
+
   function isTextInput(el) {
     if (!el) return false;
     const tag = (el.tagName || '').toLowerCase();
@@ -306,6 +332,9 @@ function initMobileKeyboardGuard() {
     root.classList.add('keyboard-open');
     body.classList.add('keyboard-open');
 
+    // Keep the whole section from moving when the keyboard appears.
+    lockPageScroll();
+
     attachViewportListeners();
     setKeyboardOffsetVars();
 
@@ -319,6 +348,8 @@ function initMobileKeyboardGuard() {
     detachViewportListeners();
     root.style.removeProperty('--kb-offset');
     root.style.removeProperty('--kb-vh');
+
+    unlockPageScroll();
   }
 
   document.addEventListener('focusin', (e) => {

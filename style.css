@@ -2657,6 +2657,7 @@ nav a:hover {
   body.keyboard-open {
     scroll-snap-type: none !important;
     scroll-behavior: auto;
+    overflow: hidden;
   }
 
   html.keyboard-open section,
