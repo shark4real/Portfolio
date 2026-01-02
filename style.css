@@ -2652,6 +2652,39 @@ nav a:hover {
     scroll-snap-stop: normal !important;
   }
 
+  /* When the keyboard opens, avoid snap/smooth-scroll fighting focus. */
+  html.keyboard-open,
+  body.keyboard-open {
+    scroll-snap-type: none !important;
+    scroll-behavior: auto;
+  }
+
+  html.keyboard-open section,
+  body.keyboard-open section {
+    scroll-snap-align: none !important;
+    scroll-snap-stop: normal !important;
+  }
+
+  /* Keyboard dock: keep the RAG/chat input visible above the keyboard on mobile */
+  html.keyboard-open #chatForm,
+  body.keyboard-open #chatForm {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--kb-offset, 0px);
+    z-index: 3000;
+  }
+
+  html.keyboard-open #chatForm {
+    background: #fff;
+    border-top: 1px solid #000;
+  }
+
+  /* Prevent messages from being hidden behind the docked input */
+  html.keyboard-open #skills .chat-window {
+    padding-bottom: 92px;
+  }
+
   /* These sections must occupy exactly one screen */
   #projects,
   #skills {

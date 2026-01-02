@@ -210,11 +210,30 @@ function initMobileSectionLock() {
 
   gsap.registerPlugin(ScrollTrigger);
 
+  // Mobile keyboards change viewport height; avoid ScrollTrigger refresh/jumps.
+  try {
+    ScrollTrigger.config({ ignoreMobileResize: true });
+  } catch (e) {}
+
+  // Also prevent ScrollTrigger's internal auto-refresh on resize (iOS keyboard triggers resize).
+  // We'll refresh on orientation changes instead.
+  try {
+    ScrollTrigger.config({ autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load' });
+  } catch (e) {}
+
+  window.addEventListener('orientationchange', () => {
+    if (window.ScrollTrigger) {
+      ScrollTrigger.refresh();
+    }
+  });
+
   // Disable CSS scroll-snap while we use pin-based locking.
   document.documentElement.classList.add('mobile-lock');
   document.body.classList.add('mobile-lock');
 
-  const sectionIds = ['projects', 'skills', 'connect'];
+  // Lock only non-form sections on mobile.
+  // Pinning sections with inputs (skills chat / connect form) can cause focus loss when the keyboard opens.
+  const sectionIds = ['projects'];
   const sections = sectionIds
     .map((id) => document.getElementById(id))
     .filter(Boolean);
@@ -232,6 +251,90 @@ function initMobileSectionLock() {
       refreshPriority: 0,
     });
   }
+}
+
+function initMobileKeyboardGuard() {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+
+  const root = document.documentElement;
+  const body = document.body;
+
+  function isTextInput(el) {
+    if (!el) return false;
+    const tag = (el.tagName || '').toLowerCase();
+    if (tag === 'textarea') return true;
+    if (tag !== 'input') return false;
+    const type = (el.getAttribute('type') || 'text').toLowerCase();
+    return !['checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'range', 'color', 'image'].includes(type);
+  }
+
+  function setKeyboardOffsetVars() {
+    // Prefer visualViewport (iOS/Android) to get the keyboard occluded area.
+    const vv = window.visualViewport;
+    if (!vv) {
+      root.style.setProperty('--kb-offset', '0px');
+      root.style.setProperty('--kb-vh', '100svh');
+      return;
+    }
+
+    // The keyboard height is roughly the difference between layout viewport and visual viewport.
+    const occluded = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    root.style.setProperty('--kb-offset', `${occluded}px`);
+    // Expose the visible viewport height for layout tweaks.
+    root.style.setProperty('--kb-vh', `${vv.height}px`);
+  }
+
+  let vvListenersAttached = false;
+  function attachViewportListeners() {
+    const vv = window.visualViewport;
+    if (!vv || vvListenersAttached) return;
+    vvListenersAttached = true;
+    vv.addEventListener('resize', setKeyboardOffsetVars);
+    vv.addEventListener('scroll', setKeyboardOffsetVars);
+  }
+
+  function detachViewportListeners() {
+    const vv = window.visualViewport;
+    if (!vv || !vvListenersAttached) return;
+    vvListenersAttached = false;
+    vv.removeEventListener('resize', setKeyboardOffsetVars);
+    vv.removeEventListener('scroll', setKeyboardOffsetVars);
+  }
+
+  function enterKeyboardMode(target) {
+    root.classList.add('keyboard-open');
+    body.classList.add('keyboard-open');
+
+    attachViewportListeners();
+    setKeyboardOffsetVars();
+
+    // Don't scroll the whole section (it can blur input on mobile). Instead we dock the input via CSS.
+    window.setTimeout(setKeyboardOffsetVars, 120);
+  }
+
+  function exitKeyboardMode() {
+    root.classList.remove('keyboard-open');
+    body.classList.remove('keyboard-open');
+    detachViewportListeners();
+    root.style.removeProperty('--kb-offset');
+    root.style.removeProperty('--kb-vh');
+  }
+
+  document.addEventListener('focusin', (e) => {
+    const target = e.target;
+    if (!isTextInput(target)) return;
+    enterKeyboardMode(target);
+  });
+
+  document.addEventListener('focusout', () => {
+    // If another input immediately gains focus, focusin will re-add.
+    window.setTimeout(() => {
+      const active = document.activeElement;
+      if (isTextInput(active)) return;
+      exitKeyboardMode();
+    }, 0);
+  });
 }
 
 function relocateAboutForMobile() {
@@ -260,6 +363,10 @@ function initializeWebsite() {
 
   if (typeof initMobileSectionLock === 'function') {
     initMobileSectionLock();
+  }
+
+  if (typeof initMobileKeyboardGuard === 'function') {
+    initMobileKeyboardGuard();
   }
 
   // Mobile fallback: if split is not active, keep About as a normal section
@@ -409,6 +516,15 @@ window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
     if (window.ScrollTrigger) {
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+      if (isMobile) {
+        // Mobile keyboards fire resize events; refreshing ScrollTrigger can jump scroll and blur inputs.
+        const root = document.documentElement;
+        const active = document.activeElement;
+        const tag = active && active.tagName ? active.tagName.toLowerCase() : '';
+        const isTyping = root.classList.contains('keyboard-open') || tag === 'input' || tag === 'textarea';
+        if (isTyping) return;
+      }
       ScrollTrigger.refresh();
     }
   }, 250);
