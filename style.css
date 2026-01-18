@@ -570,6 +570,50 @@ nav a:hover {
   margin-bottom: 0;
 }
 
+/* Landing headline: typing reveal + blinking cursor */
+.landing-typewriter {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: bottom;
+  clip-path: inset(0 100% 0 0);
+  animation: landing-type-reveal 1.6s steps(22, end) 0.35s forwards;
+}
+
+.landing-typewriter::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0.12em;
+  bottom: 0.12em;
+  width: 2px;
+  background: currentColor;
+  animation: landing-type-caret 0.85s step-end infinite;
+}
+
+@keyframes landing-type-reveal {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes landing-type-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-typewriter {
+    clip-path: none;
+    animation: none;
+  }
+  .landing-typewriter::after {
+    animation: none;
+  }
+}
+
 @media (max-width: 768px) {
   .landing-main-line {
     font-size: 45px;
@@ -1194,6 +1238,8 @@ nav a:hover {
 }
 .project-preview-modal .ppm-thumb {
   width: 44%;
+  border-radius: 0px;
+  border: 1px solid #fff;
   background-color: #000;
   background-size: contain;
   background-repeat: no-repeat;
@@ -1203,6 +1249,7 @@ nav a:hover {
   padding: 28px;
   width: 56%;
   overflow: auto;
+  border: 1px solid #fff;
   background: #000; /* user requested: info box background black */
   color: #fff;
 }
@@ -1239,7 +1286,6 @@ nav a:hover {
 .project-preview-modal .ppm-link:hover {
   background: #fff;
   color: #000;
-  transform: translateY(-3px);
 }
 
 @media (max-width: 768px) {
@@ -1284,13 +1330,13 @@ nav a:hover {
 .cards-nav-btn {
   width: 50px;
   height: 50px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #667eea;
-  border: none;
+  background: rgba(0, 0, 0, 0.9);
+  color: #ffffff;
+  border: 1px solid white;
   cursor: pointer;
   font-size: 24px;
   font-weight: 700;
-  border-radius: 50%;
+  border-radius: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
@@ -1886,6 +1932,22 @@ nav a:hover {
     visibility: hidden;
 }
 
+/* Show About nav arrows only when About is active/in view */
+html.about-nav-active .about-arrow-btn,
+body.about-nav-active .about-arrow-btn {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* While typing in RAG/chat, never let About arrows appear */
+html.keyboard-open .about-arrow-btn,
+body.keyboard-open .about-arrow-btn {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 .about-arrow-btn:hover {
     background: #000;
     color: #fff;
@@ -1921,23 +1983,7 @@ nav a:hover {
   }
 }
 
-@media (max-width: 768px) {
-  /* Only show About nav arrows when About is in view on mobile */
-  html.about-nav-active .about-arrow-btn,
-  body.about-nav-active .about-arrow-btn {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
 
-  /* While typing in RAG/chat, never let About arrows appear */
-  html.keyboard-open .about-arrow-btn,
-  body.keyboard-open .about-arrow-btn {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-}
 
 /* The Moving Track */
 .about-track {

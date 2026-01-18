@@ -1076,7 +1076,7 @@ function initProjectCards() {
       a2.href = project.github;
       a2.target = '_blank';
       a2.rel = 'noopener noreferrer';
-      a2.textContent = 'github';
+      a2.textContent = 'GitHub';
       links.appendChild(a2);
     }
 
@@ -1185,28 +1185,47 @@ function initAboutSection() {
     
     console.log("About section initialized", { track, prevBtn, nextBtn, cardCount: cards.length });
 
-    // Mobile-only: show the arrow buttons only while the About section is in view.
-    (function setupMobileAboutNavVisibility() {
-      const isMobileNow = window.matchMedia("(max-width: 768px)").matches;
-      if (!isMobileNow) return;
+    // Show the arrow buttons only while the About section is meaningfully in view.
+    (function setupAboutNavVisibility() {
       if (!aboutSection) return;
 
       const root = document.documentElement;
       const body = document.body;
+      const setActive = (active) => {
+        root.classList.toggle('about-nav-active', !!active);
+        body.classList.toggle('about-nav-active', !!active);
+      };
 
-      if (!('IntersectionObserver' in window)) {
-        // Fallback: if no observer, keep arrows hidden unless About is focused.
+      // Reset any legacy inline styles so CSS controls visibility.
+      prevBtn.style.opacity = '';
+      prevBtn.style.visibility = '';
+      nextBtn.style.opacity = '';
+      nextBtn.style.visibility = '';
+
+      if ('IntersectionObserver' in window) {
+        const obs = new IntersectionObserver((entries) => {
+          const entry = entries[0];
+          const ratio = entry ? entry.intersectionRatio : 0;
+          setActive(ratio >= 0.6);
+        }, { threshold: [0, 0.6, 1] });
+
+        obs.observe(aboutSection);
         return;
       }
 
-      const obs = new IntersectionObserver((entries) => {
-        const entry = entries[0];
-        const active = !!(entry && entry.isIntersecting);
-        root.classList.toggle('about-nav-active', active);
-        body.classList.toggle('about-nav-active', active);
-      }, { threshold: 0.35 });
+      // Fallback: approximate visibility ratio from bounding box.
+      const onScroll = () => {
+        const rect = aboutSection.getBoundingClientRect();
+        const vh = window.innerHeight || 1;
+        const visiblePx = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
+        const clampedVisible = Math.max(0, visiblePx);
+        const denom = Math.min(Math.max(rect.height, 1), vh);
+        const ratio = Math.max(0, Math.min(1, clampedVisible / denom));
+        setActive(ratio >= 0.6);
+      };
 
-      obs.observe(aboutSection);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
     })();
     
     let currentIndex = 0;
@@ -1284,34 +1303,6 @@ function initAboutSection() {
             }
         }, { passive: true });
     }
-    
-    // Show/hide buttons based on about section visibility
-    function checkAboutVisibility() {
-        if (!aboutSection) return;
-        
-        const rect = aboutSection.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        
-        // Only show when about section is in the main viewport
-        // Top edge must be above 80% of screen AND bottom edge must be below 20% of screen
-        const isAboutInView = rect.top < windowHeight * 0.8 && rect.bottom > windowHeight * 0.2;
-        
-        if (isAboutInView) {
-            prevBtn.style.opacity = '1';
-            prevBtn.style.visibility = 'visible';
-            nextBtn.style.opacity = '1';
-            nextBtn.style.visibility = 'visible';
-        } else {
-            prevBtn.style.opacity = '0';
-            prevBtn.style.visibility = 'hidden';
-            nextBtn.style.opacity = '0';
-            nextBtn.style.visibility = 'hidden';
-        }
-    }
-    
-    // Check visibility on scroll
-    window.addEventListener('scroll', checkAboutVisibility);
-    checkAboutVisibility();
     
     // Handle window resize
     window.addEventListener("resize", () => {
