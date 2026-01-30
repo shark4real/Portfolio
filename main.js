@@ -409,10 +409,134 @@ function relocateAboutForMobile() {
   }
 }
 
+function initLandingRotatingText() {
+  const textEls = Array.from(document.querySelectorAll('.landing-rotator-text'));
+  if (!textEls.length) return;
+
+  const lines = [
+    'Aspiring Data Scientist.',
+    'Building Projects.',
+    'Into Art & Design.',
+    'Metalhead.',
+    'Cinema Addict.'
+  ];
+
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) {
+    for (const el of textEls) {
+      el.textContent = lines[0];
+      el.classList.remove('slide-in', 'slide-out');
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+    }
+    return;
+  }
+
+  // Speed control:
+  // - 1.0 = normal
+  // - >1.0 = faster (e.g. 1.25)
+  // - <1.0 = slower (e.g. 0.85)
+  const speed = 0.6;
+
+  const baseHoldMs = 1050;
+  const baseInMs = 260;
+  const baseOutMs = 220;
+  const baseBetweenMs = 90;
+
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const scaleMs = (ms) => Math.round(ms / clamp(speed, 0.35, 3));
+
+  // Timing (derived)
+  const holdMs = scaleMs(baseHoldMs);
+  const inMs = scaleMs(baseInMs);
+  const outMs = scaleMs(baseOutMs);
+  const betweenMs = scaleMs(baseBetweenMs);
+
+  // Keep CSS animation durations in sync with JS timing
+  for (const el of textEls) {
+    el.style.setProperty('--rotator-in', `${inMs}ms`);
+    el.style.setProperty('--rotator-out', `${outMs}ms`);
+  }
+
+  let index = 0;
+  let disposed = false;
+  let timers = [];
+
+  function schedule(fn, ms) {
+    const id = window.setTimeout(fn, ms);
+    timers.push(id);
+    return id;
+  }
+
+  function clearTimers() {
+    for (const id of timers) window.clearTimeout(id);
+    timers = [];
+  }
+
+  function setText(value) {
+    for (const el of textEls) el.textContent = value;
+  }
+
+  function removeAnimClasses() {
+    for (const el of textEls) el.classList.remove('slide-in', 'slide-out');
+  }
+
+  function forceRestart(el, className) {
+    el.classList.remove(className);
+    // Force reflow so the animation restarts reliably.
+    void el.offsetHeight;
+    el.classList.add(className);
+  }
+
+  function animateAll(className) {
+    for (const el of textEls) {
+      forceRestart(el, className);
+    }
+  }
+
+  function cycle() {
+    if (disposed) return;
+
+    // Slide out current line
+    removeAnimClasses();
+    animateAll('slide-out');
+
+    schedule(() => {
+      if (disposed) return;
+
+      // Swap text after it has moved out
+      index = (index + 1) % lines.length;
+      setText(lines[index]);
+
+      removeAnimClasses();
+      animateAll('slide-in');
+
+      schedule(cycle, holdMs + inMs + betweenMs);
+    }, outMs + betweenMs);
+  }
+
+  // Initial line
+  setText(lines[0]);
+  removeAnimClasses();
+  animateAll('slide-in');
+
+  clearTimers();
+  schedule(cycle, holdMs + inMs);
+
+  window.addEventListener('beforeunload', () => {
+    disposed = true;
+    clearTimers();
+  });
+}
+
 function initializeWebsite() {
   // Initialize all scroll effects and animations
   if (typeof initLandingSplitScroll === 'function') {
     initLandingSplitScroll();
+  }
+
+  if (typeof initLandingRotatingText === 'function') {
+    initLandingRotatingText();
   }
 
   if (typeof initMobileSectionLock === 'function') {
@@ -462,6 +586,55 @@ function initializeWebsite() {
   }
 }
 
+// ============================================
+// ABOUT CONTENT (stored for easy reuse)
+// ============================================
+const ABOUT_CONTENT = {
+  bio: "Hi, I'm Sharik Hassan — a 4th-year student and aspiring Data Scientist. I love exploring data, building intelligent systems, and sharing what I learn through teaching and community. Beyond tech, I create through digital design, animation, and illustration. I enjoy projects that blend logic with creativity and storytelling.",
+  education: [
+    {
+      school: 'Indian Institute of Technology, Madras',
+      degree: 'BSc in Data Science',
+      date: 'Sept, 2022 - Present',
+      description: 'Focused on math, programming, statistics, and data analysis.',
+    },
+    {
+      school: 'Dr. Ambedkar Institute Of Technology',
+      degree: 'B.E in AI & Machine Learning',
+      date: 'Dec, 2022 - Present',
+      description: 'Focused on AI systems, ML, and real-world problem-solving.',
+    },
+  ],
+  work: [
+    {
+      org: 'Entropik',
+      role: 'AI QA Intern',
+      description: '',
+    },
+    {
+      org: 'GDG DR. AIT',
+      role: 'Machine Learning Lead',
+      description: 'Taught ML + Math for ML; taught Linear Regression to 400+ learners.',
+    },
+    {
+      org: 'Colossus 2.0',
+      role: 'Design & Social-Media Lead',
+      description: 'Led design + co-led social; reached 110k+ views and 400k+ total reach. Collaborated on the event website.',
+    },
+  ],
+  hobbies: [
+    'Collaborating on new projects.',
+    'Sketching and drawing.',
+    'Chess (ELO ~1200).',
+    'Badminton.',
+    'Movies and series.',
+    'Music.',
+  ],
+};
+
+// Expose for debugging / future edits (requested: keep info saved somewhere)
+window.aboutContent = ABOUT_CONTENT;
+
 // Pin Connect section on desktop so it doesn't slip away quickly
 function initConnectPin() {
   const connect = document.getElementById('connect');
@@ -496,8 +669,8 @@ function initMobileMenu() {
     mobileMenu.innerHTML = `
       <button class="mobile-menu-close" aria-label="Close menu">&times;</button>
       <nav>
-        <a href="#projects">Projects</a>
-        <a href="#about">About</a>
+        org: 'Entropik',
+        role: 'AI QA Intern',
         <a href="#skills">RAG</a>
         <a href="#connect">Connect</a>
       </nav>
@@ -674,6 +847,14 @@ function initLandingSplitScroll() {
       anticipatePin: 1,
       markers: false,
       refreshPriority: 1,
+      onUpdate: (self) => {
+        // Keep the classic split reveal: About stays under the panels while they open,
+        // then becomes fully interactive once the split has essentially completed.
+        // Use a lower threshold so the About buttons are usable while About is visible.
+        const ready = (self && typeof self.progress === 'number') ? self.progress >= 0.55 : false;
+        document.documentElement.classList.toggle('about-ready', ready);
+        document.body.classList.toggle('about-ready', ready);
+      },
       onEnter: () => {
         if (!isMobile) return;
         document.documentElement.classList.add('split-active');
@@ -798,22 +979,390 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize other components if they exist
   if (typeof initHeaderHide === 'function') initHeaderHide();
   
-  // Initialize the 3D Project Gallery
-  initProjectCards();
+  // Initialize the Projects section (Personal Experiments layout)
+  initPersonalExperiments();
+  initProjectsScrollLock();
 });
 
 // Project Data (updated with provided entries)
 const codingProjects = [
-  { title: 'Datanaut.ai', description: 'An EDA tool, which lets u upload dataset and get instant insights', github: 'https://github.com/shark4real/Datanaut', demo: 'https://datanaut.onrender.com/', thumbnail: './datanaut.ai.png', image: './datanaut.ai.png' },
-  { title: 'Genly.ai', description: 'An AI-Email generator app for professional and bulk emailing', github: 'https://github.com/shark4real/Genly.ai', demo: 'https://genly-ai.onrender.com/', thumbnail: './genlyz.png', image: './genly.png' },
-  { title: 'Retail_order', description: 'An end to end Data Analysis pipline journey showcasing my skills in Python , Postgres & Tableau', github: 'https://github.com/shark4real/Retail_order_DA_project', demo: 'https://shark4real.github.io/Retail_order_DA_project', thumbnail: './Retail_order.png', image: '/Retail_order.png' },
-  { title: 'TDS_LLM', description: 'This project was developed as part of my academic curriculum at IIT Madras.', github: 'https://github.com/shark4real/tds_llm_project', demo: '#', thumbnail: './tdsllm.png', image: './tdsllm.png' },
-  { title: 'Autoparser', description: 'an AI-powered agent in Python that autonomously generates, tests, and self-corrects parsers for unstructured bank statement PDFs', github: 'https://github.com/shark4real/ai-agent-challenge', demo: '#', thumbnail: './Autoparser.png', image: './Autoparser.png' },
-  { title: 'Creative Coding', description: 'A small project on creative coding using Fourier Series Transformation', github: 'https://github.com/shark4real/Fourier_python', demo: 'https://shark4real.github.io/fourieronline/', thumbnail: './ftcc.png', image: './ftcc.png' }
+  {
+    title: 'Datanaut.ai',
+    year: 2024,
+    tags: ['Django','Supabase','Pandas','Seaborn','PostgreSQL'],
+    description: 'An EDA tool, which lets u upload dataset and get instant insights',
+    github: 'https://github.com/shark4real/Datanaut',
+    demo: 'https://datanaut.onrender.com/',
+    thumbnail: './datanaut.ai.png',
+    image: './datanaut.ai.png',
+  },
+  {
+    title: 'Genly.ai',
+    year: 2024,
+    tags: ['Django','OAuth2','HTML/CSS & Jinja2'],
+    description: 'An AI-Email generator app for professional and bulk emailing',
+    github: 'https://github.com/shark4real/Genly.ai',
+    demo: 'https://genly-ai.onrender.com/',
+    thumbnail: './genlyz.png',
+    image: './genlyz.png',
+  },
+  {
+    title: 'Retail_order',
+    year: 2023,
+    tags: ['Python','Pandas','Postgres', 'Tableau'],
+    description: 'An end to end Data Analysis pipline journey showcasing my skills in Python , Postgres & Tableau',
+    github: 'https://github.com/shark4real/Retail_order_DA_project',
+    demo: 'https://shark4real.github.io/Retail_order_DA_project',
+    thumbnail: './Retail_order.png',
+    image: '/Retail_order.png',
+  },
+  {
+    title: 'TDS_LLM',
+    year: 2023,
+    tags: ['LLM', 'Course'],
+    description: 'This project was developed as part of my academic curriculum at IIT Madras.',
+    github: 'https://github.com/shark4real/tds_llm_project',
+    demo: '#',
+    thumbnail: './tdsllm.png',
+    image: './tdsllm.png',
+  },
+  {
+    title: 'Autoparser',
+    year: 2024,
+    tags: ['Python','Gemini','Groq','Pytest','Python PDF Parsing'],
+    description: 'an AI-powered agent in Python that autonomously generates, tests, and self-corrects parsers for unstructured bank statement PDFs',
+    github: 'https://github.com/shark4real/ai-agent-challenge',
+    demo: '#',
+    thumbnail: './Autoparser.png',
+    image: './Autoparser.png',
+  },
+  {
+    title: 'Creative Coding',
+    year: 2022,
+    tags: ['Python Scripting','JavaScript','HTML/CSS','Math'],
+    description: 'A small project on creative coding using Fourier Series Transformation',
+    github: 'https://github.com/shark4real/Fourier_python',
+    demo: 'https://shark4real.github.io/fourieronline/',
+    thumbnail: './ftcc.png',
+    image: './ftcc.png',
+  },
 ];
 
 // Global assignment for consistency
 window.codingProjects = codingProjects;
+
+function initPersonalExperiments() {
+  const feed = document.getElementById('experimentsFeed');
+  const counterActive = document.getElementById('experimentsCounterActive');
+  const counterNext = document.getElementById('experimentsCounterNext');
+  const sidebar = document.querySelector('.experiments-sidebar');
+  const counterWrap = document.querySelector('.experiments-counter');
+  const scrollContainer = document.querySelector('#projects .experiments-shell');
+
+  if (!feed || !counterActive || !counterNext || !sidebar || !counterWrap || !scrollContainer || !Array.isArray(window.codingProjects)) return;
+
+  const projects = window.codingProjects;
+
+  // Right: project entries
+  feed.innerHTML = projects
+    .map((p, index) => {
+      const year = p.year ? Number(p.year) : '';
+      const yearLabel = year ? `/${year}` : '';
+      const title = p.title ? String(p.title) : '';
+      const desc = p.description ? String(p.description) : '';
+      const img = p.image || p.thumbnail || '';
+      const chips = Array.isArray(p.tags) ? p.tags : [];
+      const demo = p.demo && p.demo !== '#' ? String(p.demo) : '';
+      const github = p.github && p.github !== '#' ? String(p.github) : '';
+
+      const chipHtml = chips
+        .map((c) => `<span class="exp-chip">${String(c)}</span>`)
+        .join('');
+
+      const actionsHtml = `
+        <div class="exp-actions">
+          ${demo ? `<a class="exp-action exp-action-live" href="${demo}" target="_blank" rel="noopener noreferrer">Live</a>` : ''}
+          ${github ? `<a class="exp-action exp-action-github" href="${github}" target="_blank" rel="noopener noreferrer">GitHub</a>` : ''}
+        </div>
+      `;
+
+      return `
+        <article class="exp-item" data-exp-index="${index}">
+          <div class="exp-top">
+            <span class="exp-year">${yearLabel}</span>
+            <h3 class="exp-title">${title}</h3>
+            <div class="exp-chips">${chipHtml}</div>
+          </div>
+          <div class="exp-divider" aria-hidden="true"></div>
+          <p class="exp-desc">${desc}</p>
+          ${actionsHtml}
+          ${
+            img
+              ? `
+                <figure class="exp-media">
+                  <img class="exp-image" src="${img}" alt="${title}" loading="lazy" />
+                </figure>
+              `
+              : ''
+          }
+        </article>
+      `;
+    })
+    .join('');
+
+  // Sidebar numbers:
+  // - Active number moves down while scrolling through the active project
+  // - Next number is always visible at a fixed "stop" position
+  // - When active reaches the stop, the next becomes active
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const items = Array.from(feed.querySelectorAll('.exp-item'));
+  if (!items.length) return;
+
+  let activeIndex = 0;
+  let rafId = 0;
+  let lastScrollTop = 0;
+  let titleElements = []; // Store references to title elements
+
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function cacheTitleElements() {
+    titleElements = items.map(item => item.querySelector('.exp-title'));
+  }
+
+  function setNumbers(index) {
+    const n = Math.max(0, Math.min(items.length - 1, Number(index) || 0));
+    activeIndex = n;
+    counterActive.textContent = pad2(n + 1);
+    const nextIdx = n + 1;
+    if (nextIdx < items.length) {
+      counterNext.textContent = pad2(nextIdx + 1);
+      counterNext.style.display = '';
+    } else {
+      counterNext.style.display = 'none';
+    }
+  }
+
+  function getTitleY(index) {
+    // Get the live Y position of a title relative to the counter container
+    if (!titleElements[index]) return 0;
+    const counterRect = counterWrap.getBoundingClientRect();
+    const titleRect = titleElements[index].getBoundingClientRect();
+    return titleRect.top - counterRect.top;
+  }
+
+  function computeActiveIndex() {
+    // Active switches when a project's title crosses Y=0 (top of counter)
+    // Also activate last project when we're near the bottom
+    const scrollTop = scrollContainer.scrollTop;
+    const scrollHeight = scrollContainer.scrollHeight;
+    const clientHeight = scrollContainer.clientHeight;
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 50;
+    
+    if (isNearBottom) {
+      return titleElements.length - 1;
+    }
+    
+    for (let i = titleElements.length - 1; i >= 0; i -= 1) {
+      const titleY = getTitleY(i);
+      if (titleY <= 1) return i;
+    }
+    return 0;
+  }
+
+  function updateCounter() {
+    rafId = 0;
+
+    const scrollTop = scrollContainer.scrollTop;
+    const dir = scrollTop - lastScrollTop;
+    lastScrollTop = scrollTop;
+
+    // Sync active index based on which title is at the top
+    const idx = computeActiveIndex();
+    if (idx !== activeIndex) setNumbers(idx);
+
+    const nextIdx = activeIndex + 1;
+    const gap = 15;
+
+    // Next number: LOCKED to the next project's title position
+    let nextY = 0;
+    if (nextIdx < titleElements.length && titleElements[nextIdx]) {
+      nextY = Math.max(0, getTitleY(nextIdx));
+      counterNext.style.transform = `translate3d(0, ${nextY}px, 0)`;
+
+      // When next title hits the top, promote it
+      if (dir >= 0 && nextY <= 0.5) {
+        setNumbers(nextIdx);
+        requestUpdate();
+        return;
+      }
+    }
+
+    // Active number: moves DOWN through the project
+    // Start at 0, move down based on scroll progress
+    const activeTitleY = getTitleY(activeIndex);
+    const nextTitleY = nextIdx < titleElements.length ? getTitleY(nextIdx) : 10000;
+    
+    // Progress is based on how far we've scrolled past the active title
+    const distance = nextTitleY - activeTitleY;
+    const scrolledPastTitle = Math.max(0, -activeTitleY); // How far past 0 the active title has scrolled
+    const progress = distance > 0 ? clamp(scrolledPastTitle / distance, 0, 1) : 0;
+    
+    const maxActiveY = Math.max(0, counterWrap.clientHeight - counterActive.offsetHeight);
+    const activeH = counterActive.offsetHeight;
+    
+    // Cap active movement to stop before next number
+    const maxTravel = nextIdx < titleElements.length 
+      ? Math.max(0, nextY - activeH - gap)
+      : maxActiveY;
+    
+    const activeY = progress * Math.min(maxTravel, maxActiveY);
+    counterActive.style.transform = `translate3d(0, ${activeY}px, 0)`;
+  }
+
+  function requestUpdate() {
+    if (rafId) return;
+    rafId = requestAnimationFrame(updateCounter);
+  }
+
+  // Initial render
+  lastScrollTop = scrollContainer.scrollTop;
+  cacheTitleElements();
+  setNumbers(0);
+  counterActive.style.transform = 'translate3d(0, 0, 0)';
+  
+  // Position next number correctly on initial load
+  if (titleElements.length > 1 && titleElements[1]) {
+    // Wait for next frame to ensure elements are rendered
+    requestAnimationFrame(() => {
+      const initialNextY = Math.max(0, getTitleY(1));
+      counterNext.style.transform = `translate3d(0, ${initialNextY}px, 0)`;
+      requestUpdate();
+    });
+  } else {
+    requestUpdate();
+  }
+
+  scrollContainer.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', () => {
+    cacheTitleElements();
+    requestUpdate();
+  });
+}
+
+function initProjectsScrollLock() {
+  const section = document.getElementById('projects');
+  const scrollContainer = document.querySelector('#projects .experiments-shell');
+  if (!section || !scrollContainer) return;
+
+  let isSnapping = false;
+
+  function isSectionLockedInView() {
+    const r = section.getBoundingClientRect();
+    // Projects is a 100vh section; treat it as "active" when it fills the viewport.
+    return r.top <= 0 && r.bottom >= window.innerHeight;
+  }
+
+  function shouldSnapIntoView(deltaY) {
+    if (isSnapping) return false;
+    const r = section.getBoundingClientRect();
+
+    const snapBufferPx = 160;
+    const snapDeadzonePx = 2;
+
+    // Snap only when ENTERING Projects (prevents "sticky" snap when leaving).
+    // - Coming from above (scrolling down): section top is below viewport top.
+    // - Coming from below (scrolling up): section top is above viewport top but section overlaps viewport.
+    if (deltaY > 0) {
+      // Snap slightly before the section fully arrives to avoid it "slipping".
+      return r.top > snapDeadzonePx && r.top < window.innerHeight + snapBufferPx;
+    }
+
+    if (deltaY < 0) {
+      return r.top < -snapDeadzonePx && r.bottom > -snapBufferPx;
+    }
+
+    return false;
+  }
+
+  function snapSectionToTop() {
+    const r = section.getBoundingClientRect();
+    isSnapping = true;
+    window.scrollBy({ top: r.top, left: 0, behavior: 'smooth' });
+    window.setTimeout(() => {
+      isSnapping = false;
+    }, 260);
+  }
+
+  function canScroll(deltaY) {
+    const top = scrollContainer.scrollTop;
+    const max = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+    const epsilon = 1;
+    if (deltaY > 0) return top < max - epsilon;
+    if (deltaY < 0) return top > epsilon;
+    return false;
+  }
+
+  // Route wheel scrolling into the Projects scroll container while the section is "locked".
+  window.addEventListener(
+    'wheel',
+    (e) => {
+      // First scroll: snap Projects into position ("lock-in")
+      if (!isSectionLockedInView() && shouldSnapIntoView(e.deltaY)) {
+        e.preventDefault();
+        snapSectionToTop();
+        return;
+      }
+
+      if (!isSectionLockedInView()) return;
+      // If user can scroll inside Projects, prevent page scroll and scroll Projects instead.
+      if (!canScroll(e.deltaY)) return;
+      e.preventDefault();
+      scrollContainer.scrollTop += e.deltaY;
+    },
+    { passive: false }
+  );
+
+  // Keyboard support (arrows/page/space) to keep behavior consistent.
+  window.addEventListener('keydown', (e) => {
+    let delta = 0;
+    if (e.key === 'ArrowDown') delta = 60;
+    else if (e.key === 'ArrowUp') delta = -60;
+    else if (e.key === 'PageDown' || e.key === ' ') delta = Math.max(120, scrollContainer.clientHeight * 0.9);
+    else if (e.key === 'PageUp') delta = -Math.max(120, scrollContainer.clientHeight * 0.9);
+    else if (e.key === 'Home') delta = -Infinity;
+    else if (e.key === 'End') delta = Infinity;
+    else return;
+
+    // First key scroll: snap Projects into position ("lock-in")
+    if (!isSectionLockedInView()) {
+      if (delta !== Infinity && delta !== -Infinity && delta !== 0 && shouldSnapIntoView(delta)) {
+        e.preventDefault();
+        snapSectionToTop();
+      }
+      return;
+    }
+
+    if (delta === -Infinity) {
+      if (!canScroll(-1)) return;
+      e.preventDefault();
+      scrollContainer.scrollTop = 0;
+      return;
+    }
+
+    if (delta === Infinity) {
+      if (!canScroll(1)) return;
+      e.preventDefault();
+      scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      return;
+    }
+
+    if (!canScroll(delta)) return;
+    e.preventDefault();
+    scrollContainer.scrollTop += delta;
+  });
+}
 
 function initProjectCards() {
   const stage = document.getElementById('cardsStage');
@@ -1171,149 +1720,148 @@ function initProjectsPin() {
 
 // about section
 function initAboutSection() {
-    const track = document.querySelector(".about-track");
-    const prevBtn = document.getElementById("aboutPrevBtn");
-    const nextBtn = document.getElementById("aboutNextBtn");
-    const cards = document.querySelectorAll(".polaroid-card");
-    const aboutSection = document.getElementById("about");
-    
-    // Check if elements exist
-    if (!track || !prevBtn || !nextBtn || cards.length === 0) {
-        console.error("About section elements not found");
-        return;
-    }
-    
-    console.log("About section initialized", { track, prevBtn, nextBtn, cardCount: cards.length });
+  const container = document.getElementById('aboutInteractive');
+  if (!container) return;
 
-    // Show the arrow buttons only while the About section is meaningfully in view.
-    (function setupAboutNavVisibility() {
-      if (!aboutSection) return;
+  const bioBody = document.getElementById('aboutPanelBodyBio');
+  const workBody = document.getElementById('aboutPanelBodyWork');
+  const eduBody = document.getElementById('aboutPanelBodyEducation');
+  const hobbiesBody = document.getElementById('aboutPanelBodyHobbies');
 
-      const root = document.documentElement;
-      const body = document.body;
-      const setActive = (active) => {
-        root.classList.toggle('about-nav-active', !!active);
-        body.classList.toggle('about-nav-active', !!active);
-      };
+  if (!bioBody || !workBody || !eduBody || !hobbiesBody) return;
 
-      // Reset any legacy inline styles so CSS controls visibility.
-      prevBtn.style.opacity = '';
-      prevBtn.style.visibility = '';
-      nextBtn.style.opacity = '';
-      nextBtn.style.visibility = '';
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
-      if ('IntersectionObserver' in window) {
-        const obs = new IntersectionObserver((entries) => {
-          const entry = entries[0];
-          const ratio = entry ? entry.intersectionRatio : 0;
-          setActive(ratio >= 0.6);
-        }, { threshold: [0, 0.6, 1] });
+  function setActive(key) {
+    const nextKey = String(key || '').trim();
+    container.dataset.active = nextKey;
 
-        obs.observe(aboutSection);
-        return;
+    const panels = Array.from(container.querySelectorAll('.about-panel'));
+    for (const panel of panels) {
+      const panelKey = panel.getAttribute('data-key') || '';
+      const btn = panel.querySelector('.about-panel-toggle');
+      const isActive = panelKey === nextKey;
+      if (btn) {
+        btn.setAttribute('aria-expanded', String(isActive));
+        // Requested: arrow flips to indicate minimize when expanded.
+        btn.textContent = isActive ? '↙' : '↗';
       }
+    }
+  }
 
-      // Fallback: approximate visibility ratio from bounding box.
-      const onScroll = () => {
-        const rect = aboutSection.getBoundingClientRect();
-        const vh = window.innerHeight || 1;
-        const visiblePx = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
-        const clampedVisible = Math.max(0, visiblePx);
-        const denom = Math.min(Math.max(rect.height, 1), vh);
-        const ratio = Math.max(0, Math.min(1, clampedVisible / denom));
-        setActive(ratio >= 0.6);
-      };
+  // Bio
+  bioBody.replaceChildren();
+  {
+    const p = document.createElement('p');
+    p.className = 'about-item-desc';
+    p.textContent = ABOUT_CONTENT.bio;
+    bioBody.appendChild(p);
+  }
 
-      window.addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
-    })();
-    
-    let currentIndex = 0;
-    
-    // Desktop: 2 cards visible, Mobile: 1 card visible
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
-    const isDesktop = !isMobile;
-    const cardsPerView = isDesktop ? 2 : 1;
-    const totalCards = cards.length;
-    const maxIndex = Math.max(0, totalCards - cardsPerView);
-    
-    // Function to update button states
-    function updateButtonStates() {
-        prevBtn.disabled = currentIndex === 0;
-        nextBtn.disabled = currentIndex === maxIndex;
+  // Work
+  {
+    const items = Array.isArray(ABOUT_CONTENT.work) ? ABOUT_CONTENT.work : [];
+
+    workBody.innerHTML = `
+      <div class="about-work-list">
+        ${items
+          .map((item) => {
+            const org = item?.org ? escapeHtml(item.org) : '';
+            const role = item?.role ? escapeHtml(item.role) : '';
+            const desc = item?.description ? escapeHtml(item.description) : '';
+
+            return `
+              <div class="about-work-item">
+                <div class="about-work-head">
+                  <div class="about-work-titles">
+                    ${org ? `<p class="about-item-title">${org}</p>` : ''}
+                    ${role ? `<p class="about-item-meta">${role}</p>` : ''}
+                  </div>
+                </div>
+                ${desc ? `<p class="about-item-desc">${desc}</p>` : ''}
+              </div>
+            `;
+          })
+          .join('')}
+      </div>
+    `;
+  }
+
+  // Education
+  {
+    const items = Array.isArray(ABOUT_CONTENT.education) ? ABOUT_CONTENT.education : [];
+
+    eduBody.innerHTML = `
+      <div class="about-edu-list">
+        ${items
+          .map((edu) => {
+            const school = edu?.school ? escapeHtml(edu.school) : '';
+            const degree = edu?.degree ? escapeHtml(edu.degree) : '';
+            const date = edu?.date ? escapeHtml(edu.date) : '';
+            const desc = edu?.description ? escapeHtml(edu.description) : '';
+            const meta = [degree, date].filter(Boolean).join(' • ');
+
+            return `
+              <div class="about-edu-item">
+                <div class="about-edu-head">
+                  <div class="about-edu-titles">
+                    ${school ? `<p class="about-item-title">${school}</p>` : ''}
+                    ${meta ? `<p class="about-item-meta">${meta}</p>` : ''}
+                  </div>
+                </div>
+                ${desc ? `<p class="about-item-desc">${desc}</p>` : ''}
+              </div>
+            `;
+          })
+          .join('')}
+      </div>
+    `;
+  }
+
+  // Hobbies
+  hobbiesBody.replaceChildren();
+  {
+    const list = document.createElement('ul');
+    list.className = 'about-hobbies';
+    for (const hobby of ABOUT_CONTENT.hobbies) {
+      const li = document.createElement('li');
+      li.textContent = hobby;
+      list.appendChild(li);
     }
-    
-    // Function to scroll to current index
-    function scrollToIndex() {
-        const singleCardWidth = isDesktop ? 42 : (100 - 2.5); // vw units
-        const gap = isDesktop ? 5 : 1.25; // vw units
-        const cardWithGap = singleCardWidth + gap;
-        const offset = currentIndex * cardWithGap * (window.innerWidth / 100);
-        
-        console.log("Scrolling to index", currentIndex, "offset", offset);
-        
-        gsap.to(track, {
-            x: -offset,
-            duration: 0.2,
-            ease: "power1.out"
-        });
-        
-        updateButtonStates();
+    hobbiesBody.appendChild(list);
+  }
+
+  // Interactions: clicking a box (or its button) activates it.
+  const panels = Array.from(container.querySelectorAll('.about-panel'));
+  for (const panel of panels) {
+    const key = panel.getAttribute('data-key');
+    if (!key) continue;
+
+    const btn = panel.querySelector('.about-panel-toggle');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const current = String(container.dataset.active || '').trim();
+        setActive(current === key ? '' : key);
+      });
     }
-    
-    // Previous button
-    prevBtn.onclick = function(e) {
-        console.log("PREV BUTTON CLICKED");
-        if (currentIndex > 0) {
-            currentIndex--;
-            scrollToIndex();
-        }
-    };
-    
-    // Next button
-    nextBtn.onclick = function(e) {
-        console.log("NEXT BUTTON CLICKED");
-        if (currentIndex < maxIndex) {
-            currentIndex++;
-            scrollToIndex();
-        }
-    };
-    
-    // Add touch swipe for mobile
-    if (isMobile) {
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        track.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        
-        track.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const swipeThreshold = 50;
-            
-            if (touchStartX - touchEndX > swipeThreshold && currentIndex < maxIndex) {
-                // Swipe left - next
-                currentIndex++;
-                scrollToIndex();
-            } else if (touchEndX - touchStartX > swipeThreshold && currentIndex > 0) {
-                // Swipe right - previous
-                currentIndex--;
-                scrollToIndex();
-            }
-        }, { passive: true });
-    }
-    
-    // Handle window resize
-    window.addEventListener("resize", () => {
-        const newIsMobile = window.matchMedia("(max-width: 768px)").matches;
-        if (newIsMobile !== isMobile) {
-            location.reload();
-        }
+
+    panel.addEventListener('click', (e) => {
+      // Avoid double-trigger when clicking the button.
+      if (e.target && e.target.closest && e.target.closest('.about-panel-toggle')) return;
+      const current = String(container.dataset.active || '').trim();
+      setActive(current === key ? '' : key);
     });
-    
-    // Initial button state
-    updateButtonStates();
+  }
+
+  // Ensure initial state (requested: nothing opened)
+  setActive(container.dataset.active || '');
 }
 
 // ===== SKILLS SECTION CARD ANIMATIONS =====

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sharik Portfolio</title>
+  <title>Sharik</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -40,12 +40,15 @@
     <div class="landing-container">
       <div class="landing-left">
         <div class="landing-intro">
-          <h1>Hi, I'm <span>Sharik</span></h1>
-          <p class="landing-main-line"><span class="landing-typewriter">I explore<span style="color: #242424;"> Data.</span></span></p>
+          <h1>Hi , Im <span>Sharik</span></h1>
+          <p class="landing-main-line">
+            <span class="landing-rotator" aria-hidden="true">
+              <span class="landing-rotator-text"></span>
+            </span>
+          </p>
         </div>
-        <p class="landing-passion-line">I frame it in <span style="font-family: serif; font-weight: 300;"><i>A</i>rt & Design</span></p>
         <div class="landing-tagline">
-          <p>i code, i create, i design</p>
+          <p>I Code | I Create | I Design</p>
         </div>
         <div class="landing-buttons">
           <a class="btn btn-primary" href="./sharik_hassan.pdf" target="_blank">Resume</a>
@@ -63,109 +66,49 @@
         <div class="about-header-fixed">
             <h2>About</h2>
         </div>
-    
-        <div class="about-track">
-    
-            <div class="polaroid-card">
-                <div class="polaroid-inner">
-                    <div class="inner-content">
-                        <h4>Bio</h4>
-                      <p>Hi, I'm Sharik Hassan — a 4th-year student and aspiring Data Scientist.
-                        I love exploring data, building intelligent systems, and sharing what I learn through teaching and community.
-                        Beyond tech, I create through digital design, animation, and illustration.
-                        I enjoy projects that blend logic with creativity and storytelling.</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="polaroid-card">
-                <div class="polaroid-inner" style="background-color: #f4f4f4; color: #333;">
-                    <div class="inner-content">
-                        <h4>Education</h4>
-                        <div class="edu-item">
-                            <h3 class="edu-school">Indian Institute of Technology, Madras</h3>
-                            <div class="edu-details">
-                                <span class="edu-degree">BSc in Data Science</span>
-                                <span class="edu-date">Sept, 2022 - Present</span>
-                            </div>
-                          <p class="edu-desc">Focused on math, programming, statistics, and data analysis.</p>
-                        </div>
-                        
-                        <div class="edu-item">
-                            <h3 class="edu-school">Dr. Ambedkar Institute Of Technology</h3>
-                            <div class="edu-details">
-                                <span class="edu-degree">B.E in AI & Machine Learning</span>
-                                <span class="edu-date">Dec, 2022 - Present</span>
-                            </div>
-                          <p class="edu-desc">Focused on AI systems, ML, and real-world problem-solving.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="polaroid-card">
-                <div class="polaroid-inner" style="background-color: #333; color: #fff;">
-                    <div class="inner-content">
-                        <h4>Work</h4>
-                        <div class="edu-item">
-                            <h3 class="edu-school" style="color: white;">GDG DR. AIT</h3>
-                            <div class="edu-details">
-                                <span class="edu-degree"style="color: white;">Machine Learning Lead</span>
-                            </div>
-                          <p class="edu-desc"style="color: white;">Taught ML + Math for ML; taught Linear Regression to <strong>400+ learners</strong>.</p>
-                        </div>
-                        
-                        <div class="edu-item">
-                            <h3 class="edu-school"style="color: white;">Colossus 2.0</h3>
-                            <div class="edu-details">
-                                <span class="edu-degree"style="color: white;">Design & Social-Media Lead</span>
-                            </div>
-                          <p class="edu-desc" style="color: white;">Led design + co-led social; reached <strong>110k+ views</strong> and <strong>400k+</strong> total reach. Collaborated on the event website.</p>
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-    
-            <div class="polaroid-card">
-                <div class="polaroid-inner" style="background-color: #e0e0e0; color: #000;">
-                    <div class="inner-content">
-                        <h4>Hobbies</h4>
-                        <div class="tags-simple">
-                            <ul class="list-disc text-left"
-                                style="font-size: 15px; font-family: monospace; padding-left: 20px; line-height: 1.8;">
-                                <li>
-                               <strong>Collaborating</strong> on new projects.
-                                </li>
-                                <li>
-                              <strong>Sketching and drawing</strong>.
-                                </li>
-                                <li>
-                              <strong>Chess</strong> (ELO ~1200).
-                                </li>
-                                <li>
-                              <strong>Badminton</strong>.
-                                </li>
-                                <li>
-                              <strong>Movies and series</strong>.
-                                </li>
-                                <li>
-                              <strong>Music</strong>.
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+        <div class="about-interactive" id="aboutInteractive" data-active="">
+          <div class="about-col about-col-left">
+            <section class="about-panel" data-key="bio" aria-labelledby="aboutPanelTitleBio">
+              <div class="about-panel-header">
+                <h3 id="aboutPanelTitleBio" class="about-panel-title">Bio</h3>
+                <button class="about-panel-toggle" type="button" aria-expanded="false" aria-controls="aboutPanelBodyBio" aria-label="Open Bio">↗</button>
+              </div>
+              <div class="about-panel-body" id="aboutPanelBodyBio"></div>
+            </section>
+
+            <section class="about-panel" data-key="education" aria-labelledby="aboutPanelTitleEducation">
+              <div class="about-panel-header">
+                <h3 id="aboutPanelTitleEducation" class="about-panel-title">Education</h3>
+                <button class="about-panel-toggle" type="button" aria-expanded="false" aria-controls="aboutPanelBodyEducation" aria-label="Open Education">↗</button>
+              </div>
+              <div class="about-panel-body" id="aboutPanelBodyEducation"></div>
+            </section>
+          </div>
+
+          <div class="about-col about-col-right">
+            <section class="about-panel" data-key="hobbies" aria-labelledby="aboutPanelTitleHobbies">
+              <div class="about-panel-header">
+                <h3 id="aboutPanelTitleHobbies" class="about-panel-title">Hobbies</h3>
+                <button class="about-panel-toggle" type="button" aria-expanded="false" aria-controls="aboutPanelBodyHobbies" aria-label="Open Hobbies">↗</button>
+              </div>
+              <div class="about-panel-body" id="aboutPanelBodyHobbies"></div>
+            </section>
+
+            <section class="about-panel" data-key="work" aria-labelledby="aboutPanelTitleWork">
+              <div class="about-panel-header">
+                <h3 id="aboutPanelTitleWork" class="about-panel-title">Work</h3>
+                <button class="about-panel-toggle" type="button" aria-expanded="false" aria-controls="aboutPanelBodyWork" aria-label="Open Work">↗</button>
+              </div>
+              <div class="about-panel-body" id="aboutPanelBodyWork"></div>
+            </section>
+          </div>
         </div>
-        
+
     </section>
 
   </section>
 
-  <!-- About Navigation Buttons - Outside landing overlay -->
-  <button class="about-arrow-btn left" id="aboutPrevBtn">‹</button>
-  <button class="about-arrow-btn right" id="aboutNextBtn">›</button>
 
   <header>
     <a href="#landing" class="logo">Sharik</a>
@@ -178,15 +121,18 @@
   </header>
 
   <!-- Projects Section -->
-  <section id="projects" class="project-section">
-    <h2 class="projects-title">Projects</h2>
-    <div id="projectsCanvas" class="projects-canvas">
-      <div class="cards-stage-wrap">
-        <div class="cards-stage" id="cardsStage"></div>
-        <div class="cards-nav">
-          <button id="cardsPrev" class="cards-nav-btn">‹</button>
-          <button id="cardsNext" class="cards-nav-btn">›</button>
-        </div>
+  <section id="projects" class="experiments-section">
+    <div class="experiments-shell">
+      <h2 class="projects-section-title">Projects</h2>
+      <div class="experiments-grid">
+        <aside class="experiments-sidebar">
+          <div class="experiments-counter" aria-hidden="true">
+            <div class="experiments-counter-number experiments-counter-active" id="experimentsCounterActive">01</div>
+            <div class="experiments-counter-number experiments-counter-next" id="experimentsCounterNext">02</div>
+          </div>
+        </aside>
+
+        <div class="experiments-feed" id="experimentsFeed" aria-label="Projects list"></div>
       </div>
     </div>
   </section>
