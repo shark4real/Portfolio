@@ -590,7 +590,7 @@ function initializeWebsite() {
 // ABOUT CONTENT (stored for easy reuse)
 // ============================================
 const ABOUT_CONTENT = {
-  bio: "Hi, I'm Sharik Hassan — a 4th-year student and aspiring Data Scientist. I love exploring data, building intelligent systems, and sharing what I learn through teaching and community. Beyond tech, I create through digital design, animation, and illustration. I enjoy projects that blend logic with creativity and storytelling.",
+  bio: "Hi, I'm Sharik Hassan — a 4th-year student and aspiring Data Scientist. I love exploring data, building intelligent systems, and sharing what I learn through \n\nteaching and community. Beyond tech, I create through digital design, animation, and illustration. I enjoy projects that blend logic with creativity and storytelling.",
   education: [
     {
       school: 'Indian Institute of Technology, Madras',
@@ -1720,6 +1720,117 @@ function initProjectsPin() {
 
 // about section
 function initAboutSection() {
+  const bioTop = document.getElementById('aboutBioTextTop');
+  const bioBottom = document.getElementById('aboutBioTextBottom');
+  const experienceList = document.getElementById('aboutExperienceList');
+  const educationList = document.getElementById('aboutEducationList');
+  const hobbiesList = document.getElementById('aboutHobbiesList');
+
+  // New layout path
+  if (bioTop && bioBottom && experienceList && educationList && hobbiesList) {
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Bio split (so the image can sit between paragraphs)
+    {
+      const raw = String(ABOUT_CONTENT.bio || '').trim();
+      const parts = raw.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+
+      if (parts.length >= 2) {
+        bioTop.textContent = parts[0];
+        bioBottom.textContent = parts.slice(1).join('\n\n');
+      } else {
+        // Fallback: split near the middle at a sentence boundary.
+        const mid = Math.max(0, Math.floor(raw.length / 2));
+        const left = raw.lastIndexOf('.', mid);
+        const right = raw.indexOf('.', mid);
+        const cut = right !== -1 ? right + 1 : (left !== -1 ? left + 1 : mid);
+        bioTop.textContent = raw.slice(0, cut).trim();
+        bioBottom.textContent = raw.slice(cut).trim();
+      }
+    }
+
+    // Experience
+    {
+      const items = Array.isArray(ABOUT_CONTENT.work) ? ABOUT_CONTENT.work : [];
+      experienceList.innerHTML = `
+        <div class="about-work-list">
+          ${items
+            .map((item) => {
+              const org = item?.org ? escapeHtml(item.org) : '';
+              const role = item?.role ? escapeHtml(item.role) : '';
+              const desc = item?.description ? escapeHtml(item.description) : '';
+
+              return `
+                <div class="about-work-item">
+                  <div class="about-work-head">
+                    <div class="about-work-titles">
+                      ${org ? `<p class="about-item-title">${org}</p>` : ''}
+                      ${role ? `<p class="about-item-meta">${role}</p>` : ''}
+                    </div>
+                  </div>
+                  ${desc ? `<p class="about-item-desc">${desc}</p>` : ''}
+                </div>
+              `;
+            })
+            .join('')}
+        </div>
+      `;
+    }
+
+    // Education
+    {
+      const items = Array.isArray(ABOUT_CONTENT.education) ? ABOUT_CONTENT.education : [];
+      educationList.innerHTML = `
+        <div class="about-edu-list">
+          ${items
+            .map((edu) => {
+              const school = edu?.school ? escapeHtml(edu.school) : '';
+              const degree = edu?.degree ? escapeHtml(edu.degree) : '';
+              const date = edu?.date ? escapeHtml(edu.date) : '';
+              const desc = edu?.description ? escapeHtml(edu.description) : '';
+              const meta = [degree, date].filter(Boolean).join(' • ');
+
+              return `
+                <div class="about-edu-item">
+                  <div class="about-edu-head">
+                    <div class="about-edu-titles">
+                      ${school ? `<p class="about-item-title">${school}</p>` : ''}
+                      ${meta ? `<p class="about-item-meta">${meta}</p>` : ''}
+                    </div>
+                  </div>
+                  ${desc ? `<p class="about-item-desc">${desc}</p>` : ''}
+                </div>
+              `;
+            })
+            .join('')}
+        </div>
+      `;
+    }
+
+    // Hobbies
+    hobbiesList.replaceChildren();
+    {
+      const list = document.createElement('ul');
+      list.className = 'about-hobbies';
+      for (const hobby of ABOUT_CONTENT.hobbies || []) {
+        const li = document.createElement('li');
+        li.textContent = hobby;
+        list.appendChild(li);
+      }
+      hobbiesList.appendChild(list);
+    }
+
+    return;
+  }
+
+  // Legacy layout fallback (interactive panels)
   const container = document.getElementById('aboutInteractive');
   if (!container) return;
 

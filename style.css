@@ -416,7 +416,7 @@ nav a:hover {
   height: 34px;
   padding: 0 14px;
   border: 1px solid rgba(0, 0, 0, 0.72);
-  border-radius: 6px;
+  border-radius: 0px;
   text-decoration: none;
   color: rgba(0, 0, 0, 0.92);
   font-size: 13px;
@@ -2210,14 +2210,106 @@ body.about-ready #landing .landing-container {
 /* --- About Section Layout --- */
 /* --- About Section Container --- */
 .about-section {
-    height: 100vh; 
-    overflow: hidden; 
-    background-color: #111; 
-    display: flex;
-  align-items: flex-start;
+  /* Single knob to resize the about image (preserves aspect ratio) */
+  --about-photo-width: 65%;
+
+  height: 100vh;
+  overflow: hidden;
+  background-color: #111;
+  display: flex;
+  align-items: stretch;
   padding: 110px 5vw 40px;
-    position: relative;
-    z-index: 200;
+  position: relative;
+  z-index: 200;
+}
+
+/* About (new split layout) */
+.about-shell {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  gap: 0;
+  color: #fff;
+}
+
+.about-left {
+  flex: 0 0 44%;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-right: 48px;
+  justify-content: center;
+}
+
+.about-title {
+  margin: 0;
+  font-size: 84px;
+  font-weight: 650;
+  letter-spacing: -3px;
+  line-height: 0.98;
+}
+
+.about-left .about-bio-text {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.about-photo {
+  width: var(--about-photo-width);
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 6px auto;
+}
+
+.about-right {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  padding-left: 48px;
+  border-left: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.about-right-scroll {
+  flex: 1 1 0;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 14px;
+  overscroll-behavior: contain;
+  /* Hide scrollbar (keep scrolling) */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+
+/* Hide scrollbar for Chrome/Safari/Edge */
+.about-right-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.about-right-block {
+  margin-bottom: 40px;
+}
+
+.about-right-heading {
+  margin: 0 0 14px;
+  font-size: 60px;
+  font-weight: 300;
+  letter-spacing: -1.6px;
+}
+
+.about-card {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 18px 20px;
 }
 
 /* Interactive About panels */
@@ -2353,7 +2445,7 @@ body.about-ready #landing .landing-container {
   position: relative;
   padding: 12px 0 14px;
   padding-left: 28px;
-  border-top: 1px solid rgba(0, 0, 0, 0.16);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .about-work-item:first-child {
@@ -2528,6 +2620,48 @@ body.about-ready #landing .landing-container {
 }
 
 @media (max-width: 768px) {
+  .about-section {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .about-shell {
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .about-left {
+    min-width: 0;
+    padding-right: 0;
+  }
+
+  .about-title {
+    font-size: 56px;
+    letter-spacing: -2px;
+  }
+
+  .about-photo {
+    width: 100%;
+    height: auto;
+  }
+
+  .about-right {
+    height: auto;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .about-right-scroll {
+    height: auto;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .about-right-heading {
+    font-size: 40px;
+  }
+
   .about-interactive {
     flex-direction: column;
     border: 1px solid rgba(255, 255, 255, 0.7);
