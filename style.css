@@ -2218,7 +2218,7 @@ body.about-ready #landing .landing-container {
   background-color: #111;
   display: flex;
   align-items: stretch;
-  padding: 110px 5vw 40px;
+  padding: 40px 5vw 40px;
   position: relative;
   z-index: 200;
 }
@@ -2247,15 +2247,23 @@ body.about-ready #landing .landing-container {
 .about-title {
   margin: 0;
   font-size: 84px;
-  font-weight: 650;
+  font-weight: 550;
   letter-spacing: -3px;
   line-height: 0.98;
+  /* Keep heading aligned with image/text column */
+  width: var(--about-photo-width);
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .about-left .about-bio-text {
   margin: 0;
-  width: 100%;
+  /* Keep paragraphs aligned to the image width */
+  width: var(--about-photo-width);
   max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
   font-size: 13px;
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.86);
@@ -2639,6 +2647,7 @@ body.about-ready #landing .landing-container {
   .about-title {
     font-size: 56px;
     letter-spacing: -2px;
+    width: 100%;
   }
 
   .about-photo {
