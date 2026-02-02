@@ -276,7 +276,7 @@ nav a:hover {
 
 /* Projects title: match About title typography, but NOT fixed-position */
 .projects-section-title {
-  margin: 0 0 20px;
+  margin: 35px 0 20px 0;
   font-size: 84px;
   font-weight: 800;
   letter-spacing: -3px;

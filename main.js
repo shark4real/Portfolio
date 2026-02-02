@@ -596,13 +596,13 @@ const ABOUT_CONTENT = {
       school: 'Indian Institute of Technology, Madras',
       degree: 'BSc in Data Science',
       date: 'Sept, 2022 - Present',
-      description: 'Focused on math, programming, statistics, and data analysis.',
+      description: '',
     },
     {
       school: 'Dr. Ambedkar Institute Of Technology',
       degree: 'B.E in AI & Machine Learning',
       date: 'Dec, 2022 - Present',
-      description: 'Focused on AI systems, ML, and real-world problem-solving.',
+      description: '',
     },
   ],
   work: [
@@ -614,12 +614,12 @@ const ABOUT_CONTENT = {
     {
       org: 'GDG DR. AIT',
       role: 'Machine Learning Lead',
-      description: 'Taught ML + Math for ML; taught Linear Regression to 400+ learners.',
+      description: 'Led ML learning sessions and taught core Machine Learning concepts with a strong focus on math foundations. Delivered hands-on explanations of Linear Regression to 400+ learners. Mentored participants and simplified complex ideas for beginners.',
     },
     {
       org: 'Colossus 2.0',
       role: 'Design & Social-Media Lead',
-      description: 'Led design + co-led social; reached 110k+ views and 400k+ total reach. Collaborated on the event website.',
+      description: 'Led design efforts and co-managed social media strategy for the event. Created visual assets and promotional content that reached 110k+ views and 400k+ overall reach. Collaborated on the event website to ensure consistent design and branding.',
     },
   ],
   hobbies: [
@@ -1817,11 +1817,42 @@ function initAboutSection() {
     // Hobbies
     hobbiesList.replaceChildren();
     {
+      function hobbyIconSvg(label) {
+        const text = String(label || '').toLowerCase();
+
+        // Simple inline SVG set (stroke-based, inherits currentColor)
+        const icons = {
+          collaborate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Z"/><path d="M8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Z"/><path d="M2 20c0-2.76 2.24-5 5-5h2"/><path d="M22 20c0-2.76-2.24-5-5-5h-2"/><path d="M9 15h6"/></svg>',
+          pencil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+          chess: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l-1 3 3 2-2 3 3 3-3 2"/><path d="M8 21h8"/><path d="M9 21v-3a4 4 0 0 1 6 0v3"/><path d="M7 15h10"/></svg>',
+          badminton: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 2c-2.5 2.5-2 6 1.5 9.5S24 15 22 17s-5.5-1-8.5-4S10 9.5 12.5 7 18.5 4.5 16 2Z"/><path d="M9 15l-6 6"/><path d="M7 21l-4-4"/></svg>',
+          film: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14"/><path d="M17 5v14"/><path d="M3 9h4"/><path d="M3 15h4"/><path d="M17 9h4"/><path d="M17 15h4"/></svg>',
+          music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><path d="M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M21 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>',
+          star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7 7 .6-5.3 4.6 1.7 7.2L12 17.8 5.6 21.4l1.7-7.2L2 9.6 9 9Z"/></svg>',
+        };
+
+        if (text.includes('collab') || text.includes('project')) return icons.collaborate;
+        if (text.includes('sketch') || text.includes('draw') || text.includes('design') || text.includes('illustr')) return icons.pencil;
+        if (text.includes('chess')) return icons.chess;
+        if (text.includes('badminton')) return icons.badminton;
+        if (text.includes('movie') || text.includes('series') || text.includes('film')) return icons.film;
+        if (text.includes('music')) return icons.music;
+
+        return icons.star;
+      }
+
       const list = document.createElement('ul');
-      list.className = 'about-hobbies';
+      list.className = 'about-hobbies-icons';
       for (const hobby of ABOUT_CONTENT.hobbies || []) {
         const li = document.createElement('li');
-        li.textContent = hobby;
+        const icon = document.createElement('span');
+        icon.className = 'about-hobby-icon';
+        icon.setAttribute('role', 'img');
+        icon.setAttribute('aria-label', String(hobby));
+        icon.setAttribute('data-label', String(hobby));
+        icon.innerHTML = hobbyIconSvg(hobby);
+
+        li.appendChild(icon);
         list.appendChild(li);
       }
       hobbiesList.appendChild(list);
@@ -1939,11 +1970,42 @@ function initAboutSection() {
   // Hobbies
   hobbiesBody.replaceChildren();
   {
+    function hobbyIconSvg(label) {
+      const text = String(label || '').toLowerCase();
+
+      const icons = {
+        collaborate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Z"/><path d="M8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Z"/><path d="M2 20c0-2.76 2.24-5 5-5h2"/><path d="M22 20c0-2.76-2.24-5-5-5h-2"/><path d="M9 15h6"/></svg>',
+        pencil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+        chess: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l-1 3 3 2-2 3 3 3-3 2"/><path d="M8 21h8"/><path d="M9 21v-3a4 4 0 0 1 6 0v3"/><path d="M7 15h10"/></svg>',
+        badminton: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 2c-2.5 2.5-2 6 1.5 9.5S24 15 22 17s-5.5-1-8.5-4S10 9.5 12.5 7 18.5 4.5 16 2Z"/><path d="M9 15l-6 6"/><path d="M7 21l-4-4"/></svg>',
+        film: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14"/><path d="M17 5v14"/><path d="M3 9h4"/><path d="M3 15h4"/><path d="M17 9h4"/><path d="M17 15h4"/></svg>',
+        music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><path d="M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M21 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>',
+        star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7 7 .6-5.3 4.6 1.7 7.2L12 17.8 5.6 21.4l1.7-7.2L2 9.6 9 9Z"/></svg>',
+      };
+
+      if (text.includes('collab') || text.includes('project')) return icons.collaborate;
+      if (text.includes('sketch') || text.includes('draw') || text.includes('design') || text.includes('illustr')) return icons.pencil;
+      if (text.includes('chess')) return icons.chess;
+      if (text.includes('badminton')) return icons.badminton;
+      if (text.includes('movie') || text.includes('series') || text.includes('film')) return icons.film;
+      if (text.includes('music')) return icons.music;
+
+      return icons.star;
+    }
+
     const list = document.createElement('ul');
-    list.className = 'about-hobbies';
-    for (const hobby of ABOUT_CONTENT.hobbies) {
+    list.className = 'about-hobbies-icons';
+    for (const hobby of ABOUT_CONTENT.hobbies || []) {
       const li = document.createElement('li');
-      li.textContent = hobby;
+
+      const icon = document.createElement('span');
+      icon.className = 'about-hobby-icon';
+      icon.setAttribute('role', 'img');
+      icon.setAttribute('aria-label', String(hobby));
+      icon.setAttribute('data-label', String(hobby));
+      icon.innerHTML = hobbyIconSvg(hobby);
+
+      li.appendChild(icon);
       list.appendChild(li);
     }
     hobbiesBody.appendChild(list);
