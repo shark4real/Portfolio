@@ -276,14 +276,21 @@ nav a:hover {
 
 /* Projects title: match About title typography, but NOT fixed-position */
 .projects-section-title {
-  font-size: 32px;
-  font-weight: 700;
-  font-family: 'Inter', sans-serif;
-  margin-bottom: 20px;
+  margin: 0 0 20px;
+  font-size: 84px;
+  font-weight: 800;
+  letter-spacing: -3px;
+  line-height: 0.98;
   color: #000;
-  text-align: center;
-  line-height: 1;
+  text-align: left;
   padding: 0;
+}
+
+@media (max-width: 768px) {
+  .projects-section-title {
+    font-size: 56px;
+    letter-spacing: -2px;
+  }
 }
 
 .projects-section-title + .experiments-grid {
@@ -437,14 +444,14 @@ nav a:hover {
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
   padding: 14px;
-  border-radius: 6px;
+  border-radius: 0px;
 }
 
 .exp-image {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 4px;
+  border-radius: 0px;
 }
 
 @media (max-width: 900px) {
@@ -2311,7 +2318,7 @@ body.about-ready #landing .landing-container {
 .about-right-heading {
   margin: 0 0 14px;
   font-size: 60px;
-  font-weight: 300;
+  font-weight: 200;
   letter-spacing: -1.6px;
 }
 
@@ -2809,6 +2816,67 @@ body.about-ready #landing .landing-container {
 
 .about-hobbies li {
   margin: 6px 0;
+}
+
+/* Hobbies (icons only) */
+.about-hobbies-icons {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.about-hobbies-icons li {
+  display: flex;
+  justify-content: center;
+}
+
+.about-hobby-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.92);
+  position: relative;
+}
+
+/* Fast tooltip (black box, white text + white border) */
+.about-hobby-icon::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translate3d(-50%, 6px, 0);
+
+  background: #000;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 80ms ease, transform 80ms ease;
+}
+
+.about-hobby-icon:hover::after,
+.about-hobby-icon:focus-visible::after {
+  opacity: 1;
+  transform: translate3d(-50%, 0, 0);
+}
+
+.about-hobby-icon:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 3px;
+}
+
+.about-hobby-icon svg {
+  width: 28px;
+  height: 28px;
 }
 
 @media (max-width: 768px) {
