@@ -127,6 +127,9 @@ function initMobileSectionSnap() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
   if (!isMobile) return;
 
+  // Mobile UX: prefer native scrolling (avoid snap that can feel like scroll is "fighting" the user).
+  return;
+
   // If mobile section locking is enabled, snapping fights the pinning.
   if (document.documentElement.classList.contains('mobile-lock')) return;
 
@@ -204,6 +207,9 @@ function initMobileSectionSnap() {
 function initMobileSectionLock() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
   if (!isMobile) return;
+
+  // Mobile UX: avoid pin-based section locking; it can trap scroll and break expected momentum.
+  return;
 
   // Requires GSAP + ScrollTrigger (already used elsewhere).
   if (!window.gsap || !window.ScrollTrigger) return;
@@ -574,6 +580,10 @@ function initializeWebsite() {
     initContactForm();
   }
 
+  if (typeof initSectionNavArrows === 'function') {
+    initSectionNavArrows();
+  }
+
   if (typeof initMobileSectionSnap === 'function') {
     initMobileSectionSnap();
   }
@@ -584,6 +594,132 @@ function initializeWebsite() {
       ScrollTrigger.refresh();
     }, 100);
   }
+}
+
+function initSectionNavArrows() {
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function ensureArrows(sectionEl, id) {
+    if (!sectionEl) return null;
+    let wrap = sectionEl.querySelector(`.section-nav-arrows[data-section="${id}"]`);
+    if (wrap) return wrap;
+
+    wrap = document.createElement('div');
+    wrap.className = 'section-nav-arrows';
+    wrap.dataset.section = id;
+    wrap.setAttribute('aria-hidden', 'true');
+    wrap.innerHTML = `
+      <button type="button" class="section-nav-btn section-nav-btn-up" data-dir="up" aria-label="Go to previous section">↑</button>
+      <button type="button" class="section-nav-btn section-nav-btn-down" data-dir="down" aria-label="Go to next section">↓</button>
+    `;
+    sectionEl.appendChild(wrap);
+    return wrap;
+  }
+
+  function scrollToSelector(selector) {
+    if (!selector) return;
+
+    if (selector === '#landing') {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+      return;
+    }
+
+    if (selector === '#about') {
+      const landing = document.getElementById('landing');
+      const about = document.getElementById('about');
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+      if (landing && about && !isMobile && landing.dataset && landing.dataset.splitActive === 'true') {
+        const scrollTarget = landing.offsetTop + (window.innerHeight * 2);
+        window.scrollTo({ top: scrollTarget, behavior: reduceMotion ? 'auto' : 'smooth' });
+        return;
+      }
+    }
+
+    const el = document.querySelector(selector);
+    if (!el) return;
+    el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  function canScroll(scrollEl) {
+    if (!scrollEl) return false;
+    return scrollEl.scrollHeight > scrollEl.clientHeight + 2;
+  }
+
+  function isAtBottom(scrollEl) {
+    if (!scrollEl) return false;
+    const threshold = 8;
+    return scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - threshold;
+  }
+
+  function shouldShow(scrollEl) {
+    if (!canScroll(scrollEl)) return false;
+    // Must have scrolled and reached the end.
+    if (scrollEl.scrollTop < 10) return false;
+    return isAtBottom(scrollEl);
+  }
+
+  function shouldShowForPageScroll(sectionEl) {
+    if (!sectionEl) return false;
+    const rect = sectionEl.getBoundingClientRect();
+    const threshold = 10;
+
+    // Only show when user has entered the section and reached its bottom.
+    // Hide again if they scroll up (section bottom is no longer at/above viewport bottom).
+    const inViewport = rect.bottom > 0;
+    const entered = rect.top < -threshold;
+    const reachedEnd = rect.bottom <= window.innerHeight + threshold;
+    return inViewport && entered && reachedEnd;
+  }
+
+  function wire({ id, sectionEl, scrollEl, upTarget, downTarget }) {
+    if (!sectionEl || !scrollEl) return;
+    const arrows = ensureArrows(sectionEl, id);
+    if (!arrows) return;
+
+    const btnUp = arrows.querySelector('[data-dir="up"]');
+    const btnDown = arrows.querySelector('[data-dir="down"]');
+
+    if (btnUp) {
+      btnUp.addEventListener('click', () => scrollToSelector(upTarget));
+    }
+    if (btnDown) {
+      btnDown.addEventListener('click', () => scrollToSelector(downTarget));
+    }
+
+    const usesInternalScroll = canScroll(scrollEl);
+
+    function update() {
+      const visible = usesInternalScroll ? shouldShow(scrollEl) : shouldShowForPageScroll(sectionEl);
+      arrows.classList.toggle('section-nav-arrows--visible', visible);
+      arrows.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    }
+
+    if (usesInternalScroll) {
+      scrollEl.addEventListener('scroll', update, { passive: true });
+    } else {
+      window.addEventListener('scroll', update, { passive: true });
+    }
+    window.addEventListener('resize', update, { passive: true });
+
+    update();
+  }
+
+  wire({
+    id: 'about',
+    sectionEl: document.getElementById('about'),
+    scrollEl: document.getElementById('aboutRightScroll') || document.querySelector('#about .about-right-scroll'),
+    upTarget: '#landing',
+    downTarget: '#projects',
+  });
+
+  wire({
+    id: 'projects',
+    sectionEl: document.getElementById('projects'),
+    scrollEl: document.querySelector('#projects .experiments-shell'),
+    upTarget: '#about',
+    downTarget: '#skills',
+  });
 }
 
 // ============================================
@@ -669,8 +805,8 @@ function initMobileMenu() {
     mobileMenu.innerHTML = `
       <button class="mobile-menu-close" aria-label="Close menu">&times;</button>
       <nav>
-        org: 'Entropik',
-        role: 'AI QA Intern',
+        <a href="#projects">Projects</a>
+        <a href="#about">About</a>
         <a href="#skills">RAG</a>
         <a href="#connect">Connect</a>
       </nav>
@@ -1256,6 +1392,9 @@ function initProjectsScrollLock() {
   const scrollContainer = document.querySelector('#projects .experiments-shell');
   if (!section || !scrollContainer) return;
 
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (isMobile) return;
+
   let isSnapping = false;
 
   function isSectionLockedInView() {
@@ -1295,13 +1434,21 @@ function initProjectsScrollLock() {
     }, 260);
   }
 
-  function canScroll(deltaY) {
+  function getScrollState() {
     const top = scrollContainer.scrollTop;
-    const max = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-    const epsilon = 1;
-    if (deltaY > 0) return top < max - epsilon;
-    if (deltaY < 0) return top > epsilon;
-    return false;
+    const max = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+    return { top, max };
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function canConsumeDelta(deltaY) {
+    const { top, max } = getScrollState();
+    if (max <= 0 || deltaY === 0) return false;
+    const nextTop = clamp(top + deltaY, 0, max);
+    return Math.abs(nextTop - top) > 0.5;
   }
 
   // Route wheel scrolling into the Projects scroll container while the section is "locked".
@@ -1317,9 +1464,10 @@ function initProjectsScrollLock() {
 
       if (!isSectionLockedInView()) return;
       // If user can scroll inside Projects, prevent page scroll and scroll Projects instead.
-      if (!canScroll(e.deltaY)) return;
+      if (!canConsumeDelta(e.deltaY)) return;
       e.preventDefault();
-      scrollContainer.scrollTop += e.deltaY;
+      const { top, max } = getScrollState();
+      scrollContainer.scrollTop = clamp(top + e.deltaY, 0, max);
     },
     { passive: false }
   );
@@ -1345,22 +1493,23 @@ function initProjectsScrollLock() {
     }
 
     if (delta === -Infinity) {
-      if (!canScroll(-1)) return;
+      if (!canConsumeDelta(-1)) return;
       e.preventDefault();
       scrollContainer.scrollTop = 0;
       return;
     }
 
     if (delta === Infinity) {
-      if (!canScroll(1)) return;
+      if (!canConsumeDelta(1)) return;
       e.preventDefault();
       scrollContainer.scrollTop = scrollContainer.scrollHeight;
       return;
     }
 
-    if (!canScroll(delta)) return;
+    if (!canConsumeDelta(delta)) return;
     e.preventDefault();
-    scrollContainer.scrollTop += delta;
+    const { top, max } = getScrollState();
+    scrollContainer.scrollTop = clamp(top + delta, 0, max);
   });
 }
 

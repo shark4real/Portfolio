@@ -18,6 +18,23 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+/* Hide scrollbars site-wide (including nested scroll containers) */
+html,
+body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -2230,6 +2247,76 @@ body.about-ready #landing .landing-container {
   z-index: 200;
 }
 
+/* Small section navigation arrows (shown only at end-of-section scroll) */
+.section-nav-arrows {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 60;
+}
+
+.section-nav-arrows.section-nav-arrows--visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.section-nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 0px;
+  border: 1px solid currentColor;
+  background: rgba(255, 255, 255, 0.75);
+  color: rgba(0, 0, 0, 0.86);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(6px);
+}
+
+.section-nav-btn:active {
+  transform: translateY(1px);
+}
+
+.about-section .section-nav-btn {
+  background: rgba(17, 17, 17, 0.55);
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+.experiments-section .section-nav-btn {
+  background: rgba(244, 244, 241, 0.82);
+  color: rgba(0, 0, 0, 0.86);
+  border-color: rgba(0, 0, 0, 0.22);
+}
+
+@media (max-width: 768px) {
+  .section-nav-arrows {
+    right: 12px;
+    bottom: 12px;
+    gap: 5px;
+  }
+
+  .section-nav-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+}
+
 /* About (new split layout) */
 .about-shell {
   width: 100%;
@@ -2639,6 +2726,9 @@ body.about-ready #landing .landing-container {
     height: auto;
     min-height: 100vh;
     overflow: visible;
+    padding: 92px 20px 28px;
+    box-sizing: border-box;
+    align-items: flex-start;
   }
 
   .about-shell {
@@ -2714,17 +2804,81 @@ body.about-ready #landing .landing-container {
 }
 
 @media (max-width: 768px) {
-    .about-section {
-        height: 100vh;
-        min-height: 100vh;
-        max-height: 100vh;
-        padding: 92px 20px 28px;
-        box-sizing: border-box;
-        align-items: flex-start;
-        background-color: #111;
-        width: 100%;
-        display: block;
-    }
+  /* Mobile: keep About as normal flow content (avoid 100vh clipping). */
+  .about-section {
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Mobile: Projects should scroll with the page (no internal scroll trap). */
+  .experiments-section {
+    height: auto;
+    min-height: 100vh;
+    max-height: none;
+    padding: 84px 5vw 40px;
+  }
+
+  .experiments-shell {
+    height: auto;
+    overflow: visible;
+  }
+
+  .projects-section-title {
+    font-size: 52px;
+    letter-spacing: -2px;
+    margin: 0 0 16px 0;
+  }
+
+  .experiments-grid {
+    grid-template-columns: 1fr;
+    border-top: 0;
+  }
+
+  .experiments-sidebar {
+    display: none;
+  }
+
+  .experiments-feed {
+    padding: 0;
+  }
+
+  .exp-item {
+    padding: 18px 0 30px;
+  }
+
+  .exp-top {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .exp-year {
+    font-size: 14px;
+  }
+
+  .exp-title {
+    font-size: 22px;
+  }
+
+  .exp-chips {
+    justify-content: flex-start;
+  }
+
+  .exp-chip {
+    height: 20px;
+    font-size: 11px;
+    padding: 0 9px;
+  }
+
+  .exp-action {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .exp-media {
+    padding: 10px;
+  }
 }
 
 /* About (text layout) */
