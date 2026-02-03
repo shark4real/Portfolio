@@ -2598,6 +2598,43 @@ body.about-ready #landing .landing-container {
   gap: 18px;
 }
 
+@media (max-width: 768px) {
+  /* Mobile: tighter Education spacing */
+  .about-card {
+    padding: 14px 14px;
+  }
+
+  .about-edu-list {
+    gap: 10px;
+  }
+
+  .about-edu-item {
+    padding: 8px 0 10px;
+    padding-left: 24px;
+  }
+
+  .about-edu-item::before {
+    width: 10px;
+    height: 16px;
+    top: 10px;
+    left: 5px;
+  }
+
+  .about-edu-item::after {
+    top: 13px;
+    left: 8px;
+  }
+
+  .about-item-title {
+    margin-bottom: 3px;
+  }
+
+  .about-item-meta {
+    margin-bottom: 4px;
+    gap: 8px;
+  }
+}
+
 .about-edu-list::before {
   content: '';
   position: absolute;
@@ -2726,14 +2763,14 @@ body.about-ready #landing .landing-container {
     height: auto;
     min-height: 100vh;
     overflow: visible;
-    padding: 92px 20px 28px;
+    padding: 76px 16px 18px;
     box-sizing: border-box;
     align-items: flex-start;
   }
 
   .about-shell {
     flex-direction: column;
-    gap: 26px;
+    gap: 18px;
   }
 
   .about-left {
@@ -2800,6 +2837,57 @@ body.about-ready #landing .landing-container {
 
   .about-panel-body {
     padding: 0 14px 66px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Mobile: reduce large empty space within About right column blocks */
+  .about-right-block {
+    margin-bottom: 22px;
+  }
+
+  .about-right-heading {
+    margin: 0 0 10px;
+    font-size: 44px;
+    line-height: 1.05;
+  }
+}
+
+@media (max-width: 768px) {
+  /* While the landing split animation is pinned, About must be exactly 1 viewport tall.
+     Otherwise translateY(-100%) moves it too far and you "land" near the end. */
+  html.split-active #about.about-section,
+  body.split-active #about.about-section {
+    height: 100svh;
+    min-height: 100svh;
+    max-height: 100svh;
+    overflow-y: auto;
+    align-items: stretch;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  html.split-active #about .about-shell,
+  body.split-active #about .about-shell {
+    height: auto;
+  }
+
+  html.split-active #about .about-left,
+  body.split-active #about .about-left {
+    justify-content: flex-start;
+  }
+
+  html.split-active #about .about-right,
+  body.split-active #about .about-right {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  html.split-active #about .about-right-scroll,
+  body.split-active #about .about-right-scroll {
+    height: auto;
+    overflow: visible;
+    padding-bottom: 64px;
   }
 }
 
@@ -3724,6 +3812,97 @@ body.keyboard-open .about-arrow-btn {
   }
 }
 
+/* =====================================================
+   Mobile: Landing Desktop-like + Drawer Nav
+   ===================================================== */
+@media (max-width: 768px) {
+  /* Header: use drawer nav on mobile */
+  header {
+    padding: 10px 20px;
+  }
+
+  header nav {
+    display: none !important;
+  }
+
+  .mobile-nav-toggle {
+    display: none !important;
+  }
+
+  /* Landing: undo mobile-only typography/layout overrides */
+  #landing {
+    height: 100svh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .landing-container {
+    padding: 0 !important;
+    min-height: 100svh !important;
+    height: 100% !important;
+    flex-direction: row !important;
+    background-color: transparent !important;
+  }
+
+  .landing-left {
+    padding-bottom: 0 !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .landing-intro {
+    text-align: center !important;
+  }
+
+  .landing-intro h1 {
+    font-size: clamp(56px, 8vw, 120px) !important;
+    letter-spacing: -3px !important;
+    text-align: center !important;
+  }
+
+  .landing-main-line {
+    font-size: clamp(18px, 2vw, 28px) !important;
+    letter-spacing: -0.5px !important;
+    text-align: center !important;
+    margin: 28px 0 0 !important;
+  }
+
+  .landing-tagline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 36px;
+    margin-top: 0 !important;
+  }
+
+  .landing-buttons {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 88px !important;
+    transform: none !important;
+    width: auto !important;
+    gap: 20px !important;
+    justify-content: center !important;
+  }
+
+  .landing-buttons .btn {
+    width: auto !important;
+    padding: 12px 20px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Mirror desktop scrolling feel (no snap) */
+  html,
+  body {
+    scroll-snap-type: none !important;
+  }
+}
+
 /* ===== Global Scrollbar Styling (sharp + minimal) ===== */
 /* Firefox */
 
@@ -3843,7 +4022,8 @@ body.keyboard-open .about-arrow-btn {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
-    scroll-snap-type: y mandatory;
+    /* Mobile: keep native scrolling; mandatory snap jumps past readable content. */
+    scroll-snap-type: none !important;
     scroll-padding-top: 0px;
   }
 
@@ -3908,27 +4088,28 @@ body.keyboard-open .about-arrow-btn {
   /* These sections must occupy exactly one screen */
   #projects,
   #skills {
-    height: 100svh;
+    height: auto;
     min-height: 100svh;
-    max-height: 100svh;
+    max-height: none;
   }
 
-  section {
+  /* Only apply these sizing rules to top-level page sections.
+     Nested sections (e.g. About right-column blocks) must size to content. */
+  body > section {
     width: 100%;
     max-width: 100%;
-    height: 100svh;
+    height: auto;
     min-height: 100svh;
-    max-height: 100svh;
-    overflow: hidden;
+    max-height: none;
+    overflow: visible;
     overflow-x: hidden;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
   }
 
   /* If content is taller than one screen, scroll inside the section */
   #skills {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: visible;
   }
 
   /* Override earlier mobile rules that set auto heights */

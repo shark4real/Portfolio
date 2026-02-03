@@ -541,6 +541,10 @@ function initializeWebsite() {
     initLandingSplitScroll();
   }
 
+  if (typeof initMobileAboutScrollChaining === 'function') {
+    initMobileAboutScrollChaining();
+  }
+
   if (typeof initLandingRotatingText === 'function') {
     initLandingRotatingText();
   }
@@ -594,6 +598,67 @@ function initializeWebsite() {
       ScrollTrigger.refresh();
     }, 100);
   }
+}
+
+function initMobileAboutScrollChaining() {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+
+  const about = document.getElementById('about');
+  if (!about) return;
+
+  function isSplitActive() {
+    return document.documentElement.classList.contains('split-active');
+  }
+
+  function atTop(el) {
+    return el.scrollTop <= 0;
+  }
+
+  function atBottom(el) {
+    return el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+  }
+
+  // Wheel/trackpad (mostly for emulators / Android w/ mouse)
+  about.addEventListener('wheel', (e) => {
+    if (!isSplitActive()) return;
+    if (!e || typeof e.deltaY !== 'number') return;
+
+    const dy = e.deltaY;
+    if ((dy < 0 && atTop(about)) || (dy > 0 && atBottom(about))) {
+      e.preventDefault();
+      window.scrollBy({ top: dy, left: 0, behavior: 'auto' });
+    }
+  }, { passive: false });
+
+  // Touch scroll chaining (iOS/Android)
+  let lastY = null;
+  about.addEventListener('touchstart', (e) => {
+    if (!isSplitActive()) {
+      lastY = null;
+      return;
+    }
+    const t = e && e.touches && e.touches[0];
+    lastY = t ? t.clientY : null;
+  }, { passive: true });
+
+  about.addEventListener('touchmove', (e) => {
+    if (!isSplitActive()) return;
+    const t = e && e.touches && e.touches[0];
+    if (!t || lastY === null) return;
+
+    const currentY = t.clientY;
+    const delta = currentY - lastY;
+    lastY = currentY;
+
+    // Convert finger movement to scroll intent (finger up => scroll down)
+    const scrollDelta = -delta;
+
+    if ((scrollDelta < 0 && atTop(about)) || (scrollDelta > 0 && atBottom(about))) {
+      e.preventDefault();
+      window.scrollBy({ top: scrollDelta, left: 0, behavior: 'auto' });
+    }
+  }, { passive: false });
 }
 
 function initSectionNavArrows() {
@@ -794,9 +859,33 @@ function initConnectPin() {
 
 // Mobile Menu Functionality
 function initMobileMenu() {
+  // If the header nav is visible on mobile (desktop-mirror mode), don't use the drawer menu.
+  try {
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const headerNav = document.querySelector('header nav');
+    if (isMobile && headerNav) {
+      const navDisplay = window.getComputedStyle(headerNav).display;
+      if (navDisplay && navDisplay !== 'none') {
+        const existingMenu = document.querySelector('.mobile-menu');
+        const existingOverlay = document.querySelector('.mobile-overlay');
+        if (existingMenu) existingMenu.remove();
+        if (existingOverlay) existingOverlay.remove();
+        return;
+      }
+    }
+  } catch (e) {}
+
   // Create mobile menu elements if they don't exist
   let mobileMenu = document.querySelector('.mobile-menu');
   let mobileOverlay = document.querySelector('.mobile-overlay');
+
+  // Mobile UX: the logo itself is the menu button.
+  // If an old hamburger toggle exists from a previous build, remove it.
+  const header = document.querySelector('header');
+  if (header) {
+    const oldToggle = header.querySelector('.mobile-nav-toggle');
+    if (oldToggle) oldToggle.remove();
+  }
   
   if (!mobileMenu) {
     // Create mobile menu
@@ -983,14 +1072,23 @@ function initLandingSplitScroll() {
       anticipatePin: 1,
       markers: false,
       refreshPriority: 1,
-      onUpdate: (self) => {
+      onUpdate: (() => {
+        let lastReady = false;
+        return (self) => {
         // Keep the classic split reveal: About stays under the panels while they open,
         // then becomes fully interactive once the split has essentially completed.
         // Use a lower threshold so the About buttons are usable while About is visible.
         const ready = (self && typeof self.progress === 'number') ? self.progress >= 0.55 : false;
         document.documentElement.classList.toggle('about-ready', ready);
         document.body.classList.toggle('about-ready', ready);
-      },
+        if (isMobile && ready && !lastReady) {
+          const aboutRightScroll = document.getElementById('aboutRightScroll') || document.querySelector('#about .about-right-scroll');
+          if (aboutRightScroll) aboutRightScroll.scrollTop = 0;
+          if (about) about.scrollTop = 0;
+        }
+        lastReady = ready;
+        };
+      })(),
       onEnter: () => {
         if (!isMobile) return;
         document.documentElement.classList.add('split-active');
