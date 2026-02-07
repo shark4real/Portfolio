@@ -98,12 +98,13 @@ body {
 
 header {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 12px 40px;
+  top: 12px;
+  left: 12px;
+  width: auto;
+  padding: 10px 40px;
   background: #fff;
-  border-bottom: 1px solid #000;
+  border: 1px solid #000;
+  border-radius: 0px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -111,64 +112,108 @@ header {
   z-index: 1000;
   transform-origin: top left;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Mobile Navigation Menu */
 .mobile-menu {
   position: fixed;
   top: 0;
-  left: -100%;
-  width: 70%;
-  max-width: 300px;
+  left: 0;
+  width: 100%;
   height: 100vh;
-  background: #fff;
-  border-right: 2px solid #000;
   z-index: 2000;
-  transition: left 0.3s ease;
   display: flex;
-  flex-direction: column;
-  padding: 80px 30px 30px;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 24px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .mobile-menu.active {
-  left: 0;
+  pointer-events: auto;
+  opacity: 1;
 }
 
 .mobile-menu nav {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 16px;
+  max-width: 280px;
+  width: 100%;
 }
 
 .mobile-menu nav a {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
   text-decoration: none;
   color: #000;
   text-transform: uppercase;
-  letter-spacing: -1px;
-  margin: 0;
-  padding: 10px 0;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+  padding: 32px 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid #000;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateY(20px);
+  opacity: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.mobile-menu nav a:hover {
-  border-bottom: 2px solid #000;
-  padding-left: 10px;
+.mobile-menu.active nav a {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.mobile-menu.active nav a:nth-child(1) {
+  transition-delay: 0.05s;
+}
+
+.mobile-menu.active nav a:nth-child(2) {
+  transition-delay: 0.1s;
+}
+
+.mobile-menu.active nav a:nth-child(3) {
+  transition-delay: 0.15s;
+}
+
+.mobile-menu.active nav a:nth-child(4) {
+  transition-delay: 0.2s;
+}
+
+.mobile-menu nav a:active {
+  transform: scale(0.96);
 }
 
 .mobile-menu-close {
   position: absolute;
-  top: 15px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 32px;
+  top: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid #000;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
   cursor: pointer;
   color: #000;
-  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-menu-close:active {
+  transform: scale(0.9);
 }
 
 .mobile-overlay {
@@ -177,11 +222,13 @@ header {
   left: 0;
   width: 100%;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 1999;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 .mobile-overlay.active {
@@ -191,7 +238,9 @@ header {
 
 @media (max-width: 768px) {
   header {
-    padding: 10px 20px;
+    top: 8px;
+    left: 8px;
+    padding: 8px 16px;
   }
   
   header nav {
@@ -241,8 +290,21 @@ header.scrolled nav {
   display: inline-block;
 }
 
+.logo-img {
+  height: 40px;
+  width: auto;
+  display: block;
+  transition: opacity 0.3s ease;
+}
+
 .logo:hover {
   opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+  .logo-img {
+    height: 38px;
+  }
 }
 
 nav a {
@@ -1967,7 +2029,7 @@ body.about-ready #landing .landing-container {
   border-radius:0px;
   border: 1px solid #111;
   background: #111;
-  color: #f5ffb0;
+  color: #ffffff;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -1976,7 +2038,7 @@ body.about-ready #landing .landing-container {
 }
 
 .connect-submit:hover {
-  background: #f5ffb0;
+  background: #ffffff;
   color: #111;
   transform: translateY(-1px);
 }
@@ -2008,7 +2070,7 @@ body.about-ready #landing .landing-container {
 
 .connect-info-header {
   background: #111;
-  color: #f5ffb0;
+  color: #ffffff;
   padding: 22px 24px 18px;
   font-family: 'Inter', sans-serif;
   font-size: 15px;
@@ -2760,6 +2822,7 @@ body.about-ready #landing .landing-container {
 
 @media (max-width: 768px) {
   .about-section {
+    --about-photo-width: 100%;
     height: auto;
     min-height: 100vh;
     overflow: visible;
@@ -2781,6 +2844,10 @@ body.about-ready #landing .landing-container {
   .about-title {
     font-size: 56px;
     letter-spacing: -2px;
+    width: 100%;
+  }
+
+  .about-left .about-bio-text {
     width: 100%;
   }
 
@@ -3818,7 +3885,7 @@ body.keyboard-open .about-arrow-btn {
 @media (max-width: 768px) {
   /* Header: use drawer nav on mobile */
   header {
-    padding: 10px 20px;
+    padding: 5px 20px;
   }
 
   header nav {
@@ -3900,6 +3967,15 @@ body.keyboard-open .about-arrow-btn {
   html,
   body {
     scroll-snap-type: none !important;
+  }
+
+  /* Mobile initial-load guard: JS adds this class until the first user interaction.
+     Prevents layout shifts (preloader removal, address bar resize) from "drifting"
+     the page down into the About section. */
+  html.pre-interaction,
+  body.pre-interaction {
+    scroll-behavior: auto !important;
+    overflow-anchor: none;
   }
 }
 
@@ -4022,8 +4098,8 @@ body.keyboard-open .about-arrow-btn {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
-    /* Mobile: keep native scrolling; mandatory snap jumps past readable content. */
-    scroll-snap-type: none !important;
+    /* Mobile: gentle snap to RAG/Connect sections */
+    scroll-snap-type: y proximity;
     scroll-padding-top: 0px;
   }
 
@@ -4039,16 +4115,10 @@ body.keyboard-open .about-arrow-btn {
     scroll-snap-stop: normal !important;
   }
 
-  /* When mobile section locking is enabled, turn off snap (pin controls scroll). */
-  html.mobile-lock,
-  body.mobile-lock {
-    scroll-snap-type: none !important;
-  }
-
-  html.mobile-lock section,
-  body.mobile-lock section {
-    scroll-snap-align: none !important;
-    scroll-snap-stop: normal !important;
+  /* When mobile section locking is enabled, keep snap for RAG/Connect */
+  html.mobile-lock:not(.split-active):not(.keyboard-open),
+  body.mobile-lock:not(.split-active):not(.keyboard-open) {
+    scroll-snap-type: y proximity;
   }
 
   /* When the keyboard opens, avoid snap/smooth-scroll fighting focus. */
@@ -4069,7 +4139,13 @@ body.keyboard-open .about-arrow-btn {
   html.keyboard-open #chatForm,
   body.keyboard-open #chatForm {
     position: fixed;
-    left: 0;
+   
+  
+  /* Re-enable snap after keyboard closes and not during pre-interaction */
+  html:not(.keyboard-open):not(.pre-interaction):not(.split-active),
+  body:not(.keyboard-open):not(.pre-interaction):not(.split-active) {
+    scroll-snap-type: y proximity !important;
+  } left: 0;
     right: 0;
     bottom: var(--kb-offset, 0px);
     z-index: 3000;
@@ -4103,8 +4179,6 @@ body.keyboard-open .about-arrow-btn {
     max-height: none;
     overflow: visible;
     overflow-x: hidden;
-    scroll-snap-align: none;
-    scroll-snap-stop: normal;
   }
 
   /* If content is taller than one screen, scroll inside the section */
@@ -4126,8 +4200,32 @@ body.keyboard-open .about-arrow-btn {
     max-height: none;
     overflow: visible;
     overflow-x: hidden;
-    scroll-snap-align: none;
-    scroll-snap-stop: normal;
+  }
+
+  /* --- Mobile scroll snap (RAG + Connect) ---
+     Scrolling pauses briefly when reaching these sections. */
+  #skills.skills-section {
+    min-height: 100vh;
+    max-height: none;
+    overflow: visible;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+    overscroll-behavior-y: contain;
+  }
+
+  #connect {
+    min-height: 100vh;
+    max-height: none;
+    overflow: visible;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+    overscroll-behavior-y: contain;
+  }
+  
+  /* Ensure other sections don't snap */
+  body > section:not(#skills):not(#connect) {
+    scroll-snap-align: none !important;
+    scroll-snap-stop: normal !important;
   }
 
   /* Prevent Projects 3D cards from creating sideways scroll */

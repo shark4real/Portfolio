@@ -123,23 +123,79 @@ function onEnterViewportOnce(element, callback, options) {
   observer.observe(element);
 }
 
+// =========================================================
+// MOBILE: INITIAL SCROLL GUARD (prevents load-time auto-jumps)
+// =========================================================
+let __mobileUserInteracted = false;
+
+function initMobileInitialScrollGuard() {
+  const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+
+  const root = document.documentElement;
+  const body = document.body;
+
+  // Avoid browsers restoring a previous scroll position on reload/back-forward.
+  try {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  } catch (e) {}
+
+  // If a stale hash deep-link is present, mobile can auto-jump into the pinned About.
+  // We only neutralize '#about' on initial load; clicking the About link still works.
+  try {
+    if (!__mobileUserInteracted && location.hash === '#about') {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  } catch (e) {}
+
+  root.classList.add('pre-interaction');
+  if (body) body.classList.add('pre-interaction');
+
+  const markInteracted = () => {
+    __mobileUserInteracted = true;
+    root.classList.remove('pre-interaction');
+    if (body) body.classList.remove('pre-interaction');
+  };
+
+  window.addEventListener('touchstart', markInteracted, { passive: true, once: true });
+  window.addEventListener('pointerdown', markInteracted, { passive: true, once: true });
+  window.addEventListener('wheel', markInteracted, { passive: true, once: true });
+  window.addEventListener('keydown', markInteracted, { once: true });
+
+  // Force top while still in the non-interacted window.
+  const forceTop = () => {
+    if (__mobileUserInteracted) return;
+    if (location.hash && location.hash !== '#landing') return;
+    if (window.scrollY > 2) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+  };
+
+  // Multiple passes to catch late layout shifts (preloader removal, iframe/image loads).
+  requestAnimationFrame(forceTop);
+  setTimeout(forceTop, 50);
+  setTimeout(forceTop, 250);
+  setTimeout(forceTop, 700);
+}
+
 function initMobileSectionSnap() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
   if (!isMobile) return;
 
-  // Mobile UX: prefer native scrolling (avoid snap that can feel like scroll is "fighting" the user).
-  return;
+  // Don’t snap until the user actually interacts; prevents load-time auto-scroll.
+  if (document.documentElement.classList.contains('pre-interaction')) return;
+
+  // Gentle section snapping: makes sections feel less "slippery" on mobile.
+  // Disabled while the landing split is pinned, and when the keyboard is open.
+  if (document.documentElement.classList.contains('split-active')) return;
+  if (document.documentElement.classList.contains('keyboard-open')) return;
 
   // If mobile section locking is enabled, snapping fights the pinning.
   if (document.documentElement.classList.contains('mobile-lock')) return;
 
-  const landing = document.getElementById('landing');
-  // If the landing split animation is active, it pins scroll; section snapping fights it.
-  if (landing && landing.dataset && landing.dataset.splitActive === 'true') return;
-
   const scrollEl = document.scrollingElement || document.documentElement;
   const connect = document.getElementById('connect');
-  const sections = Array.from(document.querySelectorAll('section'))
+  const sections = Array.from(document.querySelectorAll('body > section'))
     .filter((s) => s && s.offsetHeight > 0);
 
   if (!sections.length) return;
@@ -193,14 +249,15 @@ function initMobileSectionSnap() {
 
     window.setTimeout(() => {
       isSnapping = false;
-    }, 450);
+    }, 650);
   }
 
   window.addEventListener('scroll', () => {
+    if (document.documentElement.classList.contains('pre-interaction')) return;
     if (isSnapping) return;
     if (isInConnectScrollRegion()) return;
     if (scrollTimer) window.clearTimeout(scrollTimer);
-    scrollTimer = window.setTimeout(snapToNearestSection, 120);
+    scrollTimer = window.setTimeout(snapToNearestSection, 180);
   }, { passive: true });
 }
 
@@ -536,6 +593,10 @@ function initLandingRotatingText() {
 }
 
 function initializeWebsite() {
+  if (typeof initMobileInitialScrollGuard === 'function') {
+    initMobileInitialScrollGuard();
+  }
+
   // Initialize all scroll effects and animations
   if (typeof initLandingSplitScroll === 'function') {
     initLandingSplitScroll();
@@ -972,6 +1033,8 @@ window.addEventListener('resize', () => {
       if (isMobile) {
         // Mobile keyboards fire resize events; refreshing ScrollTrigger can jump scroll and blur inputs.
         const root = document.documentElement;
+        // Also avoid refresh-driven scroll jumps during the initial (no-interaction) load window.
+        if (root.classList.contains('pre-interaction')) return;
         const active = document.activeElement;
         const tag = active && active.tagName ? active.tagName.toLowerCase() : '';
         const isTyping = root.classList.contains('keyboard-open') || tag === 'input' || tag === 'textarea';
@@ -1030,6 +1093,14 @@ function initLandingSplitScroll() {
   gsap.registerPlugin(ScrollTrigger);
 
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+  // Mobile browsers frequently change viewport height (address bar/toolbar), which can
+  // make ScrollTrigger refresh and shift scroll position. This keeps the split stable.
+  if (isMobile) {
+    try {
+      ScrollTrigger.config({ ignoreMobileResize: true });
+    } catch (e) {}
+  }
 
   // Mark split as active so other mobile behaviors can avoid conflicting.
   landing.dataset.splitActive = 'true';
@@ -1216,7 +1287,59 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize the Projects section (Personal Experiments layout)
   initPersonalExperiments();
   initProjectsScrollLock();
+  if (typeof initMobileProjectsScrollChaining === 'function') initMobileProjectsScrollChaining();
 });
+
+function initMobileProjectsScrollChaining() {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+
+  const section = document.getElementById('projects');
+  if (section && section.classList.contains('projects-mobile-hscroll')) return;
+
+  const shell = document.querySelector('#projects .experiments-shell');
+  if (!shell) return;
+
+  function atTop(el) {
+    return el.scrollTop <= 0;
+  }
+
+  function atBottom(el) {
+    return el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+  }
+
+  // Trackpad / mouse wheel (emulators, Android w/ mouse)
+  shell.addEventListener('wheel', (e) => {
+    if (!e || typeof e.deltaY !== 'number') return;
+    const dy = e.deltaY;
+    if ((dy < 0 && atTop(shell)) || (dy > 0 && atBottom(shell))) {
+      e.preventDefault();
+      window.scrollBy({ top: dy, left: 0, behavior: 'auto' });
+    }
+  }, { passive: false });
+
+  // Touch chaining (iOS/Android)
+  let lastY = null;
+  shell.addEventListener('touchstart', (e) => {
+    const t = e && e.touches && e.touches[0];
+    lastY = t ? t.clientY : null;
+  }, { passive: true });
+
+  shell.addEventListener('touchmove', (e) => {
+    const t = e && e.touches && e.touches[0];
+    if (!t || lastY === null) return;
+    const currentY = t.clientY;
+    const delta = currentY - lastY;
+    lastY = currentY;
+
+    // finger up => scroll down
+    const scrollDelta = -delta;
+    if ((scrollDelta < 0 && atTop(shell)) || (scrollDelta > 0 && atBottom(shell))) {
+      e.preventDefault();
+      window.scrollBy({ top: scrollDelta, left: 0, behavior: 'auto' });
+    }
+  }, { passive: false });
+}
 
 // Project Data (updated with provided entries)
 const codingProjects = [
@@ -1293,7 +1416,14 @@ function initPersonalExperiments() {
   const counterWrap = document.querySelector('.experiments-counter');
   const scrollContainer = document.querySelector('#projects .experiments-shell');
 
-  if (!feed || !counterActive || !counterNext || !sidebar || !counterWrap || !scrollContainer || !Array.isArray(window.codingProjects)) return;
+  const section = document.getElementById('projects');
+
+  if (!feed || !scrollContainer || !Array.isArray(window.codingProjects)) return;
+
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  // Mobile should mirror the web/desktop Projects section.
+  // (No mobile-only horizontal scrollytelling; keep the same vertical feed + sidebar/counter behavior.)
 
   const projects = window.codingProjects;
 
@@ -1344,13 +1474,24 @@ function initPersonalExperiments() {
     })
     .join('');
 
+  const items = Array.from(feed.querySelectorAll('.exp-item'));
+  if (!items.length) return;
+
+  // Ensure any previous mobile-only mode class is removed.
+  if (section) section.classList.remove('projects-mobile-hscroll');
+
+  // Mobile: remove Projects indexing entirely (no counter updates/animation).
+  if (isMobile) {
+    return;
+  }
+
+  if (!counterActive || !counterNext || !sidebar || !counterWrap) return;
+
   // Sidebar numbers:
   // - Active number moves down while scrolling through the active project
   // - Next number is always visible at a fixed "stop" position
   // - When active reaches the stop, the next becomes active
   const pad2 = (n) => String(n).padStart(2, '0');
-  const items = Array.from(feed.querySelectorAll('.exp-item'));
-  if (!items.length) return;
 
   let activeIndex = 0;
   let rafId = 0;
@@ -1483,6 +1624,96 @@ function initPersonalExperiments() {
     cacheTitleElements();
     requestUpdate();
   });
+}
+
+function initMobileProjectsHorizontalScroll({ section, shell, feed, items }) {
+  if (!section || !shell || !feed || !Array.isArray(items) || !items.length) return;
+
+  // Mobile: map vertical scrolling over the Projects section to horizontal translation of the feed.
+  // Each project occupies one viewport.
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let rafId = 0;
+  let currentX = 0;
+  let targetX = 0;
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function viewportHeight() {
+    const vv = window.visualViewport;
+    const h = vv && typeof vv.height === 'number' ? vv.height : (window.innerHeight || document.documentElement.clientHeight);
+    return Math.max(1, h || 1);
+  }
+
+  function viewportWidth() {
+    return Math.max(1, window.innerWidth || document.documentElement.clientWidth || 1);
+  }
+
+  function applySectionHeight() {
+    // Make the section tall enough to provide N-1 viewport scroll steps.
+    const vh = viewportHeight();
+    section.style.height = `${items.length * vh}px`;
+    // Keep the shell pinned by CSS (sticky). Ensure it's exactly viewport height.
+    shell.style.height = `${vh}px`;
+  }
+
+  function computeTargetX() {
+    const vh = viewportHeight();
+    const vw = viewportWidth();
+    const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+    const scrollY = window.scrollY;
+    const totalScroll = Math.max(0, items.length * vh - vh);
+
+    const rawProgress = totalScroll > 0 ? (scrollY - sectionTop) / totalScroll : 0;
+    const progress = clamp(rawProgress, 0, 1);
+    targetX = -progress * (items.length - 1) * vw;
+  }
+
+  function tick() {
+    rafId = 0;
+
+    if (prefersReducedMotion) {
+      currentX = targetX;
+    } else {
+      currentX += (targetX - currentX) * 0.14;
+      if (Math.abs(targetX - currentX) < 0.6) currentX = targetX;
+    }
+
+    feed.style.transform = `translate3d(${currentX}px, 0, 0)`;
+
+    if (!prefersReducedMotion && Math.abs(targetX - currentX) >= 0.6) {
+      rafId = requestAnimationFrame(tick);
+    }
+  }
+
+  function requestTick() {
+    if (rafId) return;
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function onScroll() {
+    computeTargetX();
+    requestTick();
+  }
+
+  function onResize() {
+    applySectionHeight();
+    computeTargetX();
+    // Snap immediately on resize to avoid showing a half-slide.
+    currentX = targetX;
+    feed.style.transform = `translate3d(${currentX}px, 0, 0)`;
+  }
+
+  applySectionHeight();
+  computeTargetX();
+  currentX = targetX;
+  feed.style.transform = `translate3d(${currentX}px, 0, 0)`;
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onResize);
 }
 
 function initProjectsScrollLock() {
