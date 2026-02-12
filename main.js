@@ -203,6 +203,9 @@ function initMobileSectionSnap() {
   let scrollTimer = null;
   let isSnapping = false;
 
+  const skills = document.getElementById('skills');
+  const projects = document.getElementById('projects');
+
   function isInConnectScrollRegion() {
     if (!connect) return false;
 
@@ -215,6 +218,18 @@ function initMobileSectionSnap() {
 
     // If viewport is within the connect section bounds, don't snap.
     return currentTop >= (connectTop - 8) && currentTop <= (connectBottom - window.innerHeight + 8);
+  }
+
+  function isInProjectsRegion() {
+    if (!projects) return false;
+    const r = projects.getBoundingClientRect();
+    return r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5;
+  }
+
+  function isInSkillsRegion() {
+    if (!skills) return false;
+    const r = skills.getBoundingClientRect();
+    return r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5;
   }
 
   function getNearestSectionTop() {
@@ -256,9 +271,52 @@ function initMobileSectionSnap() {
     if (document.documentElement.classList.contains('pre-interaction')) return;
     if (isSnapping) return;
     if (isInConnectScrollRegion()) return;
+    if (isInProjectsRegion()) return;
+    if (isInSkillsRegion()) return;
     if (scrollTimer) window.clearTimeout(scrollTimer);
     scrollTimer = window.setTimeout(snapToNearestSection, 180);
   }, { passive: true });
+}
+
+// =========================================================
+// MOBILE: RAG + CONNECT SECTION SCROLL PIN (mirrors desktop)
+// =========================================================
+function initMobileRagConnectLock() {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+  if (!window.gsap || !window.ScrollTrigger) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Avoid ScrollTrigger refresh chaos from mobile keyboard resize.
+  try { ScrollTrigger.config({ ignoreMobileResize: true }); } catch (e) {}
+
+  const skills = document.getElementById('skills');
+  const connect = document.getElementById('connect');
+
+  // Pin RAG section: same pattern as desktop Connect pin.
+  if (skills) {
+    ScrollTrigger.create({
+      trigger: skills,
+      start: 'top top',
+      end: '+=150%',
+      pin: true,
+      pinSpacing: true,
+      anticipatePin: 1,
+    });
+  }
+
+  // Pin Connect section.
+  if (connect) {
+    ScrollTrigger.create({
+      trigger: connect,
+      start: 'top top',
+      end: '+=150%',
+      pin: true,
+      pinSpacing: true,
+      anticipatePin: 1,
+    });
+  }
 }
 
 function initMobileSectionLock() {
@@ -652,6 +710,10 @@ function initializeWebsite() {
   if (typeof initMobileSectionSnap === 'function') {
     initMobileSectionSnap();
   }
+
+  if (typeof initMobileRagConnectLock === 'function') {
+    initMobileRagConnectLock();
+  }
   
   // Refresh ScrollTrigger after all animations are set up
   if (window.ScrollTrigger) {
@@ -903,8 +965,9 @@ function initConnectPin() {
 
   if (!connect || !window.gsap || !window.ScrollTrigger) return;
 
-  const isDesktop = window.matchMedia('(min-width: 769px)').matches;
-  if (!isDesktop) return;
+  // On mobile, initMobileRagConnectLock handles the pin.
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (isMobile) return;
 
   gsap.registerPlugin(ScrollTrigger);
 

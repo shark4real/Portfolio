@@ -18,6 +18,8 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+
+
 /* Hide scrollbars site-wide (including nested scroll containers) */
 html,
 body {
@@ -2972,6 +2974,9 @@ body.about-ready #landing .landing-container {
     min-height: 100vh;
     max-height: none;
     padding: 84px 5vw 40px;
+    -webkit-overflow-scrolling: touch;
+    will-change: scroll-position;
+    transform: translateZ(0);
   }
 
   .experiments-shell {
@@ -3925,7 +3930,7 @@ body.keyboard-open .about-arrow-btn {
   }
 
   .landing-intro h1 {
-    font-size: clamp(56px, 8vw, 120px) !important;
+    font-size: clamp(66px, 8vw, 120px) !important;
     letter-spacing: -3px !important;
     text-align: center !important;
   }
