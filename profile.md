@@ -111,7 +111,15 @@ I am pursuing a Bachelor’s degree with a strong focus on AI systems, machine l
 
 ### Datanaut.ai — Exploratory Data Analytics Tool
 I built an interactive analytics platform that allows users to upload datasets and explore them conversationally using natural language.
-
+**Tech Stack**
+- Backend: Python, Django
+- Frontend: HTML, CSS, JavaScript
+- Database: PostgreSQL / SQLite
+- AI Layer: Llamma 3.1b (NL → SQL generation)
+- Data Processing: Pandas, Numpy
+- Visualization: Chart.js , Seaborn
+- Deployment: Render
+  
 - Converts natural language questions into SQL
 - Supports interactive visualizations (bar, line, scatter, pie)
 - Clean UI with fast query execution and export features
@@ -123,6 +131,16 @@ I built an interactive analytics platform that allows users to upload datasets a
 ### Genly.ai — AI-Powered Email Generator
 I developed a Django-based web application for generating context-aware, tone-specific emails.
 
+**Tech Stack**
+- Backend: Python, Django
+- Frontend: HTML, CSS, JavaScript
+- Authentication: Google OAuth (Django Allauth)
+- Email Integration: Gmail API
+- AI Model: Mistral 7B (via OpenRouter API)
+- Data Handling: Pandas (CSV processing)
+- File Handling: Python email libraries, MIME attachments
+- Deployment: Renderx`
+  
 - LLM-powered email generation with multiple tones
 - Google OAuth login and Gmail API integration
 - Single and bulk email sending with CSV-based personalization
@@ -134,6 +152,14 @@ I developed a Django-based web application for generating context-aware, tone-sp
 
 ### AutoParser AI — Autonomous Bank Statement Parser
 I built an AI-powered agent that autonomously generates, tests, and self-corrects parsers for unstructured bank statement PDFs.
+
+**Tech Stack**
+- Backend: Python
+- AI Framework: OpenAI API / LLM APIs
+- Testing: Pytest
+- PDF Processing: PyPDF2 / pdfplumber
+- Automation: CLI-based workflow (argparse / Click)
+- Prompt Engineering: Iterative feedback loop architecture
 
 - Pytest-based contract testing framework
 - Self-correcting parser generation using AI feedback
@@ -153,6 +179,51 @@ I built my personal portfolio website with an integrated RAG-based assistant tha
 ---
 
 ## Experience
+
+### Entropik
+
+**Role: AI QA Intern**
+**Duration: 2026 – Present**
+**Location: Bangalore, India**
+
+- Overview
+- Currently working with the Data Science team on Entropik’s flagship product, Decode.
+- Key Contributions
+- Contributing to benchmark score calculations across multiple advertisement categories.
+- Assisting in updating and evaluating newer Large Language Model (LLM) versions within the AI Moderator pipeline.
+- Improving moderation accuracy and performance through structured evaluation.
+- Gaining hands-on exposure to the full QA lifecycle.
+- Working across multiple testing environments.
+- Participating in structured validation processes.
+- Exposure to different types of testing methodologies in AI systems.
+- Skills Applied
+- LLM evaluation
+- AI moderation systems
+- Benchmark scoring
+- QA validation processes
+- Performance testing
+- Data analysis collaboration
+
+### GeeksforGeeks — Campus Body, Dr. AIT
+
+**Role: Guest Speaker — RAG & Agentic AI Systems**
+**Date: December 2025**
+**Location: Bangalore, India**
+
+- Overview
+- Delivered a technical session to 200+ attendees focused on modern AI system design and deployment.
+Session Topics
+- Fundamentals of Large Language Models (LLMs)
+- Retrieval-Augmented Generation (RAG) pipelines
+- LangChain workflows
+- LangGraph-based agentic systems
+- Production-grade AI architecture design
+- Retrieval augmentation strategies
+- Real-world deployment patterns
+- Impact
+- Conducted interactive demonstrations.
+- Provided deep technical explanations of scalable AI system design.
+- Engaged attendees in building practical AI solutions.
 
 ### Google Developer Groups (GDG) — DR. AIT  
 **Machine Learning Lead | Bengaluru, India**  
