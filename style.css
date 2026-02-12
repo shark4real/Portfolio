@@ -4126,44 +4126,17 @@ body.keyboard-open .about-arrow-btn {
     scroll-snap-type: y proximity;
   }
 
-  /* When the keyboard opens, avoid snap/smooth-scroll fighting focus. */
+  /* When the keyboard opens, avoid snap fighting focus. */
   html.keyboard-open,
   body.keyboard-open {
     scroll-snap-type: none !important;
     scroll-behavior: auto;
-    overflow: hidden;
   }
 
   html.keyboard-open section,
   body.keyboard-open section {
     scroll-snap-align: none !important;
     scroll-snap-stop: normal !important;
-  }
-
-  /* Keyboard dock: keep the RAG/chat input visible above the keyboard on mobile */
-  html.keyboard-open #chatForm,
-  body.keyboard-open #chatForm {
-    position: fixed;
-   
-  
-  /* Re-enable snap after keyboard closes and not during pre-interaction */
-  html:not(.keyboard-open):not(.pre-interaction):not(.split-active),
-  body:not(.keyboard-open):not(.pre-interaction):not(.split-active) {
-    scroll-snap-type: y proximity !important;
-  } left: 0;
-    right: 0;
-    bottom: var(--kb-offset, 0px);
-    z-index: 3000;
-  }
-
-  html.keyboard-open #chatForm {
-    background: #fff;
-    border-top: 1px solid #000;
-  }
-
-  /* Prevent messages from being hidden behind the docked input */
-  html.keyboard-open #skills .chat-window {
-    padding-bottom: 92px;
   }
 
   /* These sections must occupy exactly one screen */

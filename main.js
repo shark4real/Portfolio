@@ -182,7 +182,11 @@ function initMobileSectionSnap() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
   if (!isMobile) return;
 
-  // Don’t snap until the user actually interacts; prevents load-time auto-scroll.
+  // GSAP pins now handle RAG + Connect locking on mobile.
+  // Section snap was causing Projects to feel "sticky", so disabled on mobile.
+  return;
+
+  // Don't snap until the user actually interacts; prevents load-time auto-scroll.
   if (document.documentElement.classList.contains('pre-interaction')) return;
 
   // Gentle section snapping: makes sections feel less "slippery" on mobile.
@@ -297,6 +301,7 @@ function initMobileRagConnectLock() {
   // Pin RAG section: same pattern as desktop Connect pin.
   if (skills) {
     ScrollTrigger.create({
+      id: 'mobile-pin-skills',
       trigger: skills,
       start: 'top top',
       end: '+=150%',
@@ -309,6 +314,7 @@ function initMobileRagConnectLock() {
   // Pin Connect section.
   if (connect) {
     ScrollTrigger.create({
+      id: 'mobile-pin-connect',
       trigger: connect,
       start: 'top top',
       end: '+=150%',
@@ -380,34 +386,14 @@ function initMobileKeyboardGuard() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
   if (!isMobile) return;
 
+  // Simple approach: when an input is focused, dock its parent form
+  // above the keyboard using visualViewport. Don't fight the browser
+  // with overflow locks or GSAP pin toggling.
+
+  let activeForm = null;
+
   const root = document.documentElement;
   const body = document.body;
-
-  let scrollLocked = false;
-  let lockedScrollY = 0;
-
-  function lockPageScroll() {
-    if (scrollLocked) return;
-    lockedScrollY = window.scrollY || window.pageYOffset || 0;
-    // Lock the page in place so keyboard resize doesn't shift sections.
-    body.style.position = 'fixed';
-    body.style.top = `-${lockedScrollY}px`;
-    body.style.left = '0';
-    body.style.right = '0';
-    body.style.width = '100%';
-    scrollLocked = true;
-  }
-
-  function unlockPageScroll() {
-    if (!scrollLocked) return;
-    body.style.position = '';
-    body.style.top = '';
-    body.style.left = '';
-    body.style.right = '';
-    body.style.width = '';
-    window.scrollTo(0, lockedScrollY);
-    scrollLocked = false;
-  }
 
   function isTextInput(el) {
     if (!el) return false;
@@ -418,97 +404,89 @@ function initMobileKeyboardGuard() {
     return !['checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'range', 'color', 'image'].includes(type);
   }
 
-  function setKeyboardOffsetVars() {
-    // Prefer visualViewport (iOS/Android) to get the keyboard occluded area.
+  function getParentForm(el) {
+    // For chatInput -> chatForm; for connect inputs -> contactForm
+    return el.closest('form');
+  }
+
+  function dockForm() {
+    if (!activeForm) return;
     const vv = window.visualViewport;
-    if (!vv) {
-      root.style.setProperty('--kb-offset', '0px');
-      root.style.setProperty('--kb-vh', '100svh');
-      return;
-    }
+    if (!vv) return;
 
-    // The keyboard height is roughly the difference between layout viewport and visual viewport.
-    const occluded = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-    root.style.setProperty('--kb-offset', `${occluded}px`);
-    // Expose the visible viewport height for layout tweaks.
-    root.style.setProperty('--kb-vh', `${vv.height}px`);
+    // Position the form at the bottom of the visible viewport (just above keyboard)
+    const top = vv.offsetTop + vv.height - activeForm.offsetHeight;
+    activeForm.style.position = 'fixed';
+    activeForm.style.left = '0';
+    activeForm.style.right = '0';
+    activeForm.style.bottom = 'auto';
+    activeForm.style.top = top + 'px';
+    activeForm.style.zIndex = '9999';
+    activeForm.style.background = activeForm.id === 'chatForm' ? '#1a1a1a' : '#fff';
+    activeForm.style.padding = '10px 16px';
+    activeForm.style.boxSizing = 'border-box';
   }
 
-  let vvListenersAttached = false;
-  function attachViewportListeners() {
-    const vv = window.visualViewport;
-    if (!vv || vvListenersAttached) return;
-    vvListenersAttached = true;
-    vv.addEventListener('resize', setKeyboardOffsetVars);
-    vv.addEventListener('scroll', setKeyboardOffsetVars);
+  function undockForm() {
+    if (!activeForm) return;
+    // Restore original styles
+    ['position', 'left', 'right', 'bottom', 'top', 'zIndex', 'background', 'padding', 'boxSizing'].forEach(prop => {
+      activeForm.style[prop] = '';
+    });
+    activeForm = null;
   }
 
-  function detachViewportListeners() {
-    const vv = window.visualViewport;
-    if (!vv || !vvListenersAttached) return;
-    vvListenersAttached = false;
-    vv.removeEventListener('resize', setKeyboardOffsetVars);
-    vv.removeEventListener('scroll', setKeyboardOffsetVars);
-  }
-
-  function enterKeyboardMode(target) {
-    root.classList.add('keyboard-open');
-    body.classList.add('keyboard-open');
-
-    // If Skills is pinned for extra scroll, disable it while typing.
-    try {
-      if (window.ScrollTrigger && typeof ScrollTrigger.getById === 'function') {
-        const skillsLock = ScrollTrigger.getById('mobile-lock-skills');
-        if (skillsLock && skillsLock.enabled) {
-          skillsLock.disable(false);
-        }
-      }
-    } catch (e) {}
-
-    // Keep the whole section from moving when the keyboard appears.
-    lockPageScroll();
-
-    attachViewportListeners();
-    setKeyboardOffsetVars();
-
-    // Don't scroll the whole section (it can blur input on mobile). Instead we dock the input via CSS.
-    window.setTimeout(setKeyboardOffsetVars, 120);
-  }
-
-  function exitKeyboardMode() {
-    root.classList.remove('keyboard-open');
-    body.classList.remove('keyboard-open');
-    detachViewportListeners();
-    root.style.removeProperty('--kb-offset');
-    root.style.removeProperty('--kb-vh');
-
-    unlockPageScroll();
-
-    // Re-enable Skills pin after keyboard closes.
-    try {
-      if (window.ScrollTrigger && typeof ScrollTrigger.getById === 'function') {
-        const skillsLock = ScrollTrigger.getById('mobile-lock-skills');
-        if (skillsLock && !skillsLock.enabled) {
-          skillsLock.enable(false);
-          ScrollTrigger.refresh();
-        }
-      }
-    } catch (e) {}
+  function onViewportResize() {
+    dockForm();
   }
 
   document.addEventListener('focusin', (e) => {
-    const target = e.target;
-    if (!isTextInput(target)) return;
-    enterKeyboardMode(target);
+    if (!isTextInput(e.target)) return;
+
+    // Disable scroll-snap so it doesn't fight the keyboard
+    root.classList.add('keyboard-open');
+    body.classList.add('keyboard-open');
+
+    // Only dock the RAG chatForm (single input row).
+    // Connect form has multiple fields — let the browser handle it naturally.
+    const form = getParentForm(e.target);
+    if (!form || form.id !== 'chatForm') return;
+
+    // If already docked on same form, just update
+    if (activeForm && activeForm !== form) {
+      undockForm();
+    }
+
+    activeForm = form;
+
+    const vv = window.visualViewport;
+    if (vv) {
+      vv.addEventListener('resize', onViewportResize);
+      vv.addEventListener('scroll', onViewportResize);
+    }
+
+    // Small delay to let the keyboard animation start
+    setTimeout(() => {
+      dockForm();
+    }, 300);
   });
 
   document.addEventListener('focusout', () => {
-    // If another input immediately gains focus, focusin will re-add.
-    window.setTimeout(() => {
-      const active = document.activeElement;
-      if (isTextInput(active)) return;
-      exitKeyboardMode();
-    }, 0);
+    setTimeout(() => {
+      if (isTextInput(document.activeElement)) return;
+
+      // Re-enable scroll-snap
+      root.classList.remove('keyboard-open');
+      body.classList.remove('keyboard-open');
+
+      const vv = window.visualViewport;
+      if (vv) {
+        vv.removeEventListener('resize', onViewportResize);
+        vv.removeEventListener('scroll', onViewportResize);
+      }
+
+      undockForm();
+    }, 100);
   });
 }
 
