@@ -892,7 +892,7 @@ function initSectionNavArrows() {
 // ABOUT CONTENT (stored for easy reuse)
 // ============================================
 const ABOUT_CONTENT = {
-  bio: "Hi, I'm Sharik Hassan — a 4th-year student and aspiring Data Scientist. I love exploring data, building intelligent systems, and sharing what I learn through \n\nteaching and community. Beyond tech, I create through digital design, animation, and illustration. I enjoy projects that blend logic with creativity and storytelling.",
+  bio: "Hi, I'm Sharik Hassan, a 4th-year student and aspiring Data Scientist. I love exploring data, building intelligent systems, and sharing what I learn through \n\nteaching and community. Beyond tech, I create through digital design, animation, and illustration. I enjoy projects that blend logic with creativity and storytelling.",
   education: [
     {
       school: 'Indian Institute of Technology, Madras',
