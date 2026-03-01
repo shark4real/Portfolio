@@ -37,8 +37,6 @@
   // Preload critical assets
   function preloadAssets() {
     const assetsToLoad = [
-      { type: 'model', url: './guitar.glb' },
-      { type: 'hdr', url: './studio.hdr' },
       { type: 'resume', url: './sharik_hassan.pdf' }
     ];
     
@@ -54,31 +52,7 @@
     totalAssets = assetsToLoad.length;
     
     assetsToLoad.forEach(asset => {
-      if (asset.type === 'model') {
-        fetch(asset.url)
-          .then(response => response.blob())
-          .then(blob => {
-            window.preloadedAssets.guitarBlob = blob;
-            window.assetsLoaded.guitar = true;
-            assetLoaded();
-          })
-          .catch(() => {
-            console.warn('Failed to preload guitar model');
-            assetLoaded();
-          });
-      } else if (asset.type === 'hdr') {
-        fetch(asset.url)
-          .then(response => response.blob())
-          .then(blob => {
-            window.preloadedAssets.hdrBlob = blob;
-            window.assetsLoaded.hdr = true;
-            assetLoaded();
-          })
-          .catch(() => {
-            console.warn('Failed to preload HDR');
-            assetLoaded();
-          });
-      } else if (asset.type === 'image') {
+      if (asset.type === 'image') {
         const img = new Image();
         img.onload = () => assetLoaded();
         img.onerror = () => assetLoaded();
@@ -91,6 +65,26 @@
     });
   }
   
+  let dismissed = false;
+  function dismissPreloader() {
+    if (dismissed) return;
+    dismissed = true;
+    clearTimeout(preloadTimeout);
+    if (preloader) preloader.classList.add('loaded');
+    initializeWebsite();
+  }
+
+  function assetLoaded() {
+    loadedAssets++;
+    updateProgress();
+    if (loadedAssets >= totalAssets) {
+      setTimeout(dismissPreloader, 500);
+    }
+  }
+
+  // Hard timeout — dismiss after 8 seconds no matter what
+  const preloadTimeout = setTimeout(dismissPreloader, 8000);
+
   // Start preloading when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', preloadAssets);
@@ -1258,32 +1252,116 @@ function initLandingSplitScroll() {
   tl.to(overlay, { autoAlpha: 0, duration: 0.15, ease: 'power2.inOut' }, 0.92);
 }
 
+function initCustomCursor() {
+  // Only on devices with a precise pointer (mouse), not touch
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+
+  const cursor = document.getElementById('custom-cursor');
+  if (!cursor) return;
+
+  let mouseX = 0, mouseY = 0;
+  let curX = 0, curY = 0;
+  let rafId = null;
+  let isTyping = false;
+  let typingTimer = null;
+
+  // Text-like elements that trigger magnify
+  const TEXT_SELECTOR = 'p, h1, h2, h3, h4, h5, h6, span, a, li, label, blockquote, td, th';
+
+  function loop() {
+    curX += (mouseX - curX) * 0.10;
+    curY += (mouseY - curY) * 0.10;
+    cursor.style.left = curX + 'px';
+    cursor.style.top  = curY + 'px';
+    rafId = requestAnimationFrame(loop);
+  }
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+    // Reappear on mouse move after typing
+    if (isTyping) {
+      isTyping = false;
+      cursor.classList.remove('typing-hidden');
+    }
+
+    cursor.classList.add('active');
+    if (!rafId) loop();
+
+    // Magnify on text hover
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    if (target && target.closest(TEXT_SELECTOR)) {
+      cursor.classList.add('text-hover');
+    } else {
+      cursor.classList.remove('text-hover');
+    }
+  });
+
+  document.addEventListener('mouseleave', () => {
+    cursor.classList.remove('active', 'text-hover');
+  });
+
+  document.addEventListener('mouseenter', () => {
+    if (!isTyping) cursor.classList.add('active');
+  });
+
+  document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
+  document.addEventListener('mouseup',   () => cursor.classList.remove('clicking'));
+
+  // Hide while typing
+  document.addEventListener('keydown', (e) => {
+    // Ignore modifier-only keys
+    if (['Shift','Control','Alt','Meta','CapsLock','Tab'].includes(e.key)) return;
+    isTyping = true;
+    cursor.classList.add('typing-hidden');
+    cursor.classList.remove('text-hover');
+    clearTimeout(typingTimer);
+  });
+}
+
+initCustomCursor();
+
+
 function initHeaderHide() {
   const header = document.querySelector('header');
   const logo = document.querySelector('.logo');
   if (!header) return;
 
-  let lastScroll = 0;
+  let lastScroll = window.pageYOffset;
 
   window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
 
-    if (currentScroll > 100) {
-      header.classList.add('scrolled');
+    if (currentScroll < lastScroll) {
+      // Scrolling up — re-trigger pop animation each time
+      if (!header.classList.contains('visible')) {
+        header.classList.remove('visible');
+        void header.offsetWidth; // force reflow so animation restarts
+        header.classList.add('visible');
+      }
     } else {
-      header.classList.remove('scrolled');
+      // Scrolling down — hide header
+      header.classList.remove('visible');
     }
 
     lastScroll = currentScroll;
   });
 
-  // When header is in compact mode, clicking it scrolls to top
+  // Clicking the logo always scrolls back to top
   if (logo) {
     logo.addEventListener('click', (e) => {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
+
+  // Click outside header to dismiss it
+  document.addEventListener('click', (e) => {
+    if (header.classList.contains('visible') && !header.contains(e.target)) {
+      header.classList.remove('visible');
+    }
+  });
 }
 
 // If you want to control scroll speed more precisely, use this alternative:

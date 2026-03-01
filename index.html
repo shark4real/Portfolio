@@ -10,11 +10,6 @@
   <link rel="stylesheet" href="style.css" />
   
   <!-- Preload critical assets -->
-  <link rel="preload" href="./guitar.glb" as="fetch" crossorigin="anonymous">
-  <link rel="preload" href="./studio.hdr" as="fetch" crossorigin="anonymous">
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" as="script">
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js" as="script">
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js" as="script">
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" as="script">
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" as="script">
 </head>
@@ -278,21 +273,19 @@
   </section>
 
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <script>
     // Asset preloading system
     window.assetsLoaded = {
-      guitar: false,
-      hdr: false,
       scripts: false
     };
     
     window.preloadedAssets = {};
   </script>
+  <!-- Custom cursor -->
+  <div id="custom-cursor"></div>
+
   <script src="main.js"></script>
 </body>
 </html>
