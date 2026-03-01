@@ -141,11 +141,9 @@ body {
   letter-spacing: 0.5px;
 }
 
-@keyframes headerPop {
-  0%   { opacity: 0; transform: translateX(-50%) scale(0.7) translateY(-14px); }
-  60%  { opacity: 1; transform: translateX(-50%) scale(1.06) translateY(3px); }
-  80%  { transform: translateX(-50%) scale(0.97) translateY(-1px); }
-  100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+@keyframes headerFlyIn {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-80px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 header {
@@ -172,7 +170,7 @@ header {
 header.visible {
   opacity: 1;
   pointer-events: auto;
-  animation: headerPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: headerFlyIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 header.hide {
