@@ -990,10 +990,9 @@ function initMobileMenu() {
     mobileMenu.innerHTML = `
       <button class="mobile-menu-close" aria-label="Close menu">&times;</button>
       <nav>
-        <a href="#projects">Projects</a>
-        <a href="#about">About</a>
-        <a href="#skills">RAG</a>
-        <a href="#connect">Connect</a>
+        <a href="projects.html">Personal Experiments</a>
+        <a href="about.html">About</a>
+        <a href="rag.html">Rag</a>
       </nav>
     `;
     document.body.appendChild(mobileMenu);
@@ -1091,6 +1090,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     
     // Special handling for about section - scroll through landing animation
     if (href === '#about') {
+      unlockAboutAccess();
       const landing = document.getElementById('landing');
       if (landing && !window.matchMedia('(max-width: 768px)').matches) {
         // The landing is pinned for 200% of viewport height
@@ -1252,116 +1252,208 @@ function initLandingSplitScroll() {
   tl.to(overlay, { autoAlpha: 0, duration: 0.15, ease: 'power2.inOut' }, 0.92);
 }
 
-function initCustomCursor() {
-  // Only on devices with a precise pointer (mouse), not touch
-  if (!window.matchMedia('(pointer: fine)').matches) return;
-
-  const cursor = document.getElementById('custom-cursor');
-  if (!cursor) return;
-
-  let mouseX = 0, mouseY = 0;
-  let curX = 0, curY = 0;
-  let rafId = null;
-  let isTyping = false;
-  let typingTimer = null;
-
-  // Text-like elements that trigger magnify
-  const TEXT_SELECTOR = 'p, h1, h2, h3, h4, h5, h6, span, a, li, label, blockquote, td, th';
-
-  function loop() {
-    curX += (mouseX - curX) * 0.10;
-    curY += (mouseY - curY) * 0.10;
-    cursor.style.left = curX + 'px';
-    cursor.style.top  = curY + 'px';
-    rafId = requestAnimationFrame(loop);
-  }
-
-  document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-
-    // Reappear on mouse move after typing
-    if (isTyping) {
-      isTyping = false;
-      cursor.classList.remove('typing-hidden');
-    }
-
-    cursor.classList.add('active');
-    if (!rafId) loop();
-
-    // Magnify on text hover
-    const target = document.elementFromPoint(e.clientX, e.clientY);
-    if (target && target.closest(TEXT_SELECTOR)) {
-      cursor.classList.add('text-hover');
-    } else {
-      cursor.classList.remove('text-hover');
-    }
-  });
-
-  document.addEventListener('mouseleave', () => {
-    cursor.classList.remove('active', 'text-hover');
-  });
-
-  document.addEventListener('mouseenter', () => {
-    if (!isTyping) cursor.classList.add('active');
-  });
-
-  document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
-  document.addEventListener('mouseup',   () => cursor.classList.remove('clicking'));
-
-  // Hide while typing
-  document.addEventListener('keydown', (e) => {
-    // Ignore modifier-only keys
-    if (['Shift','Control','Alt','Meta','CapsLock','Tab'].includes(e.key)) return;
-    isTyping = true;
-    cursor.classList.add('typing-hidden');
-    cursor.classList.remove('text-hover');
-    clearTimeout(typingTimer);
-  });
-}
-
-initCustomCursor();
-
-
 function initHeaderHide() {
   const header = document.querySelector('header');
   const logo = document.querySelector('.logo');
   if (!header) return;
 
-  let lastScroll = window.pageYOffset;
+  if (header.classList.contains('ui-header')) {
+    header.classList.add('visible');
+  } else {
+    let lastScroll = window.pageYOffset;
 
-  window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
 
-    if (currentScroll < lastScroll) {
-      // Scrolling up — re-trigger pop animation each time
-      if (!header.classList.contains('visible')) {
+      if (currentScroll < lastScroll) {
+        // Scrolling up — re-trigger pop animation each time
+        if (!header.classList.contains('visible')) {
+          header.classList.remove('visible');
+          void header.offsetWidth; // force reflow so animation restarts
+          header.classList.add('visible');
+        }
+      } else {
+        // Scrolling down — hide header
         header.classList.remove('visible');
-        void header.offsetWidth; // force reflow so animation restarts
-        header.classList.add('visible');
       }
-    } else {
-      // Scrolling down — hide header
-      header.classList.remove('visible');
-    }
 
-    lastScroll = currentScroll;
-  });
+      lastScroll = currentScroll;
+    });
+
+    document.addEventListener('click', (e) => {
+      if (header.classList.contains('visible') && !header.contains(e.target)) {
+        header.classList.remove('visible');
+      }
+    });
+  }
 
   // Clicking the logo always scrolls back to top
   if (logo) {
     logo.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const href = logo.getAttribute('href') || '';
+      if (href.startsWith('#')) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     });
   }
 
-  // Click outside header to dismiss it
-  document.addEventListener('click', (e) => {
-    if (header.classList.contains('visible') && !header.contains(e.target)) {
-      header.classList.remove('visible');
+}
+
+function initFooterClock() {
+  const clockEl = document.getElementById('footerClock');
+  if (!clockEl) return;
+
+  const pad = (value, size = 2) => String(value).padStart(size, '0');
+
+  const dateFormatter = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+
+  function render() {
+    const now = new Date();
+    const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+    const parts = dateFormatter.formatToParts(utcDate);
+    const part = (type) => parts.find((p) => p.type === type)?.value || '';
+
+    const hours = pad(utcDate.getUTCHours());
+    const minutes = pad(utcDate.getUTCMinutes());
+    const seconds = pad(utcDate.getUTCSeconds());
+    const centiseconds = pad(Math.floor(utcDate.getUTCMilliseconds() / 10));
+
+    const label = `${part('weekday')}, ${part('month')} ${part('day')}, Worldwide, ${hours}:${minutes}:${seconds}.${centiseconds}`;
+    clockEl.textContent = label;
+  }
+
+  render();
+  setInterval(render, 100);
+}
+
+function initThemeToggle() {
+  const toggle = document.querySelector('.ui-toggle-track');
+  if (!toggle) return;
+
+  toggle.setAttribute('role', 'button');
+  toggle.setAttribute('tabindex', '0');
+  toggle.setAttribute('aria-label', 'Toggle theme');
+
+  const key = 'theme';
+  const body = document.body;
+
+  const applyTheme = (theme) => {
+    body.classList.toggle('theme-dark', theme === 'dark');
+    body.classList.toggle('theme-light', theme === 'light');
+  };
+
+  const stored = localStorage.getItem(key);
+  applyTheme(stored || 'light');
+
+  const toggleTheme = () => {
+    const next = body.classList.contains('theme-dark') ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem(key, next);
+  };
+
+  toggle.addEventListener('click', toggleTheme);
+  toggle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleTheme();
     }
   });
+}
+
+function initCopyEmailLink() {
+  const link = document.querySelector('.about-copy-email');
+  if (!link) return;
+
+  const value = link.getAttribute('data-copy') || link.textContent.trim();
+
+  link.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(value);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = value;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'absolute';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+      }
+      link.setAttribute('data-tooltip', 'Copied');
+      setTimeout(() => link.setAttribute('data-tooltip', 'Copy URL'), 1400);
+    } catch (err) {
+      link.setAttribute('data-tooltip', 'Copy failed');
+      setTimeout(() => link.setAttribute('data-tooltip', 'Copy URL'), 1400);
+    }
+  });
+}
+
+const ABOUT_SCROLL_GATE = {
+  unlocked: false,
+};
+
+function unlockAboutAccess() {
+  ABOUT_SCROLL_GATE.unlocked = true;
+  document.documentElement.classList.add('about-unlocked');
+  document.body.classList.add('about-unlocked');
+}
+
+function lockAboutAccess() {
+  ABOUT_SCROLL_GATE.unlocked = false;
+  document.documentElement.classList.remove('about-unlocked');
+  document.body.classList.remove('about-unlocked');
+}
+
+function initAboutScrollGate() {
+  const about = document.getElementById('about');
+  const landing = document.getElementById('landing');
+  const projects = document.getElementById('projects');
+  if (!about || !landing || !projects) return;
+
+  let lastScroll = window.scrollY;
+  let isRedirecting = false;
+
+  function inAboutViewport() {
+    const rect = about.getBoundingClientRect();
+    return rect.top < window.innerHeight * 0.6 && rect.bottom > window.innerHeight * 0.4;
+  }
+
+  function handleScroll() {
+    if (isRedirecting) return;
+    const current = window.scrollY;
+    const direction = current > lastScroll ? 'down' : 'up';
+    lastScroll = current;
+
+    if (ABOUT_SCROLL_GATE.unlocked) {
+      if (!inAboutViewport()) {
+        lockAboutAccess();
+      }
+      return;
+    }
+
+    if (!inAboutViewport()) return;
+
+    isRedirecting = true;
+    if (direction === 'down') {
+      window.scrollTo({ top: projects.offsetTop, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: landing.offsetTop, behavior: 'smooth' });
+    }
+    setTimeout(() => {
+      isRedirecting = false;
+    }, 600);
+  }
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
 }
 
 // If you want to control scroll speed more precisely, use this alternative:
@@ -1402,6 +1494,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize other components if they exist
   if (typeof initHeaderHide === 'function') initHeaderHide();
+  if (typeof initFooterClock === 'function') initFooterClock();
+  if (typeof initAboutScrollGate === 'function') initAboutScrollGate();
+  if (typeof initCopyEmailLink === 'function') initCopyEmailLink();
+  if (typeof initThemeToggle === 'function') initThemeToggle();
   
   // Initialize the Projects section (Personal Experiments layout)
   initPersonalExperiments();

@@ -3,19 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sharik</title>
+  <title>Personal Experiments — Sharik Hassan</title>
   <link rel="icon" href="SH.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
-  
-  <!-- Preload critical assets -->
+
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" as="script">
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" as="script">
 </head>
 <body>
-  <!-- Preloader -->
   <div id="preloader" class="preloader">
     <div class="preloader-content">
       <h1>Loading</h1>
@@ -25,34 +23,6 @@
       <p class="preloader-text" id="preloaderText">Loading assets... 0%</p>
     </div>
   </div>
-
-  <!-- Landing Section -->
-  <section id="landing">
-    <div class="landing-bg" aria-hidden="true"></div>
-    <div class="landing-container">
-      <div class="landing-left">
-        <div class="landing-intro">
-          <h1>Hi , Im <span>Sharik</span></h1>
-          <p class="landing-main-line">
-            <span class="landing-rotator" aria-hidden="true">
-              <span class="landing-rotator-text"></span>
-            </span>
-          </p>
-        </div>
-        <div class="landing-tagline">
-          <p>I Code | I Create | I Design</p>
-        </div>
-        <div class="landing-buttons">
-          <a class="btn btn-primary" href="./sharik_hassan.pdf" target="_blank">Resume</a>
-          <a class="btn btn-secondary" href="about.html#connect">Connect</a>
-        </div>
-      </div>
-      <div class="landing-right">
-        <!-- Right side intentionally empty -->
-      </div>
-    </div>
-  </section>
-
 
   <header class="ui-header">
     <a href="index.html" class="logo ui-brand">Sharik Hassan</a>
@@ -68,23 +38,33 @@
     </div>
   </header>
 
+  <section id="projects" class="experiments-section">
+    <div class="experiments-shell">
+      <h2 class="projects-section-title">Personal Experiments.</h2>
+      <div class="experiments-grid">
+        <aside class="experiments-sidebar">
+          <div class="experiments-counter" aria-hidden="true">
+            <div class="experiments-counter-number experiments-counter-active" id="experimentsCounterActive">01</div>
+            <div class="experiments-counter-number experiments-counter-next" id="experimentsCounterNext">02</div>
+          </div>
+        </aside>
+
+        <div class="experiments-feed" id="experimentsFeed" aria-label="Projects list"></div>
+      </div>
+    </div>
+  </section>
+
   <footer class="ui-footer" aria-live="polite">
     <span class="ui-footer-brand">SH@2026</span>
     <span class="ui-footer-clock" id="footerClock">Monday, May 11, Worldwide, 15:30:21.20</span>
   </footer>
 
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <script>
-    // Asset preloading system
-    window.assetsLoaded = {
-      scripts: false
-    };
-    
+    window.assetsLoaded = { scripts: false };
     window.preloadedAssets = {};
   </script>
   <script src="main.js"></script>
 </body>
 </html>
-

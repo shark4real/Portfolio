@@ -3,19 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sharik</title>
+  <title>RAG — Sharik Hassan</title>
   <link rel="icon" href="SH.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
-  
-  <!-- Preload critical assets -->
+
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" as="script">
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" as="script">
 </head>
 <body>
-  <!-- Preloader -->
   <div id="preloader" class="preloader">
     <div class="preloader-content">
       <h1>Loading</h1>
@@ -25,34 +23,6 @@
       <p class="preloader-text" id="preloaderText">Loading assets... 0%</p>
     </div>
   </div>
-
-  <!-- Landing Section -->
-  <section id="landing">
-    <div class="landing-bg" aria-hidden="true"></div>
-    <div class="landing-container">
-      <div class="landing-left">
-        <div class="landing-intro">
-          <h1>Hi , Im <span>Sharik</span></h1>
-          <p class="landing-main-line">
-            <span class="landing-rotator" aria-hidden="true">
-              <span class="landing-rotator-text"></span>
-            </span>
-          </p>
-        </div>
-        <div class="landing-tagline">
-          <p>I Code | I Create | I Design</p>
-        </div>
-        <div class="landing-buttons">
-          <a class="btn btn-primary" href="./sharik_hassan.pdf" target="_blank">Resume</a>
-          <a class="btn btn-secondary" href="about.html#connect">Connect</a>
-        </div>
-      </div>
-      <div class="landing-right">
-        <!-- Right side intentionally empty -->
-      </div>
-    </div>
-  </section>
-
 
   <header class="ui-header">
     <a href="index.html" class="logo ui-brand">Sharik Hassan</a>
@@ -68,23 +38,50 @@
     </div>
   </header>
 
+  <section id="skills" class="skills-section">
+    <div class="chat-main">
+      <div class="chat-hero">
+        <p class="chat-label">RAG</p>
+         <h2 class="chat-hero-title">Hey! What’s up?</h2>
+        <p class="chat-subtitle">Ask me anything</p>
+      </div>
+
+      <div class="chat-suggestions">
+        <button type="button" class="chat-suggestion" data-question="skills">Tell me about your skills</button>
+        <button type="button" class="chat-suggestion" data-question="socials">Mention your socials</button>
+        <button type="button" class="chat-suggestion" data-question="projects">Tell me about your projects</button>
+        <a href="./sharik_hassan.pdf" download class="chat-download-resume">Download resume</a>
+      </div>
+
+      <div class="chat-window" id="chatWindow"></div>
+    </div>
+
+    <form class="chat-input-row chat-hero-input" id="chatForm">
+      <div class="chat-input-shell">
+        <input
+          type="text"
+          id="chatInput"
+          autocomplete="off"
+          placeholder="Ask anything about my skills, projects, or journey"
+        />
+        <button type="submit" class="chat-send-icon" aria-label="Send">
+          ➤
+        </button>
+      </div>
+    </form>
+  </section>
+
   <footer class="ui-footer" aria-live="polite">
     <span class="ui-footer-brand">SH@2026</span>
     <span class="ui-footer-clock" id="footerClock">Monday, May 11, Worldwide, 15:30:21.20</span>
   </footer>
 
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <script>
-    // Asset preloading system
-    window.assetsLoaded = {
-      scripts: false
-    };
-    
+    window.assetsLoaded = { scripts: false };
     window.preloadedAssets = {};
   </script>
   <script src="main.js"></script>
 </body>
 </html>
-

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Sharik Hassan</title>
+  <link rel="icon" href="SH.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" as="script">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" as="script">
+</head>
+<body>
+  <div id="preloader" class="preloader">
+    <div class="preloader-content">
+      <h1>Loading</h1>
+      <div class="preloader-bar">
+        <div class="preloader-progress" id="preloaderProgress"></div>
+      </div>
+      <p class="preloader-text" id="preloaderText">Loading assets... 0%</p>
+    </div>
+  </div>
+
+  <header class="ui-header">
+    <a href="index.html" class="logo ui-brand">Sharik Hassan</a>
+    <nav class="ui-nav">
+      <a href="projects.html">Personal Experiments</a>
+      <a href="about.html">About</a>
+      <a href="rag.html">Rag</a>
+    </nav>
+    <div class="ui-toggle" aria-hidden="true">
+      <span class="ui-toggle-track">
+        <span class="ui-toggle-thumb"></span>
+      </span>
+    </div>
+  </header>
+
+  <section id="about" class="about-section">
+    <div class="about-shell" id="aboutShell">
+      <div class="about-left">
+        <h2 class="about-title">About Me.</h2>
+        <p class="about-bio-text" id="aboutBioTextTop"></p>
+
+        <img class="about-photo" src="about.jpg.jpeg" alt="" loading="lazy" />
+
+        <p class="about-bio-text" id="aboutBioTextBottom"></p>
+
+        <div class="about-left-links" aria-label="Social links">
+          <a href="https://www.linkedin.com/in/sharik-hassan" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://www.instagram.com/llsharikll" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href="https://github.com/shark4real" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="mailto:sharik.hassan.ai@gmail.com" class="about-copy-email" data-copy="sharik.hassan.ai@gmail.com" data-tooltip="Copy URL">sharik.hassan.ai@gmail.com</a>
+        </div>
+      </div>
+
+      <div class="about-right" aria-label="About details">
+        <div class="about-right-scroll" id="aboutRightScroll">
+          <section class="about-right-block" aria-labelledby="aboutExperienceTitle">
+            <h3 class="about-right-heading" id="aboutExperienceTitle">Experience</h3>
+            <div class="about-card">
+              <div id="aboutExperienceList"></div>
+            </div>
+          </section>
+
+          <section class="about-right-block" aria-labelledby="aboutEducationTitle">
+            <h3 class="about-right-heading" id="aboutEducationTitle">Education</h3>
+            <div class="about-card">
+              <div id="aboutEducationList"></div>
+            </div>
+          </section>
+
+          <section class="about-right-block" aria-labelledby="aboutHobbiesTitle">
+            <h3 class="about-right-heading" id="aboutHobbiesTitle">Hobbies</h3>
+            <div class="about-card">
+              <div id="aboutHobbiesList"></div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="ui-footer" aria-live="polite">
+    <span class="ui-footer-brand">SH@2026</span>
+    <span class="ui-footer-clock" id="footerClock">Monday, May 11, Worldwide, 15:30:21.20</span>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script>
+    window.assetsLoaded = { scripts: false };
+    window.preloadedAssets = {};
+  </script>
+  <script src="main.js"></script>
+</body>
+</html>
