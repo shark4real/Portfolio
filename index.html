@@ -32,19 +32,19 @@
     <div class="landing-container">
       <div class="landing-left">
         <div class="landing-intro">
-          <h1>Hi , Im <span>Sharik</span></h1>
-          <p class="landing-main-line">
-            <span class="landing-rotator" aria-hidden="true">
-              <span class="landing-rotator-text"></span>
-            </span>
-          </p>
-        </div>
-        <div class="landing-tagline">
-          <p>I Code | I Create | I Design</p>
+          <h1>
+            <span class="landing-hello-line">Hello — I'm</span>
+            <span class="landing-name">Sharik</span>
+          </h1>
         </div>
         <div class="landing-buttons">
           <a class="btn btn-primary" href="./sharik_hassan.pdf" target="_blank">Resume</a>
           <a class="btn btn-secondary" href="about.html#connect">Connect</a>
+        </div>
+        <div class="landing-tagline">
+          <p class="landing-tagline-wave">
+            <span>I</span> <span>Code</span> <span>|</span> <span>I</span> <span>Create</span> <span>|</span> <span>I</span> <span>Design</span>
+          </p>
         </div>
       </div>
       <div class="landing-right">
@@ -69,7 +69,18 @@
   </header>
 
   <footer class="ui-footer" aria-live="polite">
-    <span class="ui-footer-brand">SH@2026</span>
+    <button class="ui-footer-brand" id="footerBrand" type="button" aria-expanded="false" aria-controls="footerLinks">
+      <span class="footer-brand-text">
+        <span class="footer-brand-primary">SH@2026</span>
+        <span class="footer-brand-alt">CONNECT</span>
+      </span>
+    </button>
+    <div class="ui-footer-links" id="footerLinks" role="menu" aria-label="Connect links">
+      <a href="https://www.linkedin.com/in/sharik-hassan" target="_blank" rel="noopener noreferrer" role="menuitem">LinkedIn</a>
+      <a href="https://www.instagram.com/llsharikll" target="_blank" rel="noopener noreferrer" role="menuitem">Instagram</a>
+      <a href="https://github.com/shark4real" target="_blank" rel="noopener noreferrer" role="menuitem">GitHub</a>
+      <a href="mailto:sharik.hassan.ai@gmail.com" class="about-copy-email" data-copy="sharik.hassan.ai@gmail.com" data-tooltip="Copy URL" role="menuitem">sharik.hassan.ai@gmail.com</a>
+    </div>
     <span class="ui-footer-clock" id="footerClock">Monday, May 11, Worldwide, 15:30:21.20</span>
   </footer>
 

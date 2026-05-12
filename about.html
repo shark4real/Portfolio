@@ -48,12 +48,6 @@
 
         <p class="about-bio-text" id="aboutBioTextBottom"></p>
 
-        <div class="about-left-links" aria-label="Social links">
-          <a href="https://www.linkedin.com/in/sharik-hassan" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a href="https://www.instagram.com/llsharikll" target="_blank" rel="noopener noreferrer">Instagram</a>
-          <a href="https://github.com/shark4real" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="mailto:sharik.hassan.ai@gmail.com" class="about-copy-email" data-copy="sharik.hassan.ai@gmail.com" data-tooltip="Copy URL">sharik.hassan.ai@gmail.com</a>
-        </div>
       </div>
 
       <div class="about-right" aria-label="About details">
@@ -85,7 +79,18 @@
   </section>
 
   <footer class="ui-footer" aria-live="polite">
-    <span class="ui-footer-brand">SH@2026</span>
+    <button class="ui-footer-brand" id="footerBrand" type="button" aria-expanded="false" aria-controls="footerLinks">
+      <span class="footer-brand-text">
+        <span class="footer-brand-primary">SH@2026</span>
+        <span class="footer-brand-alt">CONNECT</span>
+      </span>
+    </button>
+    <div class="ui-footer-links" id="footerLinks" role="menu" aria-label="Connect links">
+      <a href="https://www.linkedin.com/in/sharik-hassan" target="_blank" rel="noopener noreferrer" role="menuitem">LinkedIn</a>
+      <a href="https://www.instagram.com/llsharikll" target="_blank" rel="noopener noreferrer" role="menuitem">Instagram</a>
+      <a href="https://github.com/shark4real" target="_blank" rel="noopener noreferrer" role="menuitem">GitHub</a>
+      <a href="mailto:sharik.hassan.ai@gmail.com" class="about-copy-email" data-copy="sharik.hassan.ai@gmail.com" data-tooltip="Copy URL" role="menuitem">sharik.hassan.ai@gmail.com</a>
+    </div>
     <span class="ui-footer-clock" id="footerClock">Monday, May 11, Worldwide, 15:30:21.20</span>
   </footer>
 

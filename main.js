@@ -622,6 +622,140 @@ function initLandingRotatingText() {
   });
 }
 
+function initLandingHelloHover() {
+  const helloEls = Array.from(document.querySelectorAll('.landing-hello-line'));
+  if (!helloEls.length) return;
+
+  const lines = [
+    "Hello — I'm",
+    'नमस्ते — मैं हूँ',
+    'سلام — میں ہوں',
+    'مرحبا — أنا',
+    'Hola — soy',
+    'こんにちは — 私は',
+    'Bonjour — je suis',
+    'Ciao — sono',
+    'Hallo — ich bin',
+    'Olá — eu sou'
+  ];
+
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const intervalMs = 900;
+
+  function swapText(el, text) {
+    if (reduceMotion) {
+      el.textContent = text;
+      return;
+    }
+    el.classList.add('is-fading');
+    window.setTimeout(() => {
+      el.textContent = text;
+      requestAnimationFrame(() => {
+        el.classList.remove('is-fading');
+      });
+    }, 160);
+  }
+
+  for (const el of helloEls) {
+    let index = 0;
+
+    el.textContent = lines[0];
+
+    window.setInterval(() => {
+      index = (index + 1) % lines.length;
+      swapText(el, lines[index]);
+    }, intervalMs);
+  }
+}
+
+function initMouseAxesForElement(target, className) {
+  if (!target || !window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+  const axes = document.createElement('div');
+  axes.className = className;
+  axes.setAttribute('aria-hidden', 'true');
+  axes.innerHTML = [
+    '<span class="landing-axis landing-axis-x"></span>',
+    '<span class="landing-axis landing-axis-y"></span>',
+    '<span class="landing-axis-cursor"></span>'
+  ].join('');
+  target.appendChild(axes);
+
+  let nextX = window.innerWidth / 2;
+  let nextY = window.innerHeight / 2;
+  let rafId = null;
+
+  function render() {
+    rafId = null;
+    axes.style.setProperty('--axis-x', `${nextX}px`);
+    axes.style.setProperty('--axis-y', `${nextY}px`);
+  }
+
+  function queueRender() {
+    if (rafId === null) rafId = window.requestAnimationFrame(render);
+  }
+
+  function isInsideTarget(x, y) {
+    const rect = target.getBoundingClientRect();
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  }
+
+  function moveAxes(e) {
+    nextX = e.clientX;
+    nextY = e.clientY;
+    axes.classList.toggle('is-visible', isInsideTarget(nextX, nextY));
+    queueRender();
+  }
+
+  function hideAxes() {
+    axes.classList.remove('is-visible');
+  }
+
+  target.addEventListener('pointerenter', moveAxes);
+  target.addEventListener('pointermove', moveAxes);
+  target.addEventListener('pointerleave', hideAxes);
+  window.addEventListener('blur', hideAxes);
+  window.addEventListener('scroll', () => {
+    axes.classList.toggle('is-visible', isInsideTarget(nextX, nextY));
+  }, { passive: true });
+
+  render();
+}
+
+function initLandingMouseAxes() {
+  const landing = document.getElementById('landing');
+  initMouseAxesForElement(landing, 'landing-mouse-axes');
+  const projects = document.getElementById('projects');
+  initMouseAxesForElement(projects, 'projects-mouse-axes');
+}
+
+function initFooterLinksToggle() {
+  const footer = document.querySelector('.ui-footer');
+  const brand = document.getElementById('footerBrand');
+  const links = document.getElementById('footerLinks');
+  if (!footer || !brand || !links) return;
+
+  const close = () => {
+    footer.classList.remove('is-open');
+    brand.setAttribute('aria-expanded', 'false');
+  };
+
+  brand.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const next = !footer.classList.contains('is-open');
+    footer.classList.toggle('is-open', next);
+    brand.setAttribute('aria-expanded', String(next));
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!footer.contains(event.target)) close();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') close();
+  });
+}
+
 function initializeWebsite() {
   if (typeof initMobileInitialScrollGuard === 'function') {
     initMobileInitialScrollGuard();
@@ -638,6 +772,18 @@ function initializeWebsite() {
 
   if (typeof initLandingRotatingText === 'function') {
     initLandingRotatingText();
+  }
+
+  if (typeof initLandingHelloHover === 'function') {
+    initLandingHelloHover();
+  }
+
+  if (typeof initLandingMouseAxes === 'function') {
+    initLandingMouseAxes();
+  }
+
+  if (typeof initFooterLinksToggle === 'function') {
+    initFooterLinksToggle();
   }
 
   if (typeof initMobileSectionLock === 'function') {
@@ -1367,33 +1513,43 @@ function initThemeToggle() {
 }
 
 function initCopyEmailLink() {
-  const link = document.querySelector('.about-copy-email');
-  if (!link) return;
+  const links = Array.from(document.querySelectorAll('.about-copy-email'));
+  if (!links.length) return;
 
-  const value = link.getAttribute('data-copy') || link.textContent.trim();
+  links.forEach((link) => {
+    const value = link.getAttribute('data-copy') || link.textContent.trim();
 
-  link.addEventListener('click', async (e) => {
-    e.preventDefault();
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(value);
-      } else {
-        const textarea = document.createElement('textarea');
-        textarea.value = value;
-        textarea.setAttribute('readonly', '');
-        textarea.style.position = 'absolute';
-        textarea.style.left = '-9999px';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        textarea.remove();
+    link.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(value);
+        } else {
+          const textarea = document.createElement('textarea');
+          textarea.value = value;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'absolute';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          textarea.remove();
+        }
+        link.setAttribute('data-tooltip', 'Copied');
+        link.classList.add('show-tooltip');
+        setTimeout(() => {
+          link.setAttribute('data-tooltip', 'Copy URL');
+          link.classList.remove('show-tooltip');
+        }, 1400);
+      } catch (err) {
+        link.setAttribute('data-tooltip', 'Copy failed');
+        link.classList.add('show-tooltip');
+        setTimeout(() => {
+          link.setAttribute('data-tooltip', 'Copy URL');
+          link.classList.remove('show-tooltip');
+        }, 1400);
       }
-      link.setAttribute('data-tooltip', 'Copied');
-      setTimeout(() => link.setAttribute('data-tooltip', 'Copy URL'), 1400);
-    } catch (err) {
-      link.setAttribute('data-tooltip', 'Copy failed');
-      setTimeout(() => link.setAttribute('data-tooltip', 'Copy URL'), 1400);
-    }
+    });
   });
 }
 
@@ -1636,6 +1792,7 @@ function initPersonalExperiments() {
   if (!feed || !scrollContainer || !Array.isArray(window.codingProjects)) return;
 
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const isSimple = document.body.classList.contains('projects-simple');
 
   // Mobile should mirror the web/desktop Projects section.
   // (No mobile-only horizontal scrollytelling; keep the same vertical feed + sidebar/counter behavior.)
@@ -1646,13 +1803,38 @@ function initPersonalExperiments() {
   feed.innerHTML = projects
     .map((p, index) => {
       const year = p.year ? Number(p.year) : '';
-      const yearLabel = year ? `/${year}` : '';
+      const yearLabel = year ? `${year}` : '';
       const title = p.title ? String(p.title) : '';
       const desc = p.description ? String(p.description) : '';
       const img = p.image || p.thumbnail || '';
       const chips = Array.isArray(p.tags) ? p.tags : [];
       const demo = p.demo && p.demo !== '#' ? String(p.demo) : '';
       const github = p.github && p.github !== '#' ? String(p.github) : '';
+
+      if (isSimple) {
+        const linksHtml = [
+          demo ? `<a class="exp-link-btn" href="${demo}" target="_blank" rel="noopener noreferrer">Live ↗</a>` : '',
+          github ? `<a class="exp-link-btn" href="${github}" target="_blank" rel="noopener noreferrer">GitHub ↗</a>` : ''
+        ].filter(Boolean).join('');
+
+        return `
+          <article class="exp-item exp-item--simple" data-exp-index="${index}">
+            <div class="exp-row">
+              <span class="exp-year">${yearLabel}</span>
+              ${img ? `
+                <figure class="exp-thumb">
+                  <img src="${img}" alt="${title}" loading="lazy" />
+                </figure>
+              ` : ''}
+              <div class="exp-content">
+                <h3 class="exp-title">${title}</h3>
+                <p class="exp-desc">${desc}</p>
+                ${linksHtml ? `<div class="exp-links">${linksHtml}</div>` : ''}
+              </div>
+            </div>
+          </article>
+        `;
+      }
 
       const chipHtml = chips
         .map((c) => `<span class="exp-chip">${String(c)}</span>`)
@@ -1696,7 +1878,7 @@ function initPersonalExperiments() {
   if (section) section.classList.remove('projects-mobile-hscroll');
 
   // Mobile: remove Projects indexing entirely (no counter updates/animation).
-  if (isMobile) {
+  if (isMobile || isSimple) {
     return;
   }
 
@@ -3139,6 +3321,8 @@ function initChatBot() {
         skillsSection?.classList.add("chat-active");
       }
 
+      skillsSection?.classList.add("chat-has-input");
+
       addMessage(userText, "user");
       conversation.push({ role: "user", content: userText });
 
@@ -3159,6 +3343,8 @@ function initChatBot() {
       chatActivated = true;
       skillsSection?.classList.add("chat-active");
     }
+
+    skillsSection?.classList.add("chat-has-input");
 
     // Show user message
     addMessage(userMessage, "user");
