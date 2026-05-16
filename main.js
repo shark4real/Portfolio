@@ -677,7 +677,11 @@ function initMouseAxesForElement(target, className) {
   axes.innerHTML = [
     '<span class="landing-axis landing-axis-x"></span>',
     '<span class="landing-axis landing-axis-y"></span>',
-    '<span class="landing-axis-cursor"></span>'
+    '<span class="landing-axis-cursor"></span>',
+    '<span class="landing-axis-end landing-axis-end-x-start"></span>',
+    '<span class="landing-axis-end landing-axis-end-x-end"></span>',
+    '<span class="landing-axis-end landing-axis-end-y-start"></span>',
+    '<span class="landing-axis-end landing-axis-end-y-end"></span>'
   ].join('');
   target.appendChild(axes);
 
@@ -740,11 +744,27 @@ function initFooterLinksToggle() {
     brand.setAttribute('aria-expanded', 'false');
   };
 
+  const goToConnect = () => {
+    const landing = document.getElementById('landing');
+    const connect = document.getElementById('connect');
+    const trigger = document.getElementById('connectTrigger');
+
+    if (landing && connect) {
+      close();
+      if (trigger) {
+        trigger.click();
+      } else {
+        connect.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
+    window.location.href = 'index.html#connect';
+  };
+
   brand.addEventListener('click', (event) => {
     event.stopPropagation();
-    const next = !footer.classList.contains('is-open');
-    footer.classList.toggle('is-open', next);
-    brand.setAttribute('aria-expanded', String(next));
+    goToConnect();
   });
 
   document.addEventListener('click', (event) => {
@@ -754,6 +774,94 @@ function initFooterLinksToggle() {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') close();
   });
+}
+
+function initConnectScrollGate() {
+  const landing = document.getElementById('landing');
+  const connect = document.getElementById('connect');
+  const trigger = document.getElementById('connectTrigger');
+
+  if (!landing || !connect || !trigger) return;
+
+  let unlocked = false;
+  let isAutoScrolling = false;
+  let touchStartY = null;
+
+  const getLandingBounds = () => {
+    const top = landing.offsetTop;
+    const bottom = top + landing.offsetHeight;
+    return { top, bottom };
+  };
+
+  const isInLanding = () => {
+    const { top, bottom } = getLandingBounds();
+    const y = window.scrollY;
+    return y >= top - 1 && y < bottom - 1;
+  };
+
+  const isAtLandingTop = () => window.scrollY <= landing.offsetTop + 2;
+
+  const preventDownScroll = (event) => {
+    if (unlocked || isAutoScrolling) return;
+    if (!isInLanding()) return;
+    event.preventDefault();
+    window.scrollTo({ top: landing.offsetTop, left: 0, behavior: 'auto' });
+  };
+
+  const goToConnect = () => {
+    unlocked = true;
+    isAutoScrolling = true;
+    connect.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.setTimeout(() => {
+      isAutoScrolling = false;
+    }, 900);
+  };
+
+  trigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    goToConnect();
+  });
+
+  if (window.location.hash === '#connect') {
+    goToConnect();
+  }
+
+  window.addEventListener('scroll', () => {
+    if (unlocked && isAtLandingTop()) {
+      unlocked = false;
+    }
+  }, { passive: true });
+
+  window.addEventListener('wheel', (event) => {
+    if (event.deltaY > 0) preventDownScroll(event);
+  }, { passive: false });
+
+  window.addEventListener('keydown', (event) => {
+    if (unlocked || !isInLanding()) return;
+    if (event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ') {
+      event.preventDefault();
+    }
+  });
+
+  document.addEventListener('touchstart', (event) => {
+    if (!isInLanding()) {
+      touchStartY = null;
+      return;
+    }
+    const touch = event.touches && event.touches[0];
+    touchStartY = touch ? touch.clientY : null;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (event) => {
+    if (unlocked || !isInLanding()) return;
+    if (touchStartY === null) return;
+    const touch = event.touches && event.touches[0];
+    if (!touch) return;
+    const delta = touch.clientY - touchStartY;
+    if (delta < -2) {
+      preventDownScroll(event);
+    }
+  }, { passive: false });
 }
 
 function initializeWebsite() {
@@ -782,8 +890,17 @@ function initializeWebsite() {
     initLandingMouseAxes();
   }
 
+
   if (typeof initFooterLinksToggle === 'function') {
     initFooterLinksToggle();
+  }
+
+  if (typeof initConnectScrollGate === 'function') {
+    initConnectScrollGate();
+  }
+
+  if (typeof initConnectHoverCursor === 'function') {
+    initConnectHoverCursor();
   }
 
   if (typeof initMobileSectionLock === 'function') {
@@ -821,24 +938,67 @@ function initializeWebsite() {
     initContactForm();
   }
 
+
   if (typeof initSectionNavArrows === 'function') {
     initSectionNavArrows();
   }
 
-  if (typeof initMobileSectionSnap === 'function') {
-    initMobileSectionSnap();
+  if (typeof render === 'function') render();
+
+  window.addEventListener('resize', () => {
+    if (typeof resize === 'function') resize();
+  });
+}
+
+function initConnectHoverCursor() {
+  const connect = document.getElementById('connect');
+  if (!connect) return;
+
+  const targets = Array.from(connect.querySelectorAll('.connect-info-item a, #connectTitle'));
+  if (!targets.length) return;
+
+  let cursor = document.querySelector('.connect-hover-cursor');
+  if (!cursor) {
+    cursor = document.createElement('div');
+    cursor.className = 'connect-hover-cursor';
+    cursor.innerHTML = '<img src="assests/connect.jpeg" alt="" />';
+    document.body.appendChild(cursor);
   }
 
-  if (typeof initMobileRagConnectLock === 'function') {
-    initMobileRagConnectLock();
-  }
-  
-  // Refresh ScrollTrigger after all animations are set up
-  if (window.ScrollTrigger) {
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 100);
-  }
+  let isVisible = false;
+  let lastX = 0;
+  let lastY = 0;
+  let rafId = null;
+
+  const move = (x, y) => {
+    lastX = x;
+    lastY = y;
+    if (rafId) return;
+    rafId = window.requestAnimationFrame(() => {
+      cursor.style.transform = `translate(${lastX}px, ${lastY}px)`;
+      rafId = null;
+    });
+  };
+
+  const show = () => {
+    if (isVisible) return;
+    isVisible = true;
+    cursor.classList.add('is-visible');
+  };
+
+  const hide = () => {
+    if (!isVisible) return;
+    isVisible = false;
+    cursor.classList.remove('is-visible');
+  };
+
+  targets.forEach((link) => {
+    link.addEventListener('mouseenter', show);
+    link.addEventListener('mouseleave', hide);
+    link.addEventListener('mousemove', (event) => move(event.clientX, event.clientY));
+  });
+
+  connect.addEventListener('mouseleave', hide);
 }
 
 function initMobileAboutScrollChaining() {
@@ -914,10 +1074,10 @@ function initSectionNavArrows() {
     wrap.className = 'section-nav-arrows';
     wrap.dataset.section = id;
     wrap.setAttribute('aria-hidden', 'true');
-    wrap.innerHTML = `
-      <button type="button" class="section-nav-btn section-nav-btn-up" data-dir="up" aria-label="Go to previous section">↑</button>
-      <button type="button" class="section-nav-btn section-nav-btn-down" data-dir="down" aria-label="Go to next section">↓</button>
-    `;
+    // wrap.innerHTML = `
+    //   <button type="button" class="section-nav-btn section-nav-btn-up" data-dir="up" aria-label="Go to previous section">↑</button>
+    //   <button type="button" class="section-nav-btn section-nav-btn-down" data-dir="down" aria-label="Go to next section">↓</button>
+    // `;
     sectionEl.appendChild(wrap);
     return wrap;
   }
@@ -1721,8 +1881,8 @@ const codingProjects = [
     description: 'An EDA tool, which lets u upload dataset and get instant insights',
     github: 'https://github.com/shark4real/Datanaut',
     demo: 'https://datanaut.onrender.com/',
-    thumbnail: './datanaut.ai.png',
-    image: './datanaut.ai.png',
+    thumbnail: './assests/datanaut.ai.png',
+    image: './assests/datanaut.ai.png',
   },
   {
     title: 'Genly.ai',
@@ -1731,8 +1891,8 @@ const codingProjects = [
     description: 'An AI-Email generator app for professional and bulk emailing',
     github: 'https://github.com/shark4real/Genly.ai',
     demo: 'https://genly-ai.onrender.com/',
-    thumbnail: './genlyz.png',
-    image: './genlyz.png',
+    thumbnail: './assests/genlyz.png',
+    image: './assests/genlyz.png',
   },
   {
     title: 'Retail_order',
@@ -1741,8 +1901,8 @@ const codingProjects = [
     description: 'An end to end Data Analysis pipline journey showcasing my skills in Python , Postgres & Tableau',
     github: 'https://github.com/shark4real/Retail_order_DA_project',
     demo: 'https://shark4real.github.io/Retail_order_DA_project',
-    thumbnail: './Retail_order.png',
-    image: '/Retail_order.png',
+    thumbnail: './assests/Retail_order.png',
+    image: './assests/Retail_order.png',
   },
   {
     title: 'TDS_LLM',
@@ -1751,8 +1911,8 @@ const codingProjects = [
     description: 'This project was developed as part of my academic curriculum at IIT Madras.',
     github: 'https://github.com/shark4real/tds_llm_project',
     demo: '#',
-    thumbnail: './tdsllm.png',
-    image: './tdsllm.png',
+    thumbnail: './assests/tdsllm.png',
+    image: './assests/tdsllm.png',
   },
   {
     title: 'Autoparser',
@@ -1761,8 +1921,8 @@ const codingProjects = [
     description: 'an AI-powered agent in Python that autonomously generates, tests, and self-corrects parsers for unstructured bank statement PDFs',
     github: 'https://github.com/shark4real/ai-agent-challenge',
     demo: '#',
-    thumbnail: './Autoparser.png',
-    image: './Autoparser.png',
+    thumbnail: './assests/Autoparser.png',
+    image: './assests/Autoparser.png',
   },
   {
     title: 'Creative Coding',
@@ -1771,8 +1931,8 @@ const codingProjects = [
     description: 'A small project on creative coding using Fourier Series Transformation',
     github: 'https://github.com/shark4real/Fourier_python',
     demo: 'https://shark4real.github.io/fourieronline/',
-    thumbnail: './ftcc.png',
-    image: './ftcc.png',
+    thumbnail: './assests/ftcc.png',
+    image: './assests/ftcc.png',
   },
 ];
 
@@ -3447,17 +3607,22 @@ function initContactForm() {
 
     try {
       const sheetUrl = form.getAttribute('data-sheet-url');
-      const res = await fetch(sheetUrl, {
+      const apiUrl = form.getAttribute('data-api-url') || '/api/contact';
+      const endpoint = sheetUrl || apiUrl;
+      const useNoCors = Boolean(sheetUrl);
+
+      const res = await fetch(endpoint, {
         method: "POST",
-        mode: "no-cors",
+        mode: useNoCors ? "no-cors" : "cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, subject, message })
       });
 
-      // no-cors mode means we can't read response, but if no error thrown, it worked
-      if (statusEl) {
-        statusEl.textContent = "Message sent! I'll get back to you soon.";
+      if (!useNoCors && !res.ok) {
+        throw new Error(`Request failed: ${res.status}`);
       }
+
+      if (statusEl) statusEl.textContent = "Message sent! I'll get back to you soon.";
       form.reset();
     } catch (err) {
       console.error("Contact form error:", err);

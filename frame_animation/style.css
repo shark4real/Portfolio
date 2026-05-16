@@ -1,0 +1,203 @@
+/* ═══════════════════════════════════════════════
+   ASCII FISH PLAYER  —  deep ocean terminal
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg:           #040d0f;
+  --text:         #ff9f43;   /* Initial orange */
+  --hover-text:   #ff4fd8;   /* Hover pink */
+  --font:         'Share Tech Mono', 'Courier New', monospace;
+
+  /* ── tweak these to size the fish on screen ── */
+  --char-size:    13px;
+  --line-height:  1.18;
+}
+
+/* ────────────────────────────────────────────── */
+/* RESET */
+/* ────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  background: var(--bg);
+  font-family: var(--font);
+}
+
+/* ────────────────────────────────────────────── */
+/* BUBBLE CANVAS */
+/* ────────────────────────────────────────────── */
+
+#bubbles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* ────────────────────────────────────────────── */
+/* CRT SCANLINES */
+/* ────────────────────────────────────────────── */
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+
+  pointer-events: none;
+
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.15) 2px,
+    rgba(0,0,0,0.15) 4px
+  );
+}
+
+/* ────────────────────────────────────────────── */
+/* MAIN LAYOUT */
+/* ────────────────────────────────────────────── */
+
+main {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ────────────────────────────────────────────── */
+/* STAGE WRAPPER */
+/* ────────────────────────────────────────────── */
+
+.stage-wrapper {
+  position: relative;
+  display: inline-block;
+
+  animation: fadeIn 1s ease both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ────────────────────────────────────────────── */
+/* ASCII FISH */
+/* ────────────────────────────────────────────── */
+
+#ascii-stage {
+  font-family: var(--font);
+  font-size: var(--char-size);
+  line-height: var(--line-height);
+
+  white-space: pre;
+  letter-spacing: 0;
+
+  color: var(--text);
+
+  /* Glow removed */
+  text-shadow: none;
+
+  user-select: none;
+
+  transition:
+    color 0.35s ease,
+    transform 0.25s ease;
+}
+
+/* ────────────────────────────────────────────── */
+/* HOVER ZONE */
+/* ────────────────────────────────────────────── */
+
+#hover-zone {
+  position: absolute;
+  inset: 0;
+
+  z-index: 10;
+  cursor: none;
+}
+
+/* ────────────────────────────────────────────── */
+/* HOVER STATE */
+/* ────────────────────────────────────────────── */
+
+.stage-wrapper.hovered #ascii-stage {
+  color: var(--hover-text);
+  text-shadow: none;
+}
+
+/* ────────────────────────────────────────────── */
+/* RIPPLE CHARACTERS */
+/* ────────────────────────────────────────────── */
+
+.char-ripple {
+  display: inline-block;
+
+  /* Only movement */
+  animation: charPop 0.45s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes charPop {
+
+  0% {
+    transform: translate(0,0);
+  }
+
+  35% {
+    transform: translate(var(--rx), var(--ry));
+  }
+
+  65% {
+    transform: translate(
+      calc(var(--rx) * 0.4),
+      calc(var(--ry) * 0.4)
+    );
+  }
+
+  100% {
+    transform: translate(0,0);
+  }
+}
+
+/* ────────────────────────────────────────────── */
+/* LOADING TEXT */
+/* ────────────────────────────────────────────── */
+
+#ascii-stage:empty::after {
+  content: 'loading...';
+
+  color: #1a5c54;
+
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

@@ -37,10 +37,6 @@
             <span class="landing-name">Sharik</span>
           </h1>
         </div>
-        <div class="landing-buttons">
-          <a class="btn btn-primary" href="./sharik_hassan.pdf" target="_blank">Resume</a>
-          <a class="btn btn-secondary" href="about.html#connect">Connect</a>
-        </div>
         <div class="landing-tagline">
           <p class="landing-tagline-wave">
             <span>I</span> <span>Code</span> <span>|</span> <span>I</span> <span>Create</span> <span>|</span> <span>I</span> <span>Design</span>
@@ -49,6 +45,67 @@
       </div>
       <div class="landing-right">
         <!-- Right side intentionally empty -->
+      </div>
+      <div class="landing-experience" aria-label="Experience">
+        <div class="landing-experience-label">Experience</div>
+        <div class="landing-experience-item"><span class="landing-experience-arrow">→</span> Entropik, Bangalore, Ind</div>
+        <div class="landing-experience-actions">
+          <a class="landing-text-link" href="./sharik_hassan.pdf" target="_blank">Resume ↗</a>
+          <a class="landing-text-link" href="#connect" id="connectTrigger">Connect ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="connect" aria-labelledby="connectTitle">
+    <div class="connect-inner">
+      <div class="connect-layout">
+        <div class="connect-left">
+          <h2 class="connect-title" id="connectTitle">Connect.</h2>
+          <form class="connect-form" id="contactForm" data-sheet-url="https://script.google.com/macros/s/AKfycbzZ1w9QYz4t_byvdLCrQeGe7rbseOtfZnaKR6VA7lAr863DZpcjY118e6eEFLdORPmznw/exec">
+            <label class="connect-field">
+              <span>Full name</span>
+              <input type="text" name="name" placeholder="" autocomplete="name" required />
+            </label>
+            <label class="connect-field">
+              <span>Email address</span>
+              <input type="email" name="email" placeholder="" autocomplete="email" required />
+            </label>
+            <label class="connect-field">
+              <span>Subject</span>
+              <input type="text" name="subject" placeholder="" required />
+            </label>
+            <label class="connect-field">
+              <span>Message</span>
+              <textarea name="message" rows="4" placeholder="" required></textarea>
+            </label>
+            <button class="connect-submit" type="submit">Submit</button>
+            <p id="contactStatus" class="contact-status" aria-live="polite"></p>
+          </form>
+        </div>
+        <div class="connect-right">
+          <div class="connect-info-card">
+            <div class="connect-info-header">Let’s build something meaningful.</div>
+            <div class="connect-info-body">
+              <div class="connect-info-item">
+                <img class="social-logo" src="assests/linkedin.png" alt="LinkedIn" loading="lazy" />
+                <a href="https://www.linkedin.com/in/sharik-hassan" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              </div>
+              <div class="connect-info-item">
+                <img class="social-logo" src="assests/instagram.png" alt="Instagram" loading="lazy" />
+                <a href="https://www.instagram.com/llsharikll" target="_blank" rel="noopener noreferrer">Instagram</a>
+              </div>
+              <div class="connect-info-item">
+                <img class="social-logo" src="assests/github.png" alt="GitHub" loading="lazy" />
+                <a href="https://github.com/shark4real" target="_blank" rel="noopener noreferrer">GitHub</a>
+              </div>
+              <div class="connect-info-item">
+                <span class="info-icon">@</span>
+                <a href="mailto:sharik.hassan.ai@gmail.com" class="about-copy-email" data-copy="sharik.hassan.ai@gmail.com" data-tooltip="Copy URL">sharik.hassan.ai@gmail.com</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -71,7 +128,7 @@
   <footer class="ui-footer" aria-live="polite">
     <button class="ui-footer-brand" id="footerBrand" type="button" aria-expanded="false" aria-controls="footerLinks">
       <span class="footer-brand-text">
-        <span class="footer-brand-primary">SH@2026</span>
+        <span class="footer-brand-primary">SH©2026</span>
         <span class="footer-brand-alt">CONNECT</span>
       </span>
     </button>
@@ -96,6 +153,6 @@
     window.preloadedAssets = {};
   </script>
   <script src="main.js"></script>
+  <script src="fish.js"></script>
 </body>
 </html>
-
