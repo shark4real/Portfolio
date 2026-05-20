@@ -197,8 +197,28 @@
     }
 
     /* ───────────────────────────────────────────────────────────
-        DARK MODE
+        THEME COLORS
     ─────────────────────────────────────────────────────────── */
+    body.theme-light #fish-stage {
+        color: rgba(255, 42, 166, 0.78);
+
+        text-shadow:
+        0 0 4px rgba(255, 42, 166, 0.36),
+        0 0 12px rgba(255, 42, 166, 0.22),
+        0 0 26px rgba(255, 42, 166, 0.12);
+
+        mix-blend-mode: normal;
+    }
+
+    body.theme-light .fish-stage-wrapper.fish-hovered #fish-stage {
+        color: rgba(255, 42, 170, 1);
+
+        text-shadow:
+        0 0 8px rgba(255, 42, 170, 0.65),
+        0 0 20px rgba(255, 42, 170, 0.36),
+        0 0 42px rgba(255, 42, 170, 0.18);
+    }
+
     body.theme-dark #fish-stage {
         color: rgba(255, 180, 70, 0.85);
 
@@ -269,17 +289,32 @@
         MOBILE
     ─────────────────────────────────────────────────────────── */
     @media (max-width: 768px) {
+        #fish-layer {
+        overflow: visible;
+        }
+
+        .fish-stage-wrapper {
+        top: 50%;
+        left: 40%;
+        }
 
         #fish-stage {
-        font-size: clamp(5px, 1.35vw, 8px);
+        font-size: clamp(9px, 2.1vw, 11px);
 
         line-height: 1;
 
         letter-spacing: -0.2px;
 
+        transform: scale(0.9);
+        transform-origin: center;
+
         color: rgba(255, 170, 70, 0.55);
 
-        opacity: 0.9;
+        opacity: 0.92;
+        }
+
+        body.theme-light #fish-stage {
+        color: rgba(255, 42, 166, 0.72);
         }
 
         body.theme-dark #fish-stage {

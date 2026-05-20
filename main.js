@@ -421,6 +421,12 @@ function initMobileKeyboardGuard() {
     activeForm.style.boxSizing = 'border-box';
   }
 
+  function isKeyboardLikelyOpen() {
+    const vv = window.visualViewport;
+    if (!vv) return false;
+    return vv.height < (window.innerHeight - 80);
+  }
+
   function undockForm() {
     if (!activeForm) return;
     // Restore original styles
@@ -468,6 +474,8 @@ function initMobileKeyboardGuard() {
   document.addEventListener('focusout', () => {
     setTimeout(() => {
       if (isTextInput(document.activeElement)) return;
+      if (activeForm && activeForm.contains(document.activeElement)) return;
+      if (isKeyboardLikelyOpen()) return;
 
       // Re-enable scroll-snap
       root.classList.remove('keyboard-open');
@@ -480,7 +488,7 @@ function initMobileKeyboardGuard() {
       }
 
       undockForm();
-    }, 100);
+    }, 250);
   });
 }
 
@@ -630,10 +638,10 @@ function initLandingHelloHover() {
     "Hello — I'm",
     'नमस्ते — मैं हूँ',
     'سلام — میں ہوں',
-    'مرحبا — أنا',
     'Hola — soy',
     'こんにちは — 私は',
     'Bonjour — je suis',
+    'مرحبا — أنا',
     'Ciao — sono',
     'Hallo — ich bin',
     'Olá — eu sou'
@@ -715,8 +723,35 @@ function initMouseAxesForElement(target, className) {
     axes.classList.remove('is-visible');
   }
 
+  function spawnLandingClickParticles(e) {
+    if (className !== 'landing-mouse-axes' || !isInsideTarget(e.clientX, e.clientY)) return;
+
+    const particles = [
+      { dx: 0, dy: -30 },
+      { dx: 0, dy: 30 },
+      { dx: -30, dy: 0 },
+      { dx: 30, dy: 0 },
+      { dx: -22, dy: -22 },
+      { dx: 22, dy: -22 },
+      { dx: -22, dy: 22 },
+      { dx: 22, dy: 22 }
+    ];
+
+    particles.forEach(({ dx, dy }) => {
+      const particle = document.createElement('span');
+      particle.className = 'landing-click-particle';
+      particle.style.left = `${e.clientX}px`;
+      particle.style.top = `${e.clientY}px`;
+      particle.style.setProperty('--particle-x', `${dx}px`);
+      particle.style.setProperty('--particle-y', `${dy}px`);
+      axes.appendChild(particle);
+      particle.addEventListener('animationend', () => particle.remove(), { once: true });
+    });
+  }
+
   target.addEventListener('pointerenter', moveAxes);
   target.addEventListener('pointermove', moveAxes);
+  target.addEventListener('pointerdown', spawnLandingClickParticles);
   target.addEventListener('pointerleave', hideAxes);
   window.addEventListener('blur', hideAxes);
   window.addEventListener('scroll', () => {
@@ -731,6 +766,60 @@ function initLandingMouseAxes() {
   initMouseAxesForElement(landing, 'landing-mouse-axes');
   const projects = document.getElementById('projects');
   initMouseAxesForElement(projects, 'projects-mouse-axes');
+}
+
+function initClickFeedback() {
+  if (window.__portfolioClickFeedbackReady) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  window.__portfolioClickFeedbackReady = true;
+
+  const layer = document.createElement('div');
+  layer.className = 'click-feedback-layer';
+  layer.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(layer);
+
+  const particleCount = 8;
+
+  function removeBurst(burst) {
+    if (burst && burst.parentNode) {
+      burst.parentNode.removeChild(burst);
+    }
+  }
+
+  function spawnClickFeedback(event) {
+    if (event.button !== undefined && event.button !== 0) return;
+    if (!event.isPrimary && event.pointerType) return;
+    if (event.target && event.target.closest && event.target.closest('#preloader:not(.loaded)')) return;
+
+    const burst = document.createElement('span');
+    burst.className = 'portfolio-click-burst';
+    burst.style.setProperty('--click-x', `${event.clientX}px`);
+    burst.style.setProperty('--click-y', `${event.clientY}px`);
+
+    const ring = document.createElement('span');
+    ring.className = 'portfolio-click-ring';
+    burst.appendChild(ring);
+
+    const dot = document.createElement('span');
+    dot.className = 'portfolio-click-dot';
+    burst.appendChild(dot);
+
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('span');
+      const angle = (Math.PI * 2 * i) / particleCount;
+      const distance = 18 + (i % 2) * 8;
+      particle.className = 'portfolio-click-particle';
+      particle.style.setProperty('--particle-x', `${Math.cos(angle) * distance}px`);
+      particle.style.setProperty('--particle-y', `${Math.sin(angle) * distance}px`);
+      burst.appendChild(particle);
+    }
+
+    layer.appendChild(burst);
+    window.setTimeout(() => removeBurst(burst), 760);
+  }
+
+  window.addEventListener('pointerdown', spawnClickFeedback, { passive: true, capture: true });
 }
 
 function initFooterLinksToggle() {
@@ -890,6 +979,9 @@ function initializeWebsite() {
     initLandingMouseAxes();
   }
 
+  if (typeof initClickFeedback === 'function') {
+    initClickFeedback();
+  }
 
   if (typeof initFooterLinksToggle === 'function') {
     initFooterLinksToggle();
@@ -1983,7 +2075,7 @@ function initPersonalExperiments() {
               <span class="exp-year">${yearLabel}</span>
               ${img ? `
                 <figure class="exp-thumb">
-                  <img src="${img}" alt="${title}" loading="lazy" />
+                  <img src="${img}" alt="${title}" loading="lazy" style="object-fit: contain; object-position: center center;" />
                 </figure>
               ` : ''}
               <div class="exp-content">
