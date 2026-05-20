@@ -1708,6 +1708,39 @@ function initCopyEmailLink() {
   });
 }
 
+function initHeaderUnderlineClick() {
+  const headerLinks = Array.from(document.querySelectorAll('.ui-header a'));
+  if (!headerLinks.length) return;
+
+  let clearTimer = null;
+
+  function clearUnderlines() {
+    headerLinks.forEach((link) => link.classList.remove('is-underlined'));
+  }
+
+  function flashUnderline(link) {
+    if (!link) return;
+    if (clearTimer) window.clearTimeout(clearTimer);
+    clearUnderlines();
+    link.classList.add('is-underlined');
+    clearTimer = window.setTimeout(() => {
+      link.classList.remove('is-underlined');
+    }, 420);
+  }
+
+  headerLinks.forEach((link) => {
+    link.addEventListener('pointerdown', () => {
+      flashUnderline(link);
+    });
+
+    link.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        flashUnderline(link);
+      }
+    });
+  });
+}
+
 const ABOUT_SCROLL_GATE = {
   unlocked: false,
 };
@@ -1809,6 +1842,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof initAboutScrollGate === 'function') initAboutScrollGate();
   if (typeof initCopyEmailLink === 'function') initCopyEmailLink();
   if (typeof initThemeToggle === 'function') initThemeToggle();
+  if (typeof initHeaderUnderlineClick === 'function') initHeaderUnderlineClick();
   
   // Initialize the Projects section (Personal Experiments layout)
   initPersonalExperiments();

@@ -210,6 +210,30 @@ header {
   white-space: nowrap;
 }
 
+.ui-header a {
+  position: relative;
+  text-decoration: none;
+}
+
+.ui-header a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.ui-header a.is-underlined::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
 .ui-brand .label-short,
 .ui-nav .label-short {
   display: none;
@@ -236,7 +260,7 @@ header {
 }
 
 .ui-nav a:hover {
-  color: #ffffff;
+  color: var(--chrome-muted);
   border-bottom: none;
 }
 
@@ -639,7 +663,7 @@ nav a {
 }
 
 .ui-header .ui-nav a:hover {
-  color: #ffffff;
+  color: var(--chrome-muted);
   border-bottom: none;
 }
 
@@ -1923,7 +1947,7 @@ body.theme-dark .landing-experience-arrow {
 
 .landing-tagline {
   width: 100%;
-  margin-top: 16px;
+  margin-top: -5px;
 }
 
 #landing .btn {
@@ -5944,7 +5968,7 @@ body.theme-dark .exp-media {
     right: auto;
     bottom: auto;
     width: 100%;
-    margin-top: 28px !important;
+    margin-top: -5px !important;
     text-align: left;
   }
 
