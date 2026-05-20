@@ -5694,7 +5694,7 @@ body.theme-dark .exp-media {
 
   .projects-simple .exp-thumb {
     width: 100%;
-    max-width: 340px;
+    max-width: 290px;
     margin: 0 auto;
     aspect-ratio: 16 / 10;
     border-radius: 10px;
