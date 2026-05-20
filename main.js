@@ -409,12 +409,16 @@ function initMobileKeyboardGuard() {
     if (!vv) return;
 
     // Position the form at the bottom of the visible viewport (just above keyboard)
-    const top = vv.offsetTop + vv.height - activeForm.offsetHeight;
+    const visibleBottom = vv.offsetTop + vv.height;
+    const keyboardHeight = Math.max(0, window.innerHeight - visibleBottom);
+
     activeForm.style.position = 'fixed';
     activeForm.style.left = '0';
     activeForm.style.right = '0';
-    activeForm.style.bottom = 'auto';
-    activeForm.style.top = top + 'px';
+    // Place the form just above the keyboard. Use `bottom` so fixed positioning
+    // remains robust across browsers and avoids layout shifts from `top`.
+    activeForm.style.top = '';
+    activeForm.style.bottom = (keyboardHeight + 8) + 'px';
     activeForm.style.zIndex = '9999';
     activeForm.style.background = activeForm.id === 'chatForm' ? '#1a1a1a' : '#fff';
     activeForm.style.padding = '10px 16px';
