@@ -172,110 +172,6 @@ function initMobileInitialScrollGuard() {
   setTimeout(forceTop, 700);
 }
 
-function initMobileSectionSnap() {
-  const isMobile = window.matchMedia('(max-width: 768px)').matches;
-  if (!isMobile) return;
-
-  // GSAP pins now handle RAG + Connect locking on mobile.
-  // Section snap was causing Projects to feel "sticky", so disabled on mobile.
-  return;
-
-  // Don't snap until the user actually interacts; prevents load-time auto-scroll.
-  if (document.documentElement.classList.contains('pre-interaction')) return;
-
-  // Gentle section snapping: makes sections feel less "slippery" on mobile.
-  // Disabled while the landing split is pinned, and when the keyboard is open.
-  if (document.documentElement.classList.contains('split-active')) return;
-  if (document.documentElement.classList.contains('keyboard-open')) return;
-
-  // If mobile section locking is enabled, snapping fights the pinning.
-  if (document.documentElement.classList.contains('mobile-lock')) return;
-
-  const scrollEl = document.scrollingElement || document.documentElement;
-  const connect = document.getElementById('connect');
-  const sections = Array.from(document.querySelectorAll('body > section'))
-    .filter((s) => s && s.offsetHeight > 0);
-
-  if (!sections.length) return;
-
-  let scrollTimer = null;
-  let isSnapping = false;
-
-  const skills = document.getElementById('skills');
-  const projects = document.getElementById('projects');
-
-  function isInConnectScrollRegion() {
-    if (!connect) return false;
-
-    const activeEl = document.activeElement;
-    if (activeEl && connect.contains(activeEl)) return true;
-
-    const currentTop = scrollEl.scrollTop;
-    const connectTop = connect.getBoundingClientRect().top + currentTop;
-    const connectBottom = connectTop + connect.offsetHeight;
-
-    // If viewport is within the connect section bounds, don't snap.
-    return currentTop >= (connectTop - 8) && currentTop <= (connectBottom - window.innerHeight + 8);
-  }
-
-  function isInProjectsRegion() {
-    if (!projects) return false;
-    const r = projects.getBoundingClientRect();
-    return r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5;
-  }
-
-  function isInSkillsRegion() {
-    if (!skills) return false;
-    const r = skills.getBoundingClientRect();
-    return r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5;
-  }
-
-  function getNearestSectionTop() {
-    const currentTop = scrollEl.scrollTop;
-    let nearestTop = 0;
-    let minDistance = Number.POSITIVE_INFINITY;
-
-    for (const section of sections) {
-      const top = section.getBoundingClientRect().top + currentTop;
-      const distance = Math.abs(currentTop - top);
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearestTop = top;
-      }
-    }
-
-    return nearestTop;
-  }
-
-  function snapToNearestSection() {
-    if (isSnapping) return;
-    if (isInConnectScrollRegion()) return;
-
-    const targetTop = getNearestSectionTop();
-    const currentTop = scrollEl.scrollTop;
-
-    // Avoid micro-adjustments
-    if (Math.abs(currentTop - targetTop) < 12) return;
-
-    isSnapping = true;
-    window.scrollTo({ top: targetTop, behavior: 'smooth' });
-
-    window.setTimeout(() => {
-      isSnapping = false;
-    }, 650);
-  }
-
-  window.addEventListener('scroll', () => {
-    if (document.documentElement.classList.contains('pre-interaction')) return;
-    if (isSnapping) return;
-    if (isInConnectScrollRegion()) return;
-    if (isInProjectsRegion()) return;
-    if (isInSkillsRegion()) return;
-    if (scrollTimer) window.clearTimeout(scrollTimer);
-    scrollTimer = window.setTimeout(snapToNearestSection, 180);
-  }, { passive: true });
-}
-
 // =========================================================
 // MOBILE: RAG + CONNECT SECTION SCROLL PIN (mirrors desktop)
 // =========================================================
@@ -1017,9 +913,6 @@ function initializeWebsite() {
 
   // Mobile fallback: if split is not active, keep About as a normal section
   relocateAboutForMobile();
-  if (typeof init3DScene === 'function') {
-    init3DScene();
-  }
   if (typeof initAboutSection === 'function') {
     initAboutSection();
   }
@@ -1047,10 +940,8 @@ function initializeWebsite() {
     initSectionNavArrows();
   }
 
-  if (typeof render === 'function') render();
-
   window.addEventListener('resize', () => {
-    if (typeof resize === 'function') resize();
+    // No resize handler defined — resize event listener ready if needed
   });
 }
 

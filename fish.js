@@ -294,12 +294,12 @@
         }
 
         .fish-stage-wrapper {
-        top: 50%;
+        top: 60%;
         left: 40%;
         }
 
         #fish-stage {
-        font-size: clamp(9px, 2.1vw, 11px);
+        font-size: clamp(9.5px, 2.1vw, 11px);
 
         line-height: 1;
 
