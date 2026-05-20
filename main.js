@@ -420,7 +420,8 @@ function initMobileKeyboardGuard() {
     activeForm.style.top = '';
     activeForm.style.bottom = (keyboardHeight + 8) + 'px';
     activeForm.style.zIndex = '9999';
-    activeForm.style.background = activeForm.id === 'chatForm' ? '#1a1a1a' : '#fff';
+    // Keep the docked form transparent so only the curved chat input is visible
+    activeForm.style.background = 'transparent';
     activeForm.style.padding = '10px 16px';
     activeForm.style.boxSizing = 'border-box';
   }
