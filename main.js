@@ -415,10 +415,17 @@ function initMobileKeyboardGuard() {
     activeForm.style.position = 'fixed';
     activeForm.style.left = '0';
     activeForm.style.right = '0';
-    // Place the form just above the keyboard. Use `bottom` so fixed positioning
-    // remains robust across browsers and avoids layout shifts from `top`.
+    // Place the form just above the keyboard, with a gap above the fixed footer
+    // Footer is 44px tall at bottom: 18px, so we reserve footer + gap space
+    const footerHeight = 44;
+    const footerBottom = 18;
+    const gapAboveFooter = 12;
+    const minBottomSpace = footerHeight + footerBottom + gapAboveFooter;
+    
+    // Use the keyboard space if larger; otherwise keep form above footer
+    const bottomValue = Math.max(keyboardHeight + 8, minBottomSpace);
     activeForm.style.top = '';
-    activeForm.style.bottom = (keyboardHeight + 8) + 'px';
+    activeForm.style.bottom = bottomValue + 'px';
     activeForm.style.zIndex = '9999';
     // Keep the docked form transparent so only the curved chat input is visible
     activeForm.style.background = 'transparent';
