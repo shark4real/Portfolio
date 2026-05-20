@@ -323,8 +323,8 @@ function initMobileKeyboardGuard() {
     activeForm.style.top = '';
     activeForm.style.bottom = bottomValue + 'px';
     activeForm.style.zIndex = '9999';
-    // Keep the docked form transparent so only the curved chat input is visible
-    activeForm.style.background = 'transparent';
+    // Keep the docked form solid and theme-aware on mobile
+    activeForm.style.background = 'var(--rag-panel)';
     activeForm.style.padding = '10px 16px';
     activeForm.style.boxSizing = 'border-box';
   }
@@ -1813,59 +1813,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize the Projects section (Personal Experiments layout)
   initPersonalExperiments();
   initProjectsScrollLock();
-  if (typeof initMobileProjectsScrollChaining === 'function') initMobileProjectsScrollChaining();
 });
-
-function initMobileProjectsScrollChaining() {
-  const isMobile = window.matchMedia('(max-width: 768px)').matches;
-  if (!isMobile) return;
-
-  const section = document.getElementById('projects');
-  if (section && section.classList.contains('projects-mobile-hscroll')) return;
-
-  const shell = document.querySelector('#projects .experiments-shell');
-  if (!shell) return;
-
-  function atTop(el) {
-    return el.scrollTop <= 0;
-  }
-
-  function atBottom(el) {
-    return el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
-  }
-
-  // Trackpad / mouse wheel (emulators, Android w/ mouse)
-  shell.addEventListener('wheel', (e) => {
-    if (!e || typeof e.deltaY !== 'number') return;
-    const dy = e.deltaY;
-    if ((dy < 0 && atTop(shell)) || (dy > 0 && atBottom(shell))) {
-      e.preventDefault();
-      window.scrollBy({ top: dy, left: 0, behavior: 'auto' });
-    }
-  }, { passive: false });
-
-  // Touch chaining (iOS/Android)
-  let lastY = null;
-  shell.addEventListener('touchstart', (e) => {
-    const t = e && e.touches && e.touches[0];
-    lastY = t ? t.clientY : null;
-  }, { passive: true });
-
-  shell.addEventListener('touchmove', (e) => {
-    const t = e && e.touches && e.touches[0];
-    if (!t || lastY === null) return;
-    const currentY = t.clientY;
-    const delta = currentY - lastY;
-    lastY = currentY;
-
-    // finger up => scroll down
-    const scrollDelta = -delta;
-    if ((scrollDelta < 0 && atTop(shell)) || (scrollDelta > 0 && atBottom(shell))) {
-      e.preventDefault();
-      window.scrollBy({ top: scrollDelta, left: 0, behavior: 'auto' });
-    }
-  }, { passive: false });
-}
 
 // Project Data (updated with provided entries)
 const codingProjects = [

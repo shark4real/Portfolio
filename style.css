@@ -3953,9 +3953,6 @@ body.theme-dark .connect-hover-cursor {
     min-height: 100vh;
     max-height: none;
     padding: 84px 5vw 40px;
-    -webkit-overflow-scrolling: touch;
-    will-change: scroll-position;
-    transform: translateZ(0);
   }
 
   .experiments-shell {
