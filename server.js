@@ -10,6 +10,25 @@ const PORT = 3000;
 
 // Middleware
 app.use(express.json());
+
+const pageRoutes = {
+  '/': 'index.html',
+  '/about': 'about.html',
+  '/projects': 'projects.html',
+  '/rag': 'rag.html',
+};
+
+app.get(['/index.html', '/about.html', '/projects.html', '/rag.html'], (req, res) => {
+  const cleanPath = req.path === '/index.html' ? '/' : req.path.replace(/\.html$/, '');
+  res.redirect(301, cleanPath);
+});
+
+Object.entries(pageRoutes).forEach(([route, fileName]) => {
+  app.get(route, (req, res) => {
+    res.sendFile(path.join(__dirname, fileName));
+  });
+});
+
 app.use(express.static(__dirname));
 
 // Email transporter (configure via .env)

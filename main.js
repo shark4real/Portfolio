@@ -543,16 +543,16 @@ function initLandingHelloHover() {
   if (!helloEls.length) return;
 
   const lines = [
-    "Hello — I'm",
-    'नमस्ते — मैं हूँ',
-    'سلام — میں ہوں',
-    'Hola — soy',
-    'こんにちは — 私は',
-    'Bonjour — je suis',
-    'مرحبا — أنا',
-    'Ciao — sono',
-    'Hallo — ich bin',
-    'Olá — eu sou'
+    "Hello I'm",
+    'नमस्ते मैं हूँ',
+    'سلام میں ہوں',
+    'Hola soy',
+    'こんにちは 私は',
+    'Bonjour je suis',
+    'مرحبا أنا',
+    'Ciao sono',
+    'Hallo ich bin',
+    'Olá eu sou'
   ];
 
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -756,7 +756,7 @@ function initFooterLinksToggle() {
       return;
     }
 
-    window.location.href = 'index.html#connect';
+    window.location.href = '/#connect';
   };
 
   brand.addEventListener('click', (event) => {
@@ -1301,9 +1301,9 @@ function initMobileMenu() {
     mobileMenu.innerHTML = `
       <button class="mobile-menu-close" aria-label="Close menu">&times;</button>
       <nav>
-        <a href="projects.html">Personal Experiments</a>
-        <a href="about.html">About</a>
-        <a href="rag.html">Rag</a>
+        <a href="/projects">Personal Experiments</a>
+        <a href="/about">About</a>
+        <a href="/rag">Rag</a>
       </nav>
     `;
     document.body.appendChild(mobileMenu);
