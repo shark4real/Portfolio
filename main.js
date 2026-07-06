@@ -1205,8 +1205,18 @@ const ABOUT_CONTENT = {
   work: [
     {
       org: 'Entropik',
-      role: 'AI QA Intern',
-      description: '',
+      roles: [
+        {
+          title: 'Associate AI Engineer',
+          type: 'Full-time',
+          description: '',
+        },
+        {
+          title: 'AI QA Intern',
+          type: 'Internship',
+          description: 'Worked closely with the Data Science team on Decode, contributing to benchmark score calculations across advertisement categories. Contributed to Decode Copilot and built LangChain-based agent workflows for AI-powered creative studies, contextual Q&A, and research insight extraction. Assisted with updating and evaluating newer LLM versions in the AI Moderator pipeline to improve moderation accuracy and performance.',
+        },
+      ],
     },
     {
       org: 'GDG DR. AIT',
@@ -2778,16 +2788,33 @@ function initAboutSection() {
               const org = item?.org ? escapeHtml(item.org) : '';
               const role = item?.role ? escapeHtml(item.role) : '';
               const desc = item?.description ? escapeHtml(item.description) : '';
+              const roles = Array.isArray(item?.roles) ? item.roles : [];
+              const nestedRoles = roles
+                .map((nestedRole) => {
+                  const title = nestedRole?.title ? escapeHtml(nestedRole.title) : '';
+                  const type = nestedRole?.type ? escapeHtml(nestedRole.type) : '';
+                  const nestedDesc = nestedRole?.description ? escapeHtml(nestedRole.description) : '';
+
+                  return `
+                    <div class="about-work-role">
+                      ${title ? `<p class="about-role-title">${title}</p>` : ''}
+                      ${type ? `<p class="about-role-meta">${type}</p>` : ''}
+                      ${nestedDesc ? `<p class="about-item-desc about-role-desc">${nestedDesc}</p>` : ''}
+                    </div>
+                  `;
+                })
+                .join('');
 
               return `
-                <div class="about-work-item">
+                <div class="about-work-item${nestedRoles ? ' about-work-item-grouped' : ''}">
                   <div class="about-work-head">
                     <div class="about-work-titles">
                       ${org ? `<p class="about-item-title">${org}</p>` : ''}
-                      ${role ? `<p class="about-item-meta">${role}</p>` : ''}
+                      ${role && !nestedRoles ? `<p class="about-item-meta">${role}</p>` : ''}
                     </div>
                   </div>
-                  ${desc ? `<p class="about-item-desc">${desc}</p>` : ''}
+                  ${nestedRoles ? `<div class="about-work-roles">${nestedRoles}</div>` : ''}
+                  ${desc && !nestedRoles ? `<p class="about-item-desc">${desc}</p>` : ''}
                 </div>
               `;
             })
@@ -2930,16 +2957,33 @@ function initAboutSection() {
             const org = item?.org ? escapeHtml(item.org) : '';
             const role = item?.role ? escapeHtml(item.role) : '';
             const desc = item?.description ? escapeHtml(item.description) : '';
+            const roles = Array.isArray(item?.roles) ? item.roles : [];
+            const nestedRoles = roles
+              .map((nestedRole) => {
+                const title = nestedRole?.title ? escapeHtml(nestedRole.title) : '';
+                const type = nestedRole?.type ? escapeHtml(nestedRole.type) : '';
+                const nestedDesc = nestedRole?.description ? escapeHtml(nestedRole.description) : '';
+
+                return `
+                  <div class="about-work-role">
+                    ${title ? `<p class="about-role-title">${title}</p>` : ''}
+                    ${type ? `<p class="about-role-meta">${type}</p>` : ''}
+                    ${nestedDesc ? `<p class="about-item-desc about-role-desc">${nestedDesc}</p>` : ''}
+                  </div>
+                `;
+              })
+              .join('');
 
             return `
-              <div class="about-work-item">
+              <div class="about-work-item${nestedRoles ? ' about-work-item-grouped' : ''}">
                 <div class="about-work-head">
                   <div class="about-work-titles">
                     ${org ? `<p class="about-item-title">${org}</p>` : ''}
-                    ${role ? `<p class="about-item-meta">${role}</p>` : ''}
+                    ${role && !nestedRoles ? `<p class="about-item-meta">${role}</p>` : ''}
                   </div>
                 </div>
-                ${desc ? `<p class="about-item-desc">${desc}</p>` : ''}
+                ${nestedRoles ? `<div class="about-work-roles">${nestedRoles}</div>` : ''}
+                ${desc && !nestedRoles ? `<p class="about-item-desc">${desc}</p>` : ''}
               </div>
             `;
           })
