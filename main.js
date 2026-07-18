@@ -1621,21 +1621,26 @@ function initFooterClock() {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
-    timeZone: 'UTC',
   });
+
+  const tzFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZoneName: 'short',
+  });
+  const tzName = tzFormatter
+    .formatToParts(new Date())
+    .find((p) => p.type === 'timeZoneName')?.value || 'Local';
 
   function render() {
     const now = new Date();
-    const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
-    const parts = dateFormatter.formatToParts(utcDate);
+    const parts = dateFormatter.formatToParts(now);
     const part = (type) => parts.find((p) => p.type === type)?.value || '';
 
-    const hours = pad(utcDate.getUTCHours());
-    const minutes = pad(utcDate.getUTCMinutes());
-    const seconds = pad(utcDate.getUTCSeconds());
-    const centiseconds = pad(Math.floor(utcDate.getUTCMilliseconds() / 10));
+    const hours = pad(now.getHours());
+    const minutes = pad(now.getMinutes());
+    const seconds = pad(now.getSeconds());
+    const centiseconds = pad(Math.floor(now.getMilliseconds() / 10));
 
-    const label = `${part('weekday')}, ${part('month')} ${part('day')}, Worldwide, ${hours}:${minutes}:${seconds}.${centiseconds}`;
+    const label = `${part('weekday')}, ${part('month')} ${part('day')}, ${tzName}, ${hours}:${minutes}:${seconds}.${centiseconds}`;
     clockEl.textContent = label;
   }
 
@@ -1865,7 +1870,7 @@ const codingProjects = [
     title: 'Datanaut.ai',
     year: 2025,
     tags: ['Django','Supabase','Pandas','Seaborn','PostgreSQL'],
-    description: ' Datanaut is an AI-powered data analytics platform that enables users to upload datasets and interact with them using natural language queries. It leverages large language models to generate insights, summarize data, and answer complex questions without requiring SQL knowledge. Built using Django, Pandas, Supabase, and the Groq API, it provides secure dataset management, instant previews, and intelligent analysis. DataNaut makes data exploration faster, more accessible, and user-friendly for both technical and non-technical users.',  
+    description: 'Datanaut is an AI-powered analytics platform where users upload datasets and query them in plain language—no SQL needed. Built with Django, Pandas, Supabase, and the Groq API, it uses LLMs to generate insights, summarize data, and answer complex questions for both technical and non-technical users.',
     github: 'https://github.com/shark4real/Datanaut',
     demo: 'https://datanaut.onrender.com/',
     thumbnail: './assests/datanaut.ai.png',
@@ -1875,7 +1880,7 @@ const codingProjects = [
     title: 'Genly.ai',
     year: 2025,
     tags: ['Django','OAuth2','HTML/CSS & Jinja2'],
-    description: 'Genly is an AI-powered email automation platform that helps users generate professional, context-aware emails with customizable tones in seconds. It supports both single and bulk email sending with CSV-based personalization, attachments, and live editing capabilities. Built using Django, Python, Google OAuth, the Gmail API, and Mistral 7B via OpenRouter, Genly streamlines communication while ensuring a secure and intuitive user experience. It is designed to save time, improve productivity, and simplify email management for individuals and businesses.',
+    description: 'Genly is an AI-powered email automation platform that generates professional, context-aware emails with customizable tones in seconds. Built with Django, Google OAuth, the Gmail API, and Mistral 7B via OpenRouter, it supports single and bulk sending with CSV personalization, attachments, and live editing.',
     github: 'https://github.com/shark4real/Genly.ai',
     demo: 'https://genly-ai.onrender.com/',
     thumbnail: './assests/genlyz.png',
@@ -1885,7 +1890,7 @@ const codingProjects = [
     title: 'Retail_order',
     year: 2023,
     tags: ['Python','Pandas','Postgres', 'Tableau'],
-    description: 'Retail Order Data Analysis is an end-to-end data analytics project that transforms raw retail order data into actionable business insights using Python, SQL, and data visualization techniques. The project involves data cleaning, exploratory data analysis, KPI tracking, and trend analysis to uncover patterns in sales, profit, customer behavior, and regional performance. Interactive dashboards and visualizations enable stakeholders to make data-driven decisions and identify opportunities for business growth. This project showcases practical skills in data preprocessing, analytics, and business intelligence.',
+    description: 'Retail Order Data Analysis is an end-to-end project that turns raw retail data into business insights using Python, SQL, and visualization. It covers data cleaning, exploratory analysis, KPI tracking, and trend analysis, with interactive dashboards that help stakeholders make data-driven decisions and spot growth opportunities.',
     github: 'https://github.com/shark4real/Retail_order_DA_project',
     demo: 'https://shark4real.github.io/Retail_order_DA_project',
     thumbnail: './assests/Retail_order.png',
@@ -1895,7 +1900,7 @@ const codingProjects = [
     title: 'TDS_LLM',
     year: 2023,
     tags: ['LLM', 'Course'],
-    description: 'DataWorks Solutions Automation Agent is an LLM-powered automation system developed as part of the Tools in Data Science course at Indian Institute of Technology Madras. The project processes plain-English instructions to automate file operations, data processing, API interactions, SQL queries, and business workflows through a REST API. Built with Python, Docker, and modern LLM integration, it emphasizes secure execution, workflow automation, and practical applications of AI-driven software engineering.',
+    description: 'DataWorks Solutions Automation Agent is an LLM-powered system built for IIT Madras\' Tools in Data Science course. It turns plain-English instructions into automated file operations, data processing, API calls, and SQL queries via a REST API, built with Python, Docker, and modern LLM integration.',
     github: 'https://github.com/shark4real/tds_llm_project',
     demo: '#',
     thumbnail: './assests/tdsllm.png',
@@ -1905,7 +1910,7 @@ const codingProjects = [
     title: 'Autoparser',
     year: 2025,
     tags: ['Python','Gemini','Groq','Pytest','Python PDF Parsing'],
-    description: 'AI Agent Challenge is a project developed as part of an AI engineering challenge, where I explored the design and implementation of autonomous AI agents to solve real-world tasks. The project focuses on leveraging modern LLMs, agent workflows, and tool integration to build intelligent, task-oriented systems. It provided hands-on experience with AI agent architectures, prompt engineering, and practical problem-solving in an end-to-end development environment.',
+    description: 'AI Agent Challenge explores designing autonomous AI agents to solve real-world tasks. It leverages modern LLMs, agent workflows, and tool integration—including PDF parsing—to build intelligent, task-oriented systems, offering hands-on experience with agent architectures, prompt engineering, and end-to-end problem-solving.',
     github: 'https://github.com/shark4real/ai-agent-challenge',
     demo: '#',
     thumbnail: './assests/Autoparser.png',
@@ -1915,7 +1920,7 @@ const codingProjects = [
     title: 'Creative Coding',
     year: 2022,
     tags: ['Python Scripting','JavaScript','HTML/CSS','Math'],
-    description: 'Fourier Python is a creative coding project that demonstrates how Fourier Series can reconstruct complex drawings and shapes using rotating vectors (epicycles). Built with Python, it combines mathematical concepts with visualization to create smooth animations, showcasing the practical application of Fourier Transformations in computer graphics and signal processing.',
+    description: 'Fourier Python is a creative coding project that shows how Fourier Series reconstruct complex drawings using rotating vectors (epicycles). Built with Python, it blends math with visualization to create smooth animations, demonstrating Fourier Transformations applied to computer graphics and signal processing.',
     github: 'https://github.com/shark4real/Fourier_python',
     demo: 'https://shark4real.github.io/fourieronline/',
     thumbnail: './assests/ftcc.png',
