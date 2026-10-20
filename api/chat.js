@@ -134,7 +134,7 @@ RULES:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'openai/gpt-oss-20b',
         messages: groqMessages,
         temperature: 0.1,
         max_tokens: 400,
